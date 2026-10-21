@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Reloads the integrations whose entities are all unavailable.",
+        "data": {
+          "scan_interval": "Check interval",
+          "grace_period": "Grace period",
+          "ignored_integrations": "Ignored integrations"
+        },
+        "data_description": {
+          "scan_interval": "Minutes between two checks.",
+          "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Also the delay between two reloads of an integration that stays unavailable.",
+          "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog is already configured.",
+      "single_instance_allowed": "Integration Watchdog is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Integration Watchdog options",
+        "data": {
+          "scan_interval": "Check interval",
+          "grace_period": "Grace period",
+          "ignored_integrations": "Ignored integrations"
+        },
+        "data_description": {
+          "scan_interval": "Minutes between two checks.",
+          "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Also the delay between two reloads of an integration that stays unavailable.",
+          "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": { "name": "Check now" }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Unavailable integrations",
+        "state_attributes": {
+          "integrations": { "name": "Integrations" },
+          "ignored": { "name": "Ignored" }
+        }
+      },
+      "last_reload": {
+        "name": "Last reload",
+        "state_attributes": {
+          "domain": { "name": "Domain" },
+          "title": { "name": "Title" },
+          "entry_id": { "name": "Entry ID" },
+          "success": { "name": "Success" },
+          "reloads": { "name": "Reloads" }
+        }
+      },
+      "last_check": { "name": "Last check" }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Check integrations",
+      "description": "Looks for the integrations whose entities are all unavailable and reloads those past the grace period."
+    }
+  }
+}

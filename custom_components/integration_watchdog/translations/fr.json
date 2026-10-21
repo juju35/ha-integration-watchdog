@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Recharge les intégrations dont toutes les entités sont indisponibles.",
+        "data": {
+          "scan_interval": "Intervalle de vérification",
+          "grace_period": "Délai de grâce",
+          "ignored_integrations": "Intégrations ignorées"
+        },
+        "data_description": {
+          "scan_interval": "Minutes entre deux vérifications.",
+          "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. C'est aussi le délai entre deux rechargements d'une intégration qui reste indisponible.",
+          "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog est déjà configuré.",
+      "single_instance_allowed": "Integration Watchdog est déjà configuré."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options d'Integration Watchdog",
+        "data": {
+          "scan_interval": "Intervalle de vérification",
+          "grace_period": "Délai de grâce",
+          "ignored_integrations": "Intégrations ignorées"
+        },
+        "data_description": {
+          "scan_interval": "Minutes entre deux vérifications.",
+          "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. C'est aussi le délai entre deux rechargements d'une intégration qui reste indisponible.",
+          "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": { "name": "Vérifier maintenant" }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Intégrations indisponibles",
+        "state_attributes": {
+          "integrations": { "name": "Intégrations" },
+          "ignored": { "name": "Ignorées" }
+        }
+      },
+      "last_reload": {
+        "name": "Dernier rechargement",
+        "state_attributes": {
+          "domain": { "name": "Domaine" },
+          "title": { "name": "Titre" },
+          "entry_id": { "name": "ID de l'entrée" },
+          "success": { "name": "Réussi" },
+          "reloads": { "name": "Rechargements" }
+        }
+      },
+      "last_check": { "name": "Dernière vérification" }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Vérifier les intégrations",
+      "description": "Recherche les intégrations dont toutes les entités sont indisponibles et recharge celles dont le délai de grâce est écoulé."
+    }
+  }
+}

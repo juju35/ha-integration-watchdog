@@ -1,0 +1,15 @@
+{
+  "entity": {
+    "button": {
+      "check": { "default": "mdi:shield-search" }
+    },
+    "sensor": {
+      "unavailable": { "default": "mdi:puzzle-remove-outline" },
+      "last_reload": { "default": "mdi:restart" },
+      "last_check": { "default": "mdi:clock-check-outline" }
+    }
+  },
+  "services": {
+    "check": { "service": "mdi:shield-search" }
+  }
+}

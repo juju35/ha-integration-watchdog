@@ -1,0 +1,13 @@
+{
+  "domain": "integration_watchdog",
+  "name": "Integration Watchdog",
+  "codeowners": ["@juju35"],
+  "config_flow": true,
+  "documentation": "https://github.com/juju35/ha-integration-watchdog",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/juju35/ha-integration-watchdog/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}
