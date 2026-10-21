@@ -67,7 +67,7 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 
 An integration (config entry) is reloaded when:
 
-- it is loaded (integrations that failed to set up are retried by Home Assistant itself)
+- it is loaded, or its setup failed (`setup_retry`, `setup_error`): a reload retries it right away instead of waiting for Home Assistant's next retry. Disabled integrations are left alone
 - it is not ignored
 - it has at least one enabled entity, and **every** enabled entity is `unavailable`
 - the most recent of these entities has been unavailable for at least the grace period

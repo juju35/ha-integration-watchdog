@@ -1,6 +1,6 @@
 """Find the integrations whose entities are all unavailable, and reload them.
 
-An integration (config entry) is unavailable when it is loaded, has at least one enabled
+An integration (config entry) is unavailable when it is loaded or its setup failed, has at least one enabled
 entity with a state, and every one of these entities is `unavailable`. It is reloaded once
 the most recent of these entities has been unavailable for the grace period.
 
@@ -30,6 +30,10 @@ from homeassistant.util import dt as dt_util
 from .const import DOMAIN, EVENT_RELOADED
 
 _LOGGER = logging.getLogger(__name__)
+
+# Entries checked: loaded, or whose setup failed (Home Assistant retries those with a growing delay,
+# or not at all after an error; a reload retries right away). Disabled or not loaded ones are left alone.
+WATCHED_STATES = (ConfigEntryState.LOADED, ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR)
 
 
 @dataclass(frozen=True)
@@ -119,11 +123,11 @@ class IntegrationWatchdog:
 
     @callback
     def async_find_unavailable(self) -> list[UnavailableIntegration]:
-        """Loaded, not ignored config entries whose entities are all unavailable."""
+        """Watched, not ignored config entries whose entities are all unavailable."""
         registry = er.async_get(self.hass)
         found: list[UnavailableIntegration] = []
         for entry in self.hass.config_entries.async_entries():
-            if entry.domain in self.ignored or entry.state is not ConfigEntryState.LOADED:
+            if entry.domain in self.ignored or entry.state not in WATCHED_STATES:
                 continue
             states = []
             for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
@@ -201,7 +205,7 @@ class IntegrationWatchdog:
 
     async def _async_reload(self, item: UnavailableIntegration, attempts: Attempts) -> None:
         entry: ConfigEntry | None = self.hass.config_entries.async_get_entry(item.entry_id)
-        if entry is None or entry.state is not ConfigEntryState.LOADED:
+        if entry is None or entry.state not in WATCHED_STATES:
             return
         _LOGGER.warning(
             "Reloading %s (%s): all its entities are unavailable since %s",

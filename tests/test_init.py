@@ -116,7 +116,7 @@ async def test_reloads_unavailable_integration_after_grace_period(
     add_integration(hass, "partial", [STATE_UNAVAILABLE, "12"])
     add_integration(hass, "alive", ["on"])
     add_integration(hass, "empty", [])
-    add_integration(hass, "failed", [STATE_UNAVAILABLE], state=ConfigEntryState.SETUP_RETRY)
+    add_integration(hass, "unloaded", [STATE_UNAVAILABLE], state=ConfigEntryState.NOT_LOADED)
     await _setup(hass)
     events = async_capture_events(hass, EVENT_RELOADED)
 
@@ -335,3 +335,14 @@ async def test_options_change_keeps_the_grace_from_the_states(hass: HomeAssistan
         await hass.async_block_till_done()
     # The watchdog's first check after its own reload reloads the integration right away.
     reload.assert_any_await(dead.entry_id)
+
+
+async def test_setup_retry_and_error_are_watched(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    retry = add_integration(hass, "retry", [STATE_UNAVAILABLE], state=ConfigEntryState.SETUP_RETRY)
+    error = add_integration(hass, "error", [STATE_UNAVAILABLE], state=ConfigEntryState.SETUP_ERROR)
+    await _setup(hass)
+    assert {i["domain"] for i in hass.states.get(UNAVAILABLE).attributes["integrations"]} == {"retry", "error"}
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+    assert {c.args[0] for c in reload.await_args_list} == {retry.entry_id, error.entry_id}

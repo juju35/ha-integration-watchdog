@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+### What's new
+- Integrations whose setup failed (`setup_retry`, `setup_error`) are watched too: listed when their entities are all unavailable, and reloaded like the others, which retries their setup right away instead of waiting for Home Assistant's next retry. The reload limit and notifications apply as usual.
+
 ## 0.2.2
 
 ### Fixes
