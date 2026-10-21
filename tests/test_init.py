@@ -10,17 +10,21 @@ from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_capture_events,
     async_fire_time_changed,
+    async_mock_service,
 )
 
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.components import persistent_notification
 from homeassistant.const import STATE_UNAVAILABLE
-from homeassistant.core import HomeAssistant
+from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 
 from custom_components.integration_watchdog.const import (
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
+    CONF_MAX_RELOADS,
+    CONF_NOTIFY,
     CONF_SCAN_INTERVAL,
     DOMAIN,
     EVENT_RELOADED,
@@ -32,7 +36,13 @@ UNAVAILABLE = "sensor.integration_watchdog_unavailable_integrations"
 LAST_RELOAD = "sensor.integration_watchdog_last_reload"
 LAST_CHECK = "sensor.integration_watchdog_last_check"
 BUTTON = "button.integration_watchdog_check_now"
-OPTIONS = {CONF_SCAN_INTERVAL: 5, CONF_GRACE_PERIOD: 15, CONF_IGNORED: []}
+OPTIONS = {
+    CONF_SCAN_INTERVAL: 5,
+    CONF_GRACE_PERIOD: 15,
+    CONF_MAX_RELOADS: 3,
+    CONF_IGNORED: [],
+    CONF_NOTIFY: [],
+}
 
 
 async def _setup(hass: HomeAssistant, **options) -> MockConfigEntry:
@@ -54,10 +64,22 @@ async def test_config_flow(hass):
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {CONF_SCAN_INTERVAL: 10, CONF_GRACE_PERIOD: 30, CONF_IGNORED: ["zha", "demo", " "]},
+        {
+            CONF_SCAN_INTERVAL: 10,
+            CONF_GRACE_PERIOD: 30,
+            CONF_MAX_RELOADS: 2,
+            CONF_IGNORED: ["zha", "demo", " "],
+            CONF_NOTIFY: ["mobile_app_phone"],
+        },
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["options"] == {CONF_SCAN_INTERVAL: 10, CONF_GRACE_PERIOD: 30, CONF_IGNORED: ["demo", "zha"]}
+    assert result["options"] == {
+        CONF_SCAN_INTERVAL: 10,
+        CONF_GRACE_PERIOD: 30,
+        CONF_MAX_RELOADS: 2,
+        CONF_IGNORED: ["demo", "zha"],
+        CONF_NOTIFY: ["notify.mobile_app_phone"],
+    }
 
 
 async def test_single_instance(hass):
@@ -71,11 +93,18 @@ async def test_options_flow(hass):
     result = await hass.config_entries.options.async_init(entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_IGNORED: ["mqtt"]}
+        result["flow_id"],
+        {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_MAX_RELOADS: 3, CONF_IGNORED: ["mqtt"]},
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
-    assert entry.options == {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_IGNORED: ["mqtt"]}
+    assert entry.options == {
+        CONF_SCAN_INTERVAL: 2,
+        CONF_GRACE_PERIOD: 5,
+        CONF_MAX_RELOADS: 3,
+        CONF_IGNORED: ["mqtt"],
+        CONF_NOTIFY: [],
+    }
     assert entry.state is ConfigEntryState.LOADED
     assert hass.states.get(UNAVAILABLE).attributes["ignored"] == ["mqtt"]
 
@@ -163,10 +192,11 @@ async def test_scheduled_check_and_button(hass: HomeAssistant, freezer: FrozenDa
         await hass.async_block_till_done()
         reload.assert_awaited_once_with(dead.entry_id)
 
+        # One grace period after the first reload, the button runs a check that reloads again.
         reload.reset_mock()
+        freezer.tick(timedelta(minutes=1))
         await hass.services.async_call("button", "press", {"entity_id": BUTTON}, blocking=True)
         await hass.async_block_till_done()
-        # Entities untouched by the mocked reload: still past the grace period.
         reload.assert_awaited_once_with(dead.entry_id)
 
 
@@ -174,3 +204,101 @@ async def test_unload(hass):
     entry = await _setup(hass)
     assert await hass.config_entries.async_unload(entry.entry_id)
     assert entry.state is ConfigEntryState.NOT_LOADED
+
+
+async def test_no_reload_while_starting(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    hass.set_state(CoreState.starting)
+    await _setup(hass)
+    freezer.tick(timedelta(hours=1))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+        reload.assert_not_awaited()
+        assert hass.states.get(LAST_CHECK).state == "unknown"
+
+        # Started: first check right away, but nothing reloaded during the grace period.
+        hass.set_state(CoreState.running)
+        await _check(hass)
+        reload.assert_not_awaited()
+        assert hass.states.get(UNAVAILABLE).state == "1"
+
+        freezer.tick(timedelta(minutes=15))
+        await _check(hass)
+        reload.assert_awaited_once()
+
+
+async def test_backoff_and_give_up(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass)  # grace 15 min, 3 reloads
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        times = []
+        # Checks every 5 minutes for 3 hours.
+        for minute in range(0, 180, 5):
+            count = reload.await_count
+            await _check(hass)
+            if reload.await_count > count:
+                times.append(minute)
+            freezer.tick(timedelta(minutes=5))
+    # Reloads at 0, +15 min, +30 min (delay doubled), then never again.
+    assert times == [0, 15, 45]
+    assert reload.await_count == 3
+    item = hass.states.get(UNAVAILABLE).attributes["integrations"][0]
+    assert item["reloads"] == 3
+    assert item["gave_up"] is True
+    notifications = persistent_notification._async_get_or_create_notifications(hass)
+    notification = notifications[f"{DOMAIN}_{dead.entry_id}"]
+    assert "still unavailable after 3 reloads" in notification["message"]
+
+
+async def test_recovery_resets_after_its_delay(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entity_id = "sensor.dead_0"
+    await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+        assert reload.await_count == 1
+        # Back for a moment, then down again: the count is kept, no new reload.
+        hass.states.async_set(entity_id, "1")
+        await _check(hass)
+        hass.states.async_set(entity_id, STATE_UNAVAILABLE)
+        freezer.tick(timedelta(minutes=16))
+        await _check(hass)
+        assert reload.await_count == 1
+        # Available for longer than the delay: starts over.
+        hass.states.async_set(entity_id, "1")
+        freezer.tick(timedelta(minutes=16))
+        await _check(hass)
+        hass.states.async_set(entity_id, STATE_UNAVAILABLE)
+        freezer.tick(timedelta(minutes=16))
+        await _check(hass)
+        assert reload.await_count == 2
+        reload.assert_awaited_with(dead.entry_id)
+
+
+async def test_notifications(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    calls = async_mock_service(hass, "notify", "mobile_app_phone")
+    await _setup(hass, **{CONF_NOTIFY: ["notify.mobile_app_phone", "notify.missing"]})
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        await _check(hass)
+    notification = persistent_notification._async_get_or_create_notifications(hass)[f"{DOMAIN}_{dead.entry_id}"]
+    assert notification["title"] == "Integration reloaded"
+    assert notification["message"].startswith("Dead (dead) was reloaded")
+    assert "Reload 1/3" in notification["message"]
+    assert len(calls) == 1
+    assert calls[0].data == {"title": "Integration reloaded", "message": notification["message"]}
+
+
+async def test_failed_reload_notification(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=False)):
+        await _check(hass)
+    notification = persistent_notification._async_get_or_create_notifications(hass)[f"{DOMAIN}_{dead.entry_id}"]
+    assert notification["title"] == "Integration reload failed"

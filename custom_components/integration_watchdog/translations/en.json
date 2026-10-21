@@ -7,12 +7,16 @@
         "data": {
           "scan_interval": "Check interval",
           "grace_period": "Grace period",
-          "ignored_integrations": "Ignored integrations"
+          "max_reloads": "Reloads in a row",
+          "ignored_integrations": "Ignored integrations",
+          "notify_services": "Notify actions"
         },
         "data_description": {
           "scan_interval": "Minutes between two checks.",
-          "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Also the delay between two reloads of an integration that stays unavailable.",
-          "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet."
+          "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started.",
+          "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
+          "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
+          "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created."
         }
       }
     },
@@ -28,45 +32,87 @@
         "data": {
           "scan_interval": "Check interval",
           "grace_period": "Grace period",
-          "ignored_integrations": "Ignored integrations"
+          "max_reloads": "Reloads in a row",
+          "ignored_integrations": "Ignored integrations",
+          "notify_services": "Notify actions"
         },
         "data_description": {
           "scan_interval": "Minutes between two checks.",
-          "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Also the delay between two reloads of an integration that stays unavailable.",
-          "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet."
+          "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started.",
+          "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
+          "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
+          "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created."
         }
       }
     }
   },
   "entity": {
     "button": {
-      "check": { "name": "Check now" }
+      "check": {
+        "name": "Check now"
+      }
     },
     "sensor": {
       "unavailable": {
         "name": "Unavailable integrations",
         "state_attributes": {
-          "integrations": { "name": "Integrations" },
-          "ignored": { "name": "Ignored" }
+          "integrations": {
+            "name": "Integrations"
+          },
+          "ignored": {
+            "name": "Ignored"
+          }
         }
       },
       "last_reload": {
         "name": "Last reload",
         "state_attributes": {
-          "domain": { "name": "Domain" },
-          "title": { "name": "Title" },
-          "entry_id": { "name": "Entry ID" },
-          "success": { "name": "Success" },
-          "reloads": { "name": "Reloads" }
+          "domain": {
+            "name": "Domain"
+          },
+          "title": {
+            "name": "Title"
+          },
+          "entry_id": {
+            "name": "Entry ID"
+          },
+          "success": {
+            "name": "Success"
+          },
+          "reloads": {
+            "name": "Reloads"
+          }
         }
       },
-      "last_check": { "name": "Last check" }
+      "last_check": {
+        "name": "Last check"
+      }
     }
   },
   "services": {
     "check": {
       "name": "Check integrations",
       "description": "Looks for the integrations whose entities are all unavailable and reloads those past the grace period."
+    }
+  },
+  "exceptions": {
+    "reloaded_title": {
+      "message": "Integration reloaded"
+    },
+    "reloaded": {
+      "message": "{title} ({domain}) was reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}."
+    },
+    "reload_failed_title": {
+      "message": "Integration reload failed"
+    },
+    "reload_failed": {
+      "message": "{title} ({domain}) could not be reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}, see the logs."
+    },
+    "gave_up_title": {
+      "message": "Integration still unavailable"
+    },
+    "gave_up": {
+      "message": "{title} ({domain}) is still unavailable after {max} reloads. It won't be reloaded again until one of its entities is available."
     }
   }
 }

@@ -22,10 +22,14 @@ from homeassistant.loader import async_get_integrations
 from .const import (
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
+    CONF_MAX_RELOADS,
+    CONF_NOTIFY,
     CONF_SCAN_INTERVAL,
     DEFAULT_GRACE_PERIOD,
+    DEFAULT_MAX_RELOADS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    MAX_MAX_RELOADS,
     MAX_MINUTES,
 )
 
@@ -37,7 +41,7 @@ def _minutes() -> NumberSelector:
 
 
 async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
-    """Interval, grace period, and the integrations to ignore among those set up."""
+    """Interval, grace period, reload limit, integrations to ignore and notify actions."""
     ignored: list[str] = list(current.get(CONF_IGNORED, []))
     domains = {e.domain for e in hass.config_entries.async_entries() if e.domain != DOMAIN} | set(ignored)
     integrations = await async_get_integrations(hass, domains)
@@ -51,6 +55,11 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
         ),
         key=lambda o: o["label"].casefold(),
     )
+    notify: list[str] = list(current.get(CONF_NOTIFY, []))
+    notify_options = sorted(
+        {f"notify.{name}" for name in hass.services.async_services_for_domain("notify")} - {"notify.send_message", "notify.persistent_notification"}
+        | set(notify)
+    )
     return vol.Schema(
         {
             vol.Required(
@@ -59,9 +68,19 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
             vol.Required(
                 CONF_GRACE_PERIOD, default=current.get(CONF_GRACE_PERIOD, DEFAULT_GRACE_PERIOD)
             ): _minutes(),
+            vol.Required(
+                CONF_MAX_RELOADS, default=current.get(CONF_MAX_RELOADS, DEFAULT_MAX_RELOADS)
+            ): NumberSelector(
+                NumberSelectorConfig(min=1, max=MAX_MAX_RELOADS, step=1, mode=NumberSelectorMode.BOX)
+            ),
             vol.Optional(CONF_IGNORED, default=ignored): SelectSelector(
                 SelectSelectorConfig(
                     options=options, multiple=True, custom_value=True, mode=SelectSelectorMode.DROPDOWN
+                )
+            ),
+            vol.Optional(CONF_NOTIFY, default=notify): SelectSelector(
+                SelectSelectorConfig(
+                    options=notify_options, multiple=True, custom_value=True, mode=SelectSelectorMode.DROPDOWN
                 )
             ),
         }
@@ -72,7 +91,11 @@ def _options(user_input: dict[str, Any]) -> dict[str, Any]:
     return {
         CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
         CONF_GRACE_PERIOD: int(user_input[CONF_GRACE_PERIOD]),
+        CONF_MAX_RELOADS: int(user_input[CONF_MAX_RELOADS]),
         CONF_IGNORED: sorted({d.strip() for d in user_input.get(CONF_IGNORED, []) if d.strip()}),
+        CONF_NOTIFY: sorted(
+            {f"notify.{n.strip().removeprefix('notify.')}" for n in user_input.get(CONF_NOTIFY, []) if n.strip()}
+        ),
     }
 
 

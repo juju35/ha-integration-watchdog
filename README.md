@@ -17,7 +17,10 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 ## Features
 
 - **Automatic check** at a set interval (5 minutes by default) of every loaded integration
-- **Reload** of an integration once all its enabled entities have been `unavailable` for the grace period (15 minutes by default); an integration that stays unavailable is reloaded at most once per grace period
+- **Reload** of an integration once all its enabled entities have been `unavailable` for the grace period (15 minutes by default)
+- **Never during startup**: nothing is reloaded while Home Assistant starts or stops, nor during the grace period after it has started
+- **No reload loop**: an integration that stays unavailable is reloaded at most 3 times in a row (configurable), the delay between two reloads doubling each time; then the watchdog gives up on it until it recovers
+- **Notification** for each reload, failed reload and give-up: persistent notification, and optionally your notify actions (mobile app…)
 - **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain
 - **Check now** button and `integration_watchdog.check` action
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
@@ -55,8 +58,10 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 | Option | Default | Description |
 |---|---|---|
 | Check interval | 5 min | Minutes between two checks, from 1 to 1440 |
-| Grace period | 15 min | Minutes every entity of an integration must have been unavailable before it is reloaded. Also the delay between two reloads of an integration that stays unavailable |
+| Grace period | 15 min | Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started |
+| Reloads in a row | 3 | Reloads of an integration that stays unavailable before giving up on it, from 1 to 10 |
 | Ignored integrations | none | Integrations never reloaded. The list offers the integrations set up; type a domain (`zha`, `mqtt`…) to add another one |
+| Notify actions | none | Also send each notification with these actions (`notify.mobile_app_phone`…). A persistent notification is always created |
 
 ### What counts as unavailable
 
@@ -66,21 +71,32 @@ An integration (config entry) is reloaded when:
 - it is not ignored
 - it has at least one enabled entity, and **every** enabled entity is `unavailable`
 - the most recent of these entities has been unavailable for at least the grace period
+- Home Assistant has been running for at least the grace period
 
 Disabled entities, and entities the integration no longer provides (restored, marked "not provided"), are left out. An integration with a single entity still available is not reloaded.
+
+### Limiting reloads
+
+An integration that stays unavailable after a reload is reloaded again after the grace period, then after twice the grace period, and so on, up to the **Reloads in a row** option. With the defaults: after 15 minutes, then 15 minutes later, then 30 minutes later. After the last one, the watchdog gives up on it, sends a notification, and doesn't touch it again until one of its entities has been available for the current delay. An integration that comes back for a moment and falls again keeps its count.
+
+The count is kept in memory: restarting Home Assistant starts over.
+
+### Notifications
+
+Each reload, failed reload and give-up creates a persistent notification, one per integration (the next one replaces it), in the language of Home Assistant. The same title and message are sent to the notify actions chosen in the options.
 
 ### Entities
 
 | Entity | Description |
 |---|---|
 | `button.integration_watchdog_check_now` | Runs a check now. Unavailable while one is running |
-| `sensor.integration_watchdog_unavailable_integrations` | Number of integrations whose entities are all unavailable. Attributes: `integrations` (list of `domain`, `title`, `entry_id`, `since`), `ignored` |
+| `sensor.integration_watchdog_unavailable_integrations` | Number of integrations whose entities are all unavailable. Attributes: `integrations` (list of `domain`, `title`, `entry_id`, `since`, `reloads`, `gave_up`), `ignored` |
 | `sensor.integration_watchdog_last_reload` | Time of the last reload. Attributes: `domain`, `title`, `entry_id`, `success`, `reloads` (since Home Assistant started) |
 | `sensor.integration_watchdog_last_check` | End of the last check |
 
 ### Action `integration_watchdog.check`
 
-Runs a check now and waits for the reloads. For administrators.
+Runs a check now and waits for the reloads. For administrators. Does nothing while Home Assistant is starting.
 
 ```yaml
 action: integration_watchdog.check
@@ -95,26 +111,27 @@ action: integration_watchdog.check
 | `title` | Config entry title |
 | `success` | `true` if the integration loaded again |
 | `unavailable_since` | When its last entity became unavailable |
+| `attempt` | Reload number in a row (1, 2…) |
+| `max_reloads` | Reloads in a row before giving up |
 
-Get notified of each reload:
+Log each reload in the logbook:
 
 ```yaml
 triggers:
   - trigger: event
     event_type: integration_watchdog_reloaded
 actions:
-  - action: notify.mobile_app_phone
+  - action: logbook.log
     data:
+      name: Integration Watchdog
       message: >
-        {{ trigger.event.data.title }} ({{ trigger.event.data.domain }})
-        reloaded{{ '' if trigger.event.data.success else ' — failed' }}
+        reloaded {{ trigger.event.data.title }} ({{ trigger.event.data.domain }}),
+        attempt {{ trigger.event.data.attempt }}/{{ trigger.event.data.max_reloads }}
 ```
 
 ## How it works
 
-At each interval, the integration goes through the config entries, reads the states of their entities from the entity registry, and reloads the qualifying entries one at a time, as the **Reload** menu of the integration does. Reloading recreates the entities, which resets their `last_changed`: this is what spaces out the reloads of an integration that stays down, without any state kept by the watchdog.
-
-No check runs before Home Assistant has fully started; the first check runs right after.
+At each interval, the integration goes through the config entries, reads the states of their entities from the entity registry, and reloads the qualifying entries one at a time, as the **Reload** menu of the integration does. No check runs before Home Assistant has fully started; the first check runs right after, and only lists the unavailable integrations until the grace period has passed.
 
 To debug:
 

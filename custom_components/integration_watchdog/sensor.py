@@ -40,7 +40,7 @@ class UnavailableSensor(IntegrationWatchdogEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
-            "integrations": [u.as_dict() for u in self.watchdog.unavailable],
+            "integrations": [self.watchdog.as_dict(u) for u in self.watchdog.unavailable],
             "ignored": sorted(self.watchdog.ignored - {DOMAIN}),
         }
 

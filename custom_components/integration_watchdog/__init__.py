@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import Platform
-from homeassistant.core import CoreState, HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
@@ -17,8 +17,11 @@ from homeassistant.helpers.typing import ConfigType
 from .const import (
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
+    CONF_MAX_RELOADS,
+    CONF_NOTIFY,
     CONF_SCAN_INTERVAL,
     DEFAULT_GRACE_PERIOD,
+    DEFAULT_MAX_RELOADS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     SERVICE_CHECK,
@@ -52,13 +55,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
         hass,
         options.get(CONF_IGNORED, []),
         timedelta(minutes=int(options.get(CONF_GRACE_PERIOD, DEFAULT_GRACE_PERIOD))),
+        int(options.get(CONF_MAX_RELOADS, DEFAULT_MAX_RELOADS)),
+        options.get(CONF_NOTIFY, []),
     )
     entry.runtime_data = watchdog
 
     async def scheduled(_now: datetime) -> None:
-        # Integrations are still starting before Home Assistant has started.
-        if hass.state is CoreState.running:
-            await watchdog.async_check()
+        # The check itself does nothing while Home Assistant is starting or stopping.
+        await watchdog.async_check()
 
     minutes = int(options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
     entry.async_on_unload(async_track_time_interval(hass, scheduled, timedelta(minutes=minutes)))

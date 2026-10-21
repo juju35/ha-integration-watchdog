@@ -7,12 +7,16 @@
         "data": {
           "scan_interval": "Intervalle de vérification",
           "grace_period": "Délai de grâce",
-          "ignored_integrations": "Intégrations ignorées"
+          "max_reloads": "Rechargements successifs",
+          "ignored_integrations": "Intégrations ignorées",
+          "notify_services": "Actions de notification"
         },
         "data_description": {
           "scan_interval": "Minutes entre deux vérifications.",
-          "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. C'est aussi le délai entre deux rechargements d'une intégration qui reste indisponible.",
-          "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée."
+          "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. Rien n'est rechargé pendant ce délai après le démarrage de Home Assistant.",
+          "max_reloads": "Rechargements d'une intégration qui reste indisponible avant d'abandonner jusqu'à ce qu'elle revienne. Le délai entre deux rechargements double à chaque fois : délai de grâce, 2 × délai de grâce…",
+          "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée.",
+          "notify_services": "Envoyer aussi chaque notification avec ces actions (notify.mobile_app_…). Une notification persistante est toujours créée."
         }
       }
     },
@@ -28,45 +32,87 @@
         "data": {
           "scan_interval": "Intervalle de vérification",
           "grace_period": "Délai de grâce",
-          "ignored_integrations": "Intégrations ignorées"
+          "max_reloads": "Rechargements successifs",
+          "ignored_integrations": "Intégrations ignorées",
+          "notify_services": "Actions de notification"
         },
         "data_description": {
           "scan_interval": "Minutes entre deux vérifications.",
-          "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. C'est aussi le délai entre deux rechargements d'une intégration qui reste indisponible.",
-          "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée."
+          "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. Rien n'est rechargé pendant ce délai après le démarrage de Home Assistant.",
+          "max_reloads": "Rechargements d'une intégration qui reste indisponible avant d'abandonner jusqu'à ce qu'elle revienne. Le délai entre deux rechargements double à chaque fois : délai de grâce, 2 × délai de grâce…",
+          "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée.",
+          "notify_services": "Envoyer aussi chaque notification avec ces actions (notify.mobile_app_…). Une notification persistante est toujours créée."
         }
       }
     }
   },
   "entity": {
     "button": {
-      "check": { "name": "Vérifier maintenant" }
+      "check": {
+        "name": "Vérifier maintenant"
+      }
     },
     "sensor": {
       "unavailable": {
         "name": "Intégrations indisponibles",
         "state_attributes": {
-          "integrations": { "name": "Intégrations" },
-          "ignored": { "name": "Ignorées" }
+          "integrations": {
+            "name": "Intégrations"
+          },
+          "ignored": {
+            "name": "Ignorées"
+          }
         }
       },
       "last_reload": {
         "name": "Dernier rechargement",
         "state_attributes": {
-          "domain": { "name": "Domaine" },
-          "title": { "name": "Titre" },
-          "entry_id": { "name": "ID de l'entrée" },
-          "success": { "name": "Réussi" },
-          "reloads": { "name": "Rechargements" }
+          "domain": {
+            "name": "Domaine"
+          },
+          "title": {
+            "name": "Titre"
+          },
+          "entry_id": {
+            "name": "ID de l'entrée"
+          },
+          "success": {
+            "name": "Réussi"
+          },
+          "reloads": {
+            "name": "Rechargements"
+          }
         }
       },
-      "last_check": { "name": "Dernière vérification" }
+      "last_check": {
+        "name": "Dernière vérification"
+      }
     }
   },
   "services": {
     "check": {
       "name": "Vérifier les intégrations",
       "description": "Recherche les intégrations dont toutes les entités sont indisponibles et recharge celles dont le délai de grâce est écoulé."
+    }
+  },
+  "exceptions": {
+    "reloaded_title": {
+      "message": "Intégration rechargée"
+    },
+    "reloaded": {
+      "message": "{title} ({domain}) a été rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}."
+    },
+    "reload_failed_title": {
+      "message": "Échec du rechargement d'une intégration"
+    },
+    "reload_failed": {
+      "message": "{title} ({domain}) n'a pas pu être rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}, voir les journaux."
+    },
+    "gave_up_title": {
+      "message": "Intégration toujours indisponible"
+    },
+    "gave_up": {
+      "message": "{title} ({domain}) est toujours indisponible après {max} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible."
     }
   }
 }

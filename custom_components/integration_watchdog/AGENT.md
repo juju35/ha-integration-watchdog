@@ -8,8 +8,8 @@ Home Assistant custom integration that reloads the integrations (config entries)
 ```
 custom_components/integration_watchdog/
 ├── __init__.py      # Action check (admin), entry setup, time interval, first check once HA has started
-├── watchdog.py      # IntegrationWatchdog: finds unavailable entries, reloads past the grace period, fires the event
-├── config_flow.py   # Single entry; options: scan_interval (min), grace_period (min), ignored_integrations (domains)
+├── watchdog.py      # IntegrationWatchdog: finds unavailable entries, reloads with backoff and limit, event + notifications
+├── config_flow.py   # Single entry; options: scan_interval, grace_period (min), max_reloads, ignored_integrations (domains), notify_services
 ├── button.py        # button.*_check_now (unavailable while a check runs)
 ├── sensor.py        # unavailable (count + integrations/ignored), last_reload (+ domain/title/success/reloads), last_check
 ├── entity.py        # Shared service device, listener on IntegrationWatchdog
@@ -18,9 +18,11 @@ custom_components/integration_watchdog/
 
 ## Rules
 - An entry counts only when LOADED, not ignored, not this domain, with at least one enabled entity that has a state; states with `restored: true` (entities the integration no longer provides) are skipped.
-- `since` = most recent `last_changed` of these states. Reload when `now - since >= grace_period`. A reload recreates the states, so an entry that stays unavailable is reloaded at most once per grace period: no extra bookkeeping.
-- Checks are serialized by a lock; a failing reload is logged and doesn't stop the others.
-- Scheduled checks are skipped until `CoreState.running`.
+- Never reload during startup/shutdown: `async_check` returns unless `CoreState.running`, stops mid-check if that changes, and reloads nothing until `grace_period` after its first running check.
+- `since` = most recent `last_changed` of these states. Reload when `now - since >= grace_period`.
+- No loop: `Attempts` per entry_id (in memory). After reload n, the next waits `grace * 2**(n-1)`; at `max_reloads` → give up (notified once). Reset only when the entry has been available for that delay, so flapping keeps its count.
+- Each reload / failed reload / give-up: persistent notification id `integration_watchdog_<entry_id>` + optional `notify.*` actions; texts in translations `exceptions.*` (rendered with `str.format`).
+- Checks are serialized by a lock; a failing reload or notifier is logged and doesn't stop the others.
 
 ## Release
 Bump `version` in manifest.json and add its CHANGELOG.md section; pushing to main publishes `vX.Y.Z` with `integration_watchdog.zip` when that tag doesn't exist yet. Rerun notes with the "Update release notes" workflow (input `tag`).
