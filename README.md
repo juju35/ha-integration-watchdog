@@ -28,6 +28,11 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - One failing reload doesn't stop the others; two checks never run at the same time
 - English and French
 
+## Prerequisites
+
+- Home Assistant 2024.11 or newer
+- Nothing else: the watchdog only uses Home Assistant's own registries and the integrations' **Reload**. The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can show its sensors on a dashboard
+
 ## Installation
 
 ### Via HACS (recommended)
@@ -130,6 +135,12 @@ actions:
         reloaded {{ trigger.event.data.title }} ({{ trigger.event.data.domain }}),
         attempt {{ trigger.event.data.attempt }}/{{ trigger.event.data.max_reloads }}
 ```
+
+## Screenshots
+
+The watchdog has no card of its own: its sensors are shown by the [System Monitor Card](https://github.com/juju35/ha-system-monitor-card), here with two unavailable integrations, the last reload and the **Check now** button.
+
+![Unavailable integrations in the System Monitor Card](https://raw.githubusercontent.com/juju35/ha-system-monitor-card/main/screenshots/card-watchdog.png)
 
 ## How it works
 

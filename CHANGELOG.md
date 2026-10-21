@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+### Documentation
+- README: **Prerequisites** and **Screenshots** sections, like the other repositories.
+
 ## 0.3.0
 
 ### What's new
