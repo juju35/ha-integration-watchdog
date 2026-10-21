@@ -13,6 +13,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.service import async_register_admin_service
 from homeassistant.helpers.start import async_at_started
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_GRACE_PERIOD,
@@ -70,6 +71,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     async def first_check(_hass: HomeAssistant) -> None:
+        # Runs right away when Home Assistant is already running (started_at is then already set).
+        if watchdog.started_at is None:
+            watchdog.started_at = dt_util.utcnow()
         await watchdog.async_check()
 
     entry.async_on_unload(async_at_started(hass, first_check))

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2
+
+### Fixes
+- The grace period after startup is counted from when Home Assistant started, not from the watchdog's own reload: changing the options or installing an update no longer delays the reloads by a grace period. An integration already down for longer than the grace period is reloaded at the first check after the options are saved.
+
 ## 0.2.1
 
 ### Fixes

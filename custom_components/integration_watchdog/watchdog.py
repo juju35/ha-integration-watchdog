@@ -83,9 +83,12 @@ class IntegrationWatchdog:
         self.last_check: datetime | None = None
         self.last_reload: Reload | None = None
         self.reloads = 0
-        # First check seen with Home Assistant running: nothing is reloaded before the grace
-        # period has passed since then, whatever the states say.
-        self._running_since: datetime | None = None
+        # When Home Assistant finished starting: nothing is reloaded before the grace period has
+        # passed since then, whatever the states say. None until it has started; set far in the
+        # past when the watchdog itself is set up later (options changed, update installed).
+        self.started_at: datetime | None = (
+            datetime.min.replace(tzinfo=dt_util.UTC) if hass.state is CoreState.running else None
+        )
         self._lock = asyncio.Lock()
         self._listeners: list[CALLBACK_TYPE] = []
 
@@ -152,8 +155,6 @@ class IntegrationWatchdog:
         if self._lock.locked():
             _LOGGER.debug("A check is already running")
             return
-        if self._running_since is None:
-            self._running_since = dt_util.utcnow()
         async with self._lock:
             self._notify_listeners()
             self.unavailable = self.async_find_unavailable()
@@ -177,7 +178,7 @@ class IntegrationWatchdog:
     async def _async_handle(self, item: UnavailableIntegration) -> None:
         now = dt_util.utcnow()
         attempts = self.attempts.setdefault(item.entry_id, Attempts())
-        if now - item.since < self.grace_period or now - self._running_since < self.grace_period:
+        if self.started_at is None or now - item.since < self.grace_period or now - self.started_at < self.grace_period:
             return
         if attempts.count >= self.max_reloads:
             if not attempts.gave_up:

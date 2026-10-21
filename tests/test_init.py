@@ -15,7 +15,7 @@ from pytest_homeassistant_custom_component.common import (
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.components import persistent_notification
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
@@ -232,7 +232,8 @@ async def test_no_reload_while_starting(hass: HomeAssistant, freezer: FrozenDate
 
         # Started: first check right away, but nothing reloaded during the grace period.
         hass.set_state(CoreState.running)
-        await _check(hass)
+        hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+        await hass.async_block_till_done()
         reload.assert_not_awaited()
         assert hass.states.get(UNAVAILABLE).state == "1"
 
@@ -314,3 +315,23 @@ async def test_failed_reload_notification(hass: HomeAssistant, freezer: FrozenDa
         await _check(hass)
     notification = persistent_notification._async_get_or_create_notifications(hass)[f"{DOMAIN}_{dead.entry_id}"]
     assert notification["title"] == "Integration reload failed"
+
+
+async def test_options_change_keeps_the_grace_from_the_states(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Changing the options reloads the watchdog: an integration already down long enough is reloaded right away."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    freezer.tick(timedelta(minutes=10))
+    real_reload = hass.config_entries.async_reload
+
+    async def reload_side_effect(entry_id):
+        return True if entry_id == dead.entry_id else await real_reload(entry_id)
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)) as reload:
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        await hass.config_entries.options.async_configure(
+            result["flow_id"], {CONF_SCAN_INTERVAL: 5, CONF_GRACE_PERIOD: 1, CONF_MAX_RELOADS: 3, CONF_IGNORED: []}
+        )
+        await hass.async_block_till_done()
+    # The watchdog's first check after its own reload reloads the integration right away.
+    reload.assert_any_await(dead.entry_id)

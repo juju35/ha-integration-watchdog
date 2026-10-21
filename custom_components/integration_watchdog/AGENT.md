@@ -18,7 +18,7 @@ custom_components/integration_watchdog/
 
 ## Rules
 - An entry counts only when LOADED, not ignored, not this domain, with at least one enabled entity that has a state. `restored: true` placeholders (entities the integration didn't create, e.g. device off at setup) count as unavailable: an entry with only those is the typical broken one.
-- Never reload during startup/shutdown: `async_check` returns unless `CoreState.running`, stops mid-check if that changes, and reloads nothing until `grace_period` after its first running check.
+- Never reload during startup/shutdown: `async_check` returns unless `CoreState.running`, stops mid-check if that changes, and reloads nothing until `grace_period` after `started_at` (set when HA starts; far in the past when the watchdog is set up with HA already running, e.g. options changed).
 - `since` = most recent `last_changed` of these states. Reload when `now - since >= grace_period`.
 - No loop: `Attempts` per entry_id (in memory). After reload n, the next waits `grace * 2**(n-1)`; at `max_reloads` → give up (notified once). Reset only when the entry has been available for that delay, so flapping keeps its count.
 - Each reload / failed reload / give-up: persistent notification id `integration_watchdog_<entry_id>` + optional `notify.*` actions; texts in translations `exceptions.*` (rendered with `str.format`).
