@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+### Fixes
+- Integrations whose entities were never created (device off or unreachable when the integration loaded, shown as "not provided") were ignored, so they were never reloaded. These entities now count as unavailable.
+
 ## 0.2.0
 
 ### What's new

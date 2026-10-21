@@ -73,7 +73,9 @@ An integration (config entry) is reloaded when:
 - the most recent of these entities has been unavailable for at least the grace period
 - Home Assistant has been running for at least the grace period
 
-Disabled entities, and entities the integration no longer provides (restored, marked "not provided"), are left out. An integration with a single entity still available is not reloaded.
+Disabled entities are left out. Entities the integration didn't create, for example because the device was off or unreachable when it loaded (shown as "not provided" in Home Assistant), count as unavailable. An integration with a single entity still available is not reloaded.
+
+The check is per integration entry, not per device: an entry with one device down and another one working is left alone.
 
 ### Limiting reloads
 

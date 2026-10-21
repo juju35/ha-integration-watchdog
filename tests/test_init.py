@@ -152,17 +152,29 @@ async def test_ignored_integration(hass: HomeAssistant, freezer: FrozenDateTimeF
     assert hass.states.get(UNAVAILABLE).state == "0"
 
 
-async def test_disabled_and_restored_entities_are_skipped(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+async def test_disabled_entities_are_skipped(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     entry = add_integration(hass, "mixed", [STATE_UNAVAILABLE])
     registry = er.async_get(hass)
     disabled = registry.async_get_or_create(
         "sensor", "mixed", "disabled", config_entry=entry, disabled_by=er.RegistryEntryDisabler.USER
     )
     hass.states.async_set(disabled.entity_id, "on")
-    orphan = registry.async_get_or_create("sensor", "mixed", "orphan", config_entry=entry)
-    hass.states.async_set(orphan.entity_id, "on", {"restored": True})
     await _setup(hass)
     freezer.tick(timedelta(minutes=20))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+    reload.assert_awaited_once_with(entry.entry_id)
+
+
+async def test_entities_not_provided_count_as_unavailable(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Loaded, but its entities were never created (device off): only "restored" placeholders."""
+    entry = add_integration(hass, "printer", [])
+    registry = er.async_get(hass)
+    for i in range(3):
+        entity = registry.async_get_or_create("sensor", "printer", f"p{i}", config_entry=entry)
+        hass.states.async_set(entity.entity_id, STATE_UNAVAILABLE, {"restored": True, "supported_features": 0})
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
     with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
         await _check(hass)
     reload.assert_awaited_once_with(entry.entry_id)

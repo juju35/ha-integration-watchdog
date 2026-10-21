@@ -127,8 +127,9 @@ class IntegrationWatchdog:
                 if entity.disabled:
                     continue
                 state = self.hass.states.get(entity.entity_id)
-                # "restored" states belong to entities the integration no longer provides.
-                if state is None or state.attributes.get("restored"):
+                # Entities the integration hasn't created (device off, connection lost at setup) keep an
+                # "unavailable" placeholder with `restored: true`: they count as unavailable too.
+                if state is None:
                     continue
                 states.append(state)
             if not states or any(s.state != STATE_UNAVAILABLE for s in states):
