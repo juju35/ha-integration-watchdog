@@ -6,19 +6,18 @@ from datetime import timedelta
 from unittest.mock import AsyncMock, patch
 
 from freezegun.api import FrozenDateTimeFactory
+from homeassistant.components import persistent_notification
+from homeassistant.config_entries import ConfigEntryState
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
+from homeassistant.core import CoreState, HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_capture_events,
     async_fire_time_changed,
     async_mock_service,
 )
-
-from homeassistant.config_entries import ConfigEntryState
-from homeassistant.components import persistent_notification
-from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
-from homeassistant.core import CoreState, HomeAssistant
-from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.helpers import entity_registry as er
 
 from custom_components.integration_watchdog.const import (
     CONF_GRACE_PERIOD,
@@ -109,9 +108,7 @@ async def test_options_flow(hass):
     assert hass.states.get(UNAVAILABLE).attributes["ignored"] == ["mqtt"]
 
 
-async def test_reloads_unavailable_integration_after_grace_period(
-    hass: HomeAssistant, freezer: FrozenDateTimeFactory
-):
+async def test_reloads_unavailable_integration_after_grace_period(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     dead = add_integration(hass, "dead", [STATE_UNAVAILABLE, STATE_UNAVAILABLE])
     add_integration(hass, "partial", [STATE_UNAVAILABLE, "12"])
     add_integration(hass, "alive", ["on"])
@@ -330,7 +327,8 @@ async def test_options_change_keeps_the_grace_from_the_states(hass: HomeAssistan
     with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)) as reload:
         result = await hass.config_entries.options.async_init(entry.entry_id)
         await hass.config_entries.options.async_configure(
-            result["flow_id"], {CONF_SCAN_INTERVAL: 5, CONF_GRACE_PERIOD: 1, CONF_MAX_RELOADS: 3, CONF_IGNORED: []}
+            result["flow_id"],
+            {CONF_SCAN_INTERVAL: 5, CONF_GRACE_PERIOD: 1, CONF_MAX_RELOADS: 3, CONF_IGNORED: []},
         )
         await hass.async_block_till_done()
     # The watchdog's first check after its own reload reloads the integration right away.
@@ -341,7 +339,10 @@ async def test_setup_retry_and_error_are_watched(hass: HomeAssistant, freezer: F
     retry = add_integration(hass, "retry", [STATE_UNAVAILABLE], state=ConfigEntryState.SETUP_RETRY)
     error = add_integration(hass, "error", [STATE_UNAVAILABLE], state=ConfigEntryState.SETUP_ERROR)
     await _setup(hass)
-    assert {i["domain"] for i in hass.states.get(UNAVAILABLE).attributes["integrations"]} == {"retry", "error"}
+    assert {i["domain"] for i in hass.states.get(UNAVAILABLE).attributes["integrations"]} == {
+        "retry",
+        "error",
+    }
     freezer.tick(timedelta(minutes=15))
     with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
         await _check(hass)

@@ -13,10 +13,10 @@ one of its entities is available again. Every reload, and giving up, is notified
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import logging
 from typing import Any
 
 from homeassistant.components import persistent_notification
@@ -33,7 +33,11 @@ _LOGGER = logging.getLogger(__name__)
 
 # Entries checked: loaded, or whose setup failed (Home Assistant retries those with a growing delay,
 # or not at all after an error; a reload retries right away). Disabled or not loaded ones are left alone.
-WATCHED_STATES = (ConfigEntryState.LOADED, ConfigEntryState.SETUP_RETRY, ConfigEntryState.SETUP_ERROR)
+WATCHED_STATES = (
+    ConfigEntryState.LOADED,
+    ConfigEntryState.SETUP_RETRY,
+    ConfigEntryState.SETUP_ERROR,
+)
 
 
 @dataclass(frozen=True)
@@ -261,8 +265,6 @@ class IntegrationWatchdog:
                 _LOGGER.warning("Notify action notify.%s not found", name)
                 continue
             try:
-                await self.hass.services.async_call(
-                    "notify", name, {"title": title, "message": message}, blocking=True
-                )
+                await self.hass.services.async_call("notify", name, {"title": title, "message": message}, blocking=True)
             except Exception:  # noqa: BLE001 - a broken notifier must not stop the watchdog
                 _LOGGER.exception("Sending the notification with notify.%s failed", name)

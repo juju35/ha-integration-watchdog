@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.selector import (
@@ -57,7 +56,8 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
     )
     notify: list[str] = list(current.get(CONF_NOTIFY, []))
     notify_options = sorted(
-        {f"notify.{name}" for name in hass.services.async_services_for_domain("notify")} - {"notify.send_message", "notify.persistent_notification"}
+        {f"notify.{name}" for name in hass.services.async_services_for_domain("notify")}
+        - {"notify.send_message", "notify.persistent_notification"}
         | set(notify)
     )
     return vol.Schema(
@@ -65,22 +65,24 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
             vol.Required(
                 CONF_SCAN_INTERVAL, default=current.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
             ): _minutes(),
-            vol.Required(
-                CONF_GRACE_PERIOD, default=current.get(CONF_GRACE_PERIOD, DEFAULT_GRACE_PERIOD)
-            ): _minutes(),
-            vol.Required(
-                CONF_MAX_RELOADS, default=current.get(CONF_MAX_RELOADS, DEFAULT_MAX_RELOADS)
-            ): NumberSelector(
+            vol.Required(CONF_GRACE_PERIOD, default=current.get(CONF_GRACE_PERIOD, DEFAULT_GRACE_PERIOD)): _minutes(),
+            vol.Required(CONF_MAX_RELOADS, default=current.get(CONF_MAX_RELOADS, DEFAULT_MAX_RELOADS)): NumberSelector(
                 NumberSelectorConfig(min=1, max=MAX_MAX_RELOADS, step=1, mode=NumberSelectorMode.BOX)
             ),
             vol.Optional(CONF_IGNORED, default=ignored): SelectSelector(
                 SelectSelectorConfig(
-                    options=options, multiple=True, custom_value=True, mode=SelectSelectorMode.DROPDOWN
+                    options=options,
+                    multiple=True,
+                    custom_value=True,
+                    mode=SelectSelectorMode.DROPDOWN,
                 )
             ),
             vol.Optional(CONF_NOTIFY, default=notify): SelectSelector(
                 SelectSelectorConfig(
-                    options=notify_options, multiple=True, custom_value=True, mode=SelectSelectorMode.DROPDOWN
+                    options=notify_options,
+                    multiple=True,
+                    custom_value=True,
+                    mode=SelectSelectorMode.DROPDOWN,
                 )
             ),
         }
