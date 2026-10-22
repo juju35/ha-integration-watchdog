@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +28,11 @@ def add_integration(
     registry = er.async_get(hass)
     for i, value in enumerate(states):
         entity = registry.async_get_or_create(
-            "sensor", domain, f"{domain}_{i}", config_entry=entry, suggested_object_id=f"{domain}_{i}"
+            "sensor",
+            domain,
+            f"{domain}_{i}",
+            config_entry=entry,
+            suggested_object_id=f"{domain}_{i}",
         )
         hass.states.async_set(entity.entity_id, value)
     return entry

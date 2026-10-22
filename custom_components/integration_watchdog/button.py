@@ -11,7 +11,9 @@ from .entity import IntegrationWatchdogEntity
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: IntegrationWatchdogConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     async_add_entities([CheckButton(entry.runtime_data, entry.entry_id, "check")])
 

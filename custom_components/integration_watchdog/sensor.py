@@ -16,7 +16,9 @@ from .entity import IntegrationWatchdogEntity
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: IntegrationWatchdogConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     w = entry.runtime_data
     async_add_entities(
