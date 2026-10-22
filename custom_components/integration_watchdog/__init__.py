@@ -38,7 +38,7 @@ type IntegrationWatchdogConfigEntry = ConfigEntry[IntegrationWatchdog]
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the check action, for administrators since it reloads integrations."""
 
-    async def check(call: ServiceCall) -> None:
+    async def check(_call: ServiceCall) -> None:
         entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
         if not entries:
             raise ServiceValidationError("Integration Watchdog is not loaded")
