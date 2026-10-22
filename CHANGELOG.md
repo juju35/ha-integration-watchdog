@@ -2,7 +2,7 @@
 
 ## 0.3.1
 
-### Documentation
+### Maintenance
 - README: **Prerequisites** and **Screenshots** sections, like the other repositories.
 
 ## 0.3.0
