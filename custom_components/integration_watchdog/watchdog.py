@@ -180,6 +180,19 @@ class IntegrationWatchdog:
             )
         return sorted(found, key=lambda u: (u.domain, u.title))
 
+    @callback
+    def _has_available_entity(self, entry: ConfigEntry) -> bool:
+        """A watched entry with at least one enabled entity whose state is not unavailable."""
+        if entry.state not in WATCHED_STATES:
+            return False
+        for entity in er.async_entries_for_config_entry(er.async_get(self.hass), entry.entry_id):
+            if entity.disabled:
+                continue
+            state = self.hass.states.get(entity.entity_id)
+            if state is not None and state.state != STATE_UNAVAILABLE:
+                return True
+        return False
+
     async def async_check(self, wait: bool = False) -> None:
         """Find the unavailable integrations and reload those that are due.
 
@@ -206,6 +219,15 @@ class IntegrationWatchdog:
             for entry_id, attempts in list(self.attempts.items()):
                 if entry_id in current:
                     attempts.recovered_at = None
+                    continue
+                entry = self.hass.config_entries.async_get_entry(entry_id)
+                # Removed, or disabled by the user: once enabled again, it starts over.
+                if entry is None or entry.disabled_by is not None:
+                    del self.attempts[entry_id]
+                    continue
+                # Out of the list is not available again: a setup or unload still in progress (a reload past
+                # its timeout), or no entity with an available state. Left as it is.
+                if not self._has_available_entity(entry):
                     continue
                 if attempts.recovered_at is None:
                     attempts.recovered_at = now
