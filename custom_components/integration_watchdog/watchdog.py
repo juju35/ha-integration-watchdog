@@ -90,6 +90,7 @@ class IntegrationWatchdog:
         grace_period: timedelta,
         max_reloads: int,
         notify_services: Iterable[str] = (),
+        shared: dict[str, Any] | None = None,
     ) -> None:
         self.hass = hass
         self.ignored: frozenset[str] = frozenset(ignored) | {DOMAIN}
@@ -97,7 +98,11 @@ class IntegrationWatchdog:
         self.max_reloads = max_reloads
         self.notify_services = list(notify_services)
         self.unavailable: list[UnavailableIntegration] = []
-        self.attempts: dict[str, Attempts] = {}
+        # Kept by __init__ across reloads of the watchdog's entry (options changed), with the lock:
+        # an integration given up stays so, and a check still running in the previous instance
+        # keeps the new one waiting instead of reloading the same entries twice.
+        shared = shared if shared is not None else {}
+        self.attempts: dict[str, Attempts] = shared.setdefault("attempts", {})
         self.last_check: datetime | None = None
         self.last_reload: Reload | None = None
         self.reloads = 0
@@ -109,7 +114,7 @@ class IntegrationWatchdog:
         )
         # Integration domains whose integration_type is "helper", and those known not to be.
         self._helpers: dict[str, bool] = {}
-        self._lock = asyncio.Lock()
+        self._lock: asyncio.Lock = shared.setdefault("lock", asyncio.Lock())
         self._listeners: list[CALLBACK_TYPE] = []
 
     @property
@@ -175,15 +180,21 @@ class IntegrationWatchdog:
             )
         return sorted(found, key=lambda u: (u.domain, u.title))
 
-    async def async_check(self) -> None:
-        """Find the unavailable integrations and reload those that are due."""
+    async def async_check(self, wait: bool = False) -> None:
+        """Find the unavailable integrations and reload those that are due.
+
+        While a check is running, a scheduled one is skipped; with `wait` (the action, the first
+        check after a reload of the watchdog), it runs once the running one has ended.
+        """
         if self.hass.state is not CoreState.running:
             _LOGGER.debug("Home Assistant is not running (%s): no check", self.hass.state)
             return
-        if self._lock.locked():
+        if self._lock.locked() and not wait:
             _LOGGER.debug("A check is already running")
             return
         async with self._lock:
+            if self.hass.state is not CoreState.running:
+                return
             self._notify_listeners()
             await self._async_load_helpers()
             self.unavailable = self.async_find_unavailable()
@@ -228,6 +239,8 @@ class IntegrationWatchdog:
                 )
                 await self._async_send("gave_up", item, attempts.count)
             return
+        # Given up with a lower limit, before the options were changed: reloaded again up to the new one.
+        attempts.gave_up = False
         await self._async_reload(item, attempts)
 
     def _delay(self, attempts: Attempts) -> timedelta:
