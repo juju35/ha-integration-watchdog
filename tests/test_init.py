@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
-from homeassistant.config_entries import ConfigEntryState, OperationNotAllowed
+from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState, OperationNotAllowed
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -700,3 +700,38 @@ async def test_remove_entry_waits_for_a_running_check(hass: HomeAssistant, freez
         await remove
     assert still_there
     assert DOMAIN not in hass.data
+
+
+async def test_disabled_entry_starts_over(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Disabled by the user after a give-up, then enabled again still down: it is reloaded again."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entity_id = "sensor.dead_0"
+    await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        for _ in range(12):
+            await _check(hass)
+            freezer.tick(timedelta(minutes=5))
+        assert reload.await_count == 1
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+        # Disabled for a day (the reload done by Home Assistant itself is mocked: set its result).
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, ConfigEntryDisabler.USER)
+        await hass.async_block_till_done()
+        dead.mock_state(hass, ConfigEntryState.NOT_LOADED)
+        for _ in range(24):
+            freezer.tick(timedelta(hours=1))
+            await _check(hass)
+        assert dead.entry_id not in watchdog.attempts
+        # Enabled again, still down.
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, None)
+        await hass.async_block_till_done()
+        dead.mock_state(hass, ConfigEntryState.SETUP_RETRY)
+        hass.states.async_set(entity_id, STATE_UNAVAILABLE)
+        reload.reset_mock()
+        for _ in range(12):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+        # Reloaded again, then given up again after max_reloads.
+        reload.assert_awaited_once_with(dead.entry_id)
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True

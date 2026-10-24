@@ -221,11 +221,12 @@ class IntegrationWatchdog:
                     attempts.recovered_at = None
                     continue
                 entry = self.hass.config_entries.async_get_entry(entry_id)
-                if entry is None:
+                # Removed, or disabled by the user: once enabled again, it starts over.
+                if entry is None or entry.disabled_by is not None:
                     del self.attempts[entry_id]
                     continue
                 # Out of the list is not available again: a setup or unload still in progress (a reload past
-                # its timeout), a disabled entry, or no entity with an available state. Left as it is.
+                # its timeout), or no entity with an available state. Left as it is.
                 if not self._has_available_entity(entry):
                     continue
                 if attempts.recovered_at is None:
