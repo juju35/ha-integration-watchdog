@@ -30,7 +30,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 
 ## Prerequisites
 
-- Home Assistant 2024.11 or newer
+- Home Assistant 2024.12 or newer
 - Nothing else: the watchdog only uses Home Assistant's own registries and the integrations' **Reload**. The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can show its sensors on a dashboard
 
 ## Installation
