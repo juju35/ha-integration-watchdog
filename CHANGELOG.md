@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0
+
+### Changes
+- Requires Home Assistant 2024.12 or later.
+- The watchdog gives up on an integration only after the delay of its last reload: with the defaults (15 min grace period, 3 reloads), reloads at 0, 15 and 45 min and the give-up at 105 min, instead of 50 min.
+- The reload count is reset only once the integration has stayed available for the current delay, so an integration that keeps dropping no longer starts over.
+- Saving the options keeps the reload counts: an integration given up on stays so, and raising **Reloads in a row** gives it the extra reloads. A restart still starts over.
+- Helpers (template, group, utility_meter…) are no longer reloaded: their entities follow their sources.
+- The `integration_watchdog.check` action waits for a running check, then runs its own, instead of returning at once.
+
+### Fixes
+- A reload that never returns is stopped after 5 minutes instead of blocking every later check until a restart, and each notification call is limited to 30 s.
+- The same integration is no longer reloaded twice while the watchdog reloads itself.
+
+### Maintenance
+- New pytest tests for the fixes; notification texts moved to the `common` translations section.
+- CI hardening: actions pinned by commit SHA, read-only token, Dependabot for actions, duplication check with PR annotations.
+
 ## 0.3.2
 
 ### Maintenance
