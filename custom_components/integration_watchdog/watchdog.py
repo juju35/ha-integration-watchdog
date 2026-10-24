@@ -310,7 +310,7 @@ class IntegrationWatchdog:
 
     async def _async_send(self, key: str, item: UnavailableIntegration, attempt: int) -> None:
         """Persistent notification (one per integration, replaced), and the notify services chosen."""
-        strings = await async_get_translations(self.hass, self.hass.config.language, "exceptions", [DOMAIN])
+        strings = await async_get_translations(self.hass, self.hass.config.language, "common", [DOMAIN])
         placeholders = {
             "title": item.title,
             "domain": item.domain,
@@ -320,7 +320,7 @@ class IntegrationWatchdog:
         }
 
         def text(name: str) -> str:
-            template = strings.get(f"component.{DOMAIN}.exceptions.{name}.message", name)
+            template = strings.get(f"component.{DOMAIN}.common.{name}", name)
             return template.format(**placeholders)
 
         title, message = text(f"{key}_title"), text(key)
