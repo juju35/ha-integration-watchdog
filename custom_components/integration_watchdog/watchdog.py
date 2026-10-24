@@ -4,10 +4,12 @@ An integration (config entry) is unavailable when it is loaded or its setup fail
 entity with a state, and every one of these entities is `unavailable`. It is reloaded once
 the most recent of these entities has been unavailable for the grace period.
 
-Nothing is reloaded while Home Assistant is starting or stopping. An integration that stays
-unavailable is reloaded at most `max_reloads` times in a row, the delay between two reloads
-doubling each time (grace, 2 x grace, 4 x grace...); then the watchdog gives up on it until
-one of its entities is available again. Every reload, and giving up, is notified.
+Nothing is reloaded while Home Assistant is starting or stopping. Helpers (template, group,
+utility meter...) are left out: their entities follow their sources, a reload can't fix them.
+An integration that stays unavailable is reloaded at most `max_reloads` times in a row, the delay
+between two reloads doubling each time (grace, 2 x grace, 4 x grace...); once the delay after the
+last one has passed, the watchdog gives up on it until it has been available again for the current
+delay. Every reload, and giving up, is notified.
 """
 
 from __future__ import annotations
@@ -25,6 +27,7 @@ from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.translation import async_get_translations
+from homeassistant.loader import async_get_integrations
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, EVENT_RELOADED
@@ -38,6 +41,11 @@ WATCHED_STATES = (
     ConfigEntryState.SETUP_RETRY,
     ConfigEntryState.SETUP_ERROR,
 )
+
+# A reload or a notify action that doesn't return within this time counts as failed, so that
+# a hung integration can't keep the check (and its lock) busy forever.
+RELOAD_TIMEOUT = timedelta(minutes=5)
+NOTIFY_TIMEOUT = timedelta(seconds=30)
 
 
 @dataclass(frozen=True)
@@ -57,6 +65,8 @@ class Attempts:
     count: int = 0
     last: datetime | None = None
     gave_up: bool = False
+    # First check that found the integration available again, None while it is unavailable.
+    recovered_at: datetime | None = None
 
 
 @dataclass(frozen=True)
@@ -97,6 +107,8 @@ class IntegrationWatchdog:
         self.started_at: datetime | None = (
             datetime.min.replace(tzinfo=dt_util.UTC) if hass.state is CoreState.running else None
         )
+        # Integration domains whose integration_type is "helper", and those known not to be.
+        self._helpers: dict[str, bool] = {}
         self._lock = asyncio.Lock()
         self._listeners: list[CALLBACK_TYPE] = []
 
@@ -125,13 +137,21 @@ class IntegrationWatchdog:
             "gave_up": attempts.gave_up,
         }
 
+    async def _async_load_helpers(self) -> None:
+        """Learn the integration type of the domains not seen yet."""
+        domains = {e.domain for e in self.hass.config_entries.async_entries()} - self._helpers.keys()
+        if not domains:
+            return
+        for domain, integration in (await async_get_integrations(self.hass, domains)).items():
+            self._helpers[domain] = not isinstance(integration, Exception) and integration.integration_type == "helper"
+
     @callback
     def async_find_unavailable(self) -> list[UnavailableIntegration]:
-        """Watched, not ignored config entries whose entities are all unavailable."""
+        """Watched, not ignored, not helper config entries whose entities are all unavailable."""
         registry = er.async_get(self.hass)
         found: list[UnavailableIntegration] = []
         for entry in self.hass.config_entries.async_entries():
-            if entry.domain in self.ignored or entry.state not in WATCHED_STATES:
+            if entry.domain in self.ignored or entry.state not in WATCHED_STATES or self._helpers.get(entry.domain):
                 continue
             states = []
             for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
@@ -165,14 +185,20 @@ class IntegrationWatchdog:
             return
         async with self._lock:
             self._notify_listeners()
+            await self._async_load_helpers()
             self.unavailable = self.async_find_unavailable()
             # An integration available again starts over, once it has stayed so for its current
-            # delay: one that comes back for a moment and falls again keeps its count.
+            # delay, counted from the first check that found it back: one that comes back for a
+            # moment and falls again keeps its count.
             now = dt_util.utcnow()
             current = {u.entry_id for u in self.unavailable}
-            for entry_id in set(self.attempts) - current:
-                attempts = self.attempts[entry_id]
-                if attempts.last is None or now - attempts.last >= self._delay(attempts):
+            for entry_id, attempts in list(self.attempts.items()):
+                if entry_id in current:
+                    attempts.recovered_at = None
+                    continue
+                if attempts.recovered_at is None:
+                    attempts.recovered_at = now
+                if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
                     del self.attempts[entry_id]
             for item in self.unavailable:
                 # Stop as soon as Home Assistant starts stopping.
@@ -188,6 +214,9 @@ class IntegrationWatchdog:
         attempts = self.attempts.setdefault(item.entry_id, Attempts())
         if self.started_at is None or now - item.since < self.grace_period or now - self.started_at < self.grace_period:
             return
+        # The last reload gets its full delay too before giving up.
+        if attempts.last is not None and now - attempts.last < self._delay(attempts):
+            return
         if attempts.count >= self.max_reloads:
             if not attempts.gave_up:
                 attempts.gave_up = True
@@ -199,13 +228,23 @@ class IntegrationWatchdog:
                 )
                 await self._async_send("gave_up", item, attempts.count)
             return
-        if attempts.last is not None and now - attempts.last < self._delay(attempts):
-            return
         await self._async_reload(item, attempts)
 
     def _delay(self, attempts: Attempts) -> timedelta:
         """Minimum time after a reload before the next one: grace, 2 x grace, 4 x grace..."""
         return self.grace_period * 2 ** max(attempts.count - 1, 0)
+
+    @staticmethod
+    def _log_late_reload(task: asyncio.Task, item: UnavailableIntegration) -> None:
+        """Log the failure of a reload that finished after its timeout."""
+        if task.cancelled() or (err := task.exception()) is None:
+            return
+        _LOGGER.error(
+            "Reloading %s (%s) failed after its timeout",
+            item.title,
+            item.domain,
+            exc_info=(type(err), err, err.__traceback__),
+        )
 
     async def _async_reload(self, item: UnavailableIntegration, attempts: Attempts) -> None:
         entry: ConfigEntry | None = self.hass.config_entries.async_get_entry(item.entry_id)
@@ -217,8 +256,24 @@ class IntegrationWatchdog:
             item.domain,
             item.since.isoformat(),
         )
+        # Shielded: on timeout the check goes on, the reload itself isn't cancelled halfway.
+        task = self.hass.async_create_background_task(
+            self.hass.config_entries.async_reload(item.entry_id), f"{DOMAIN} reload {item.entry_id}"
+        )
         try:
-            success = await self.hass.config_entries.async_reload(item.entry_id)
+            async with asyncio.timeout(RELOAD_TIMEOUT.total_seconds()):
+                success = await asyncio.shield(task)
+        except TimeoutError:
+            _LOGGER.warning(
+                "Reloading %s (%s) didn't finish within %s: counted as failed",
+                item.title,
+                item.domain,
+                RELOAD_TIMEOUT,
+            )
+            # Nobody awaits the shielded reload any more: read its outcome so that a late failure is logged
+            # here instead of asyncio's "Task exception was never retrieved".
+            task.add_done_callback(lambda t, item=item: self._log_late_reload(t, item))
+            success = False
         except Exception:  # noqa: BLE001 - one broken integration must not stop the watchdog
             _LOGGER.exception("Reloading %s (%s) failed", item.title, item.domain)
             success = False
@@ -265,6 +320,11 @@ class IntegrationWatchdog:
                 _LOGGER.warning("Notify action notify.%s not found", name)
                 continue
             try:
-                await self.hass.services.async_call("notify", name, {"title": title, "message": message}, blocking=True)
+                async with asyncio.timeout(NOTIFY_TIMEOUT.total_seconds()):
+                    await self.hass.services.async_call(
+                        "notify", name, {"title": title, "message": message}, blocking=True
+                    )
+            except TimeoutError:
+                _LOGGER.warning("Sending the notification with notify.%s didn't finish within %s", name, NOTIFY_TIMEOUT)
             except Exception:  # noqa: BLE001 - a broken notifier must not stop the watchdog
                 _LOGGER.exception("Sending the notification with notify.%s failed", name)

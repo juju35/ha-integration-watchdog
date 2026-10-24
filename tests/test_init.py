@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
+import gc
 from datetime import timedelta
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import ConfigEntryState, OperationNotAllowed
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -19,6 +22,7 @@ from pytest_homeassistant_custom_component.common import (
     async_mock_service,
 )
 
+from custom_components.integration_watchdog import watchdog as watchdog_module
 from custom_components.integration_watchdog.const import (
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
@@ -271,22 +275,157 @@ async def test_recovery_resets_after_its_delay(hass: HomeAssistant, freezer: Fro
     with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
         await _check(hass)
         assert reload.await_count == 1
-        # Back for a moment, then down again: the count is kept, no new reload.
+        # Back for a moment long after the reload, then down again: the count is kept, no new reload.
+        freezer.tick(timedelta(minutes=30))
         hass.states.async_set(entity_id, "1")
         await _check(hass)
         hass.states.async_set(entity_id, STATE_UNAVAILABLE)
         freezer.tick(timedelta(minutes=16))
         await _check(hass)
         assert reload.await_count == 1
-        # Available for longer than the delay: starts over.
+        # Available for the delay, measured from its return: starts over.
         hass.states.async_set(entity_id, "1")
-        freezer.tick(timedelta(minutes=16))
+        await _check(hass)
+        freezer.tick(timedelta(minutes=10))
+        await _check(hass)
+        freezer.tick(timedelta(minutes=5))
         await _check(hass)
         hass.states.async_set(entity_id, STATE_UNAVAILABLE)
         freezer.tick(timedelta(minutes=16))
         await _check(hass)
         assert reload.await_count == 2
         reload.assert_awaited_with(dead.entry_id)
+
+
+async def test_gives_up_only_after_the_last_delay(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """The give-up notification waits for the delay after the last reload."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass)  # grace 15 min, 3 reloads: at 0, 15, 45, then the last delay is 60 min
+    freezer.tick(timedelta(minutes=15))
+    key = f"{DOMAIN}_{dead.entry_id}"
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        gave_up_at = None
+        for minute in range(0, 180, 5):
+            await _check(hass)
+            item = hass.states.get(UNAVAILABLE).attributes["integrations"][0]
+            if item["gave_up"] and gave_up_at is None:
+                gave_up_at = minute
+                message = persistent_notification._async_get_or_create_notifications(hass)[key]["message"]
+                assert "still unavailable after 3 reloads" in message
+            freezer.tick(timedelta(minutes=5))
+    assert gave_up_at == 105
+
+
+async def test_blip_after_give_up_keeps_the_count(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entity_id = "sensor.dead_0"
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        for _ in range(36):
+            await _check(hass)
+            freezer.tick(timedelta(minutes=5))
+        assert reload.await_count == 3
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+        # One check with the integration available, then down again for hours: nothing more.
+        hass.states.async_set(entity_id, "1")
+        await _check(hass)
+        hass.states.async_set(entity_id, STATE_UNAVAILABLE)
+        for _ in range(36):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+        assert reload.await_count == 3
+        item = hass.states.get(UNAVAILABLE).attributes["integrations"][0]
+        assert item["reloads"] == 3
+        assert item["gave_up"] is True
+
+
+async def _check_past_timeout(hass: HomeAssistant, freezer: FrozenDateTimeFactory, timeout: timedelta) -> None:
+    """Run a check that hangs, and move the clock past `timeout` so that it gives up waiting."""
+    task = hass.async_create_task(_check(hass))
+    for _ in range(10):
+        await asyncio.sleep(0)
+    freezer.tick(timeout + timedelta(seconds=1))
+    async_fire_time_changed(hass)
+    await task
+
+
+async def test_hung_reload_times_out(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """A reload that never returns counts as failed and doesn't keep the check running."""
+    add_integration(hass, "hung", [STATE_UNAVAILABLE])
+    other = add_integration(hass, "other", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    events = async_capture_events(hass, EVENT_RELOADED)
+    freezer.tick(timedelta(minutes=15))
+    release = asyncio.Event()
+
+    async def reload_side_effect(entry_id):
+        if entry_id != other.entry_id:
+            await release.wait()
+        return True
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)):
+        await _check_past_timeout(hass, freezer, watchdog_module.RELOAD_TIMEOUT)
+        assert [(e.data["domain"], e.data["success"]) for e in events] == [("hung", False), ("other", True)]
+        assert not hass.config_entries.async_entries(DOMAIN)[0].runtime_data.running
+        assert hass.states.get(BUTTON).state != "unavailable"
+        release.set()
+        await hass.async_block_till_done(wait_background_tasks=True)
+
+
+async def test_reload_failing_after_timeout_is_logged(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory, caplog: pytest.LogCaptureFixture
+):
+    """A reload that fails after its timeout is logged, not left to "Task exception was never retrieved"."""
+    add_integration(hass, "late", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    release = asyncio.Event()
+    unhandled = []
+    hass.loop.set_exception_handler(lambda _loop, context: unhandled.append(context))
+
+    async def reload_side_effect(_entry_id):
+        await release.wait()
+        raise OperationNotAllowed("late failure")
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)):
+        await _check_past_timeout(hass, freezer, watchdog_module.RELOAD_TIMEOUT)
+        release.set()
+        await hass.async_block_till_done(wait_background_tasks=True)
+    gc.collect()
+    await asyncio.sleep(0)
+    assert not [c for c in unhandled if "never retrieved" in c.get("message", "")]
+    assert "Reloading Late (late) failed after its timeout" in caplog.text
+    assert "late failure" in caplog.text
+
+
+async def test_hung_notifier_times_out(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    release = asyncio.Event()
+
+    async def hang(_call):
+        await release.wait()
+
+    hass.services.async_register("notify", "stuck", hang)
+    await _setup(hass, **{CONF_NOTIFY: ["notify.stuck"]})
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check_past_timeout(hass, freezer, watchdog_module.NOTIFY_TIMEOUT)
+    reload.assert_awaited_once()
+    assert not hass.config_entries.async_entries(DOMAIN)[0].runtime_data.running
+    release.set()
+    await hass.async_block_till_done()
+
+
+async def test_helpers_are_not_reloaded(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    add_integration(hass, "template", [STATE_UNAVAILABLE])
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+    reload.assert_awaited_once_with(dead.entry_id)
+    assert [i["domain"] for i in hass.states.get(UNAVAILABLE).attributes["integrations"]] == ["dead"]
 
 
 async def test_notifications(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
