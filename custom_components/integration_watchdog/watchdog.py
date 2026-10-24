@@ -234,6 +234,18 @@ class IntegrationWatchdog:
         """Minimum time after a reload before the next one: grace, 2 x grace, 4 x grace..."""
         return self.grace_period * 2 ** max(attempts.count - 1, 0)
 
+    @staticmethod
+    def _log_late_reload(task: asyncio.Task, item: UnavailableIntegration) -> None:
+        """Log the failure of a reload that finished after its timeout."""
+        if task.cancelled() or (err := task.exception()) is None:
+            return
+        _LOGGER.error(
+            "Reloading %s (%s) failed after its timeout",
+            item.title,
+            item.domain,
+            exc_info=(type(err), err, err.__traceback__),
+        )
+
     async def _async_reload(self, item: UnavailableIntegration, attempts: Attempts) -> None:
         entry: ConfigEntry | None = self.hass.config_entries.async_get_entry(item.entry_id)
         if entry is None or entry.state not in WATCHED_STATES:
@@ -258,6 +270,9 @@ class IntegrationWatchdog:
                 item.domain,
                 RELOAD_TIMEOUT,
             )
+            # Nobody awaits the shielded reload any more: read its outcome so that a late failure is logged
+            # here instead of asyncio's "Task exception was never retrieved".
+            task.add_done_callback(lambda t, item=item: self._log_late_reload(t, item))
             success = False
         except Exception:  # noqa: BLE001 - one broken integration must not stop the watchdog
             _LOGGER.exception("Reloading %s (%s) failed", item.title, item.domain)

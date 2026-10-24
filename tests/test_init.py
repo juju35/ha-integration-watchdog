@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 from datetime import timedelta
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import ConfigEntryState, OperationNotAllowed
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -369,6 +371,32 @@ async def test_hung_reload_times_out(hass: HomeAssistant, freezer: FrozenDateTim
         assert hass.states.get(BUTTON).state != "unavailable"
         release.set()
         await hass.async_block_till_done(wait_background_tasks=True)
+
+
+async def test_reload_failing_after_timeout_is_logged(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory, caplog: pytest.LogCaptureFixture
+):
+    """A reload that fails after its timeout is logged, not left to "Task exception was never retrieved"."""
+    add_integration(hass, "late", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    release = asyncio.Event()
+    unhandled = []
+    hass.loop.set_exception_handler(lambda _loop, context: unhandled.append(context))
+
+    async def reload_side_effect(_entry_id):
+        await release.wait()
+        raise OperationNotAllowed("late failure")
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)):
+        await _check_past_timeout(hass, freezer, watchdog_module.RELOAD_TIMEOUT)
+        release.set()
+        await hass.async_block_till_done(wait_background_tasks=True)
+    gc.collect()
+    await asyncio.sleep(0)
+    assert not [c for c in unhandled if "never retrieved" in c.get("message", "")]
+    assert "Reloading Late (late) failed after its timeout" in caplog.text
+    assert "late failure" in caplog.text
 
 
 async def test_hung_notifier_times_out(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
