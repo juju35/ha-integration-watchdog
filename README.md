@@ -73,7 +73,7 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 An integration (config entry) is reloaded when:
 
 - it is loaded, or its setup failed (`setup_retry`, `setup_error`): a reload retries it right away instead of waiting for Home Assistant's next retry. Disabled integrations are left alone
-- it is not ignored
+- it is not ignored, and it is not a helper (template, group, utility meter, derivative…): their entities follow their sources, so reloading them can't fix anything
 - it has at least one enabled entity, and **every** enabled entity is `unavailable`
 - the most recent of these entities has been unavailable for at least the grace period
 - Home Assistant has been running for at least the grace period
@@ -84,7 +84,9 @@ The check is per integration entry, not per device: an entry with one device dow
 
 ### Limiting reloads
 
-An integration that stays unavailable after a reload is reloaded again after the grace period, then after twice the grace period, and so on, up to the **Reloads in a row** option. With the defaults: after 15 minutes, then 15 minutes later, then 30 minutes later. After the last one, the watchdog gives up on it, sends a notification, and doesn't touch it again until one of its entities has been available for the current delay. An integration that comes back for a moment and falls again keeps its count.
+An integration that stays unavailable after a reload is reloaded again after the grace period, then after twice the grace period, and so on, up to the **Reloads in a row** option. With the defaults: after 15 minutes, then 15 minutes later, then 30 minutes later. If it is still unavailable once the delay after the last one has passed (60 minutes with the defaults), the watchdog gives up on it, sends a notification, and doesn't touch it again until one of its entities has been available for the current delay, counted from its return. An integration that comes back for a moment and falls again keeps its count.
+
+A reload that doesn't finish within 5 minutes, or a notify action that doesn't answer within 30 seconds, counts as failed, so that a hung integration can't block the following checks.
 
 The count is kept in memory: restarting Home Assistant starts over.
 
