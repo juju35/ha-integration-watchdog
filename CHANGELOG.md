@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.1
+
+### Changes
+- An integration you disable starts over once you enable it again: its reload count is reset, even if the watchdog had given up on it.
+- An integration whose setup is still in progress, or that has no enabled entity with a state, is no longer taken as available again: it keeps its reload count until one of its entities is actually available.
+
+### Fixes
+- An integration whose reload went past the 5 minute timeout was reloaded forever, without the **Reloads in a row** limit: the watchdog now gives up on it as expected.
+- The error of the `integration_watchdog.check` action when the watchdog is not loaded is translated.
+- Removing the integration during a check waits for the check to end.
+
+### Maintenance
+- Tests run on Home Assistant 2026.10 and on the minimum version (2024.12), and fail on any deprecated Home Assistant call; new tests for the fixes.
+
 ## 0.4.0
 
 ### Changes
