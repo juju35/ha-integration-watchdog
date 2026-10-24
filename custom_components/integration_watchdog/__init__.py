@@ -41,7 +41,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def check(_call: ServiceCall) -> None:
         entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
         if not entries:
-            raise ServiceValidationError("Integration Watchdog is not loaded")
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
         # Waits for a check already running, then runs its own.
         await entries[0].runtime_data.async_check(wait=True)
 
@@ -88,8 +88,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: IntegrationWatchdogConf
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry) -> None:
-    """Forget the reload counts when the integration is removed."""
-    hass.data.pop(DOMAIN, None)
+    """Forget the reload counts when the integration is removed, once a check still running has ended."""
+    shared = hass.data.get(DOMAIN)
+    if shared is None:
+        return
+    if (lock := shared.get("lock")) is not None:
+        async with lock:
+            pass
+    # Only if nothing replaced it meanwhile (integration added again).
+    if hass.data.get(DOMAIN) is shared:
+        hass.data.pop(DOMAIN)
 
 
 async def _async_reload(hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry) -> None:

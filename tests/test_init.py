@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntryState, OperationNotAllowed
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
@@ -597,3 +598,105 @@ async def test_no_double_reload_while_the_watchdog_reloads(hass: HomeAssistant, 
             await running
         await hass.async_block_till_done()
         assert [c.args[0] for c in reload.await_args_list].count(dead.entry_id) == 1
+
+
+async def test_setup_stuck_past_the_timeout_keeps_the_count(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """A reload whose setup stays in progress past its timeout is not taken for a recovery: max_reloads holds."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass)  # grace 15 min, 3 reloads
+    freezer.tick(timedelta(minutes=15))
+    stuck_until = {}
+
+    async def reload_side_effect(entry_id):
+        # The reload timed out: the setup goes on in the background for 25 minutes, then fails.
+        dead.mock_state(hass, ConfigEntryState.SETUP_IN_PROGRESS)
+        stuck_until[entry_id] = 0
+        return False
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)) as reload:
+        for _ in range(12 * 6):  # 6 hours, a check every 5 minutes
+            if dead.entry_id in stuck_until:
+                stuck_until[dead.entry_id] += 5
+                if stuck_until[dead.entry_id] > 25:
+                    del stuck_until[dead.entry_id]
+                    dead.mock_state(hass, ConfigEntryState.SETUP_RETRY)
+            await _check(hass)
+            freezer.tick(timedelta(minutes=5))
+    assert reload.await_count == 3
+    item = hass.states.get(UNAVAILABLE).attributes["integrations"][0]
+    assert item["reloads"] == 3
+    assert item["gave_up"] is True
+
+
+async def test_entry_without_available_entity_keeps_the_count(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Out of the list without any available entity (all disabled, no state left) is not a recovery."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entity_id = "sensor.dead_0"
+    await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+        assert reload.await_count == 1
+        hass.states.async_remove(entity_id)
+        for _ in range(12):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+        assert watchdog.attempts.get(dead.entry_id) is not None
+        assert watchdog.attempts[dead.entry_id].count == 1
+        hass.states.async_set(entity_id, STATE_UNAVAILABLE)
+        for _ in range(12):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+        assert reload.await_count == 1
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+
+
+async def test_removed_entry_is_forgotten(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        await _check(hass)
+    assert dead.entry_id in watchdog.attempts
+    await hass.config_entries.async_remove(dead.entry_id)
+    await _check(hass)
+    assert dead.entry_id not in watchdog.attempts
+
+
+async def test_check_action_not_loaded_is_translated(hass: HomeAssistant):
+    entry = await _setup(hass)
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(DOMAIN, "check", {}, blocking=True)
+    assert err.value.translation_key == "not_loaded"
+    assert err.value.translation_domain == DOMAIN
+
+
+async def test_remove_entry_waits_for_a_running_check(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Removing the watchdog doesn't drop the shared lock while a check still holds it."""
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    lock = hass.data[DOMAIN]["lock"]
+    release = asyncio.Event()
+
+    async def slow(_entry_id):
+        await release.wait()
+        return True
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=slow)):
+        check = hass.async_create_task(entry.runtime_data.async_check(wait=True))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        assert lock.locked()
+        remove = hass.async_create_task(hass.config_entries.async_remove(entry.entry_id))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        still_there = DOMAIN in hass.data
+        release.set()
+        await check
+        await remove
+    assert still_there
+    assert DOMAIN not in hass.data
