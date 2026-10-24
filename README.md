@@ -88,7 +88,7 @@ An integration that stays unavailable after a reload is reloaded again after the
 
 A reload that doesn't finish within 5 minutes, or a notify action that doesn't answer within 30 seconds, counts as failed, so that a hung integration can't block the following checks.
 
-The count is kept in memory: restarting Home Assistant starts over.
+The count is kept in memory: restarting Home Assistant starts over. Changing the options keeps it, so an integration given up stays so (until a higher **Reloads in a row** allows more reloads).
 
 ### Notifications
 
@@ -105,7 +105,7 @@ Each reload, failed reload and give-up creates a persistent notification, one pe
 
 ### Action `integration_watchdog.check`
 
-Runs a check now and waits for the reloads. For administrators. Does nothing while Home Assistant is starting.
+Runs a check now and waits for the reloads. If a check is already running, waits for it to end, then runs its own. For administrators. Does nothing while Home Assistant is starting.
 
 ```yaml
 action: integration_watchdog.check

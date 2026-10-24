@@ -20,3 +20,4 @@ _.extra_state_attributes  # unused property (custom_components/integration_watch
 _.native_value  # unused property (custom_components/integration_watchdog/sensor.py:55)
 _.extra_state_attributes  # unused property (custom_components/integration_watchdog/sensor.py:59)
 _.native_value  # unused property (custom_components/integration_watchdog/sensor.py:77)
+async_remove_entry  # unused function (custom_components/integration_watchdog/__init__.py:90)

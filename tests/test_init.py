@@ -486,3 +486,114 @@ async def test_setup_retry_and_error_are_watched(hass: HomeAssistant, freezer: F
     with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
         await _check(hass)
     assert {c.args[0] for c in reload.await_args_list} == {retry.entry_id, error.entry_id}
+
+
+async def _change_options(hass: HomeAssistant, entry: MockConfigEntry, block: bool = True, **options) -> None:
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {k: v for k, v in {**OPTIONS, **options}.items() if k != CONF_NOTIFY},
+    )
+    if block:
+        await hass.async_block_till_done()
+
+
+async def test_options_change_keeps_the_count(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """An integration given up stays so when the watchdog's own entry is reloaded."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    real_reload = hass.config_entries.async_reload
+
+    async def reload_side_effect(entry_id):
+        return True if entry_id == dead.entry_id else await real_reload(entry_id)
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)) as reload:
+        await _check(hass)
+        freezer.tick(timedelta(minutes=16))
+        await _check(hass)
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+        await _change_options(hass, entry, **{CONF_MAX_RELOADS: 1, CONF_SCAN_INTERVAL: 10})
+        freezer.tick(timedelta(minutes=16))
+        await _check(hass)
+        assert [c.args[0] for c in reload.await_args_list].count(dead.entry_id) == 1
+        item = hass.states.get(UNAVAILABLE).attributes["integrations"][0]
+        assert item["reloads"] == 1
+        assert item["gave_up"] is True
+        # A higher limit reloads it again.
+        await _change_options(hass, entry, **{CONF_MAX_RELOADS: 2})
+        await _check(hass)
+        assert [c.args[0] for c in reload.await_args_list].count(dead.entry_id) == 2
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is False
+
+
+async def test_check_action_waits_for_a_running_check(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """The action runs its own check once the running one has ended, instead of returning at once."""
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    freezer.tick(timedelta(minutes=15))
+    release = asyncio.Event()
+
+    async def slow_reload(_entry_id):
+        await release.wait()
+        return True
+
+    checks = []
+    real_load = watchdog._async_load_helpers
+
+    async def counted_load():
+        checks.append(1)
+        await real_load()
+
+    with (
+        patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=slow_reload)),
+        patch.object(watchdog, "_async_load_helpers", counted_load),
+    ):
+        running = hass.async_create_task(watchdog.async_check())
+        for _ in range(10):
+            await asyncio.sleep(0)
+        assert watchdog.running
+        action = hass.async_create_task(hass.services.async_call(DOMAIN, "check", {}, blocking=True))
+        for _ in range(10):
+            await asyncio.sleep(0)
+        assert not action.done()
+        release.set()
+        async with asyncio.timeout(5):
+            await running
+            await action
+    # Two checks: the running one, then the action's own.
+    assert len(checks) == 2
+
+
+async def test_no_double_reload_while_the_watchdog_reloads(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Options saved during a check: the new instance waits for it, the integration is reloaded once."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    old = entry.runtime_data
+    freezer.tick(timedelta(minutes=15))
+    release = asyncio.Event()
+    real_reload = hass.config_entries.async_reload
+
+    async def reload_side_effect(entry_id):
+        if entry_id != dead.entry_id:
+            return await real_reload(entry_id)
+        await release.wait()
+        return True
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)) as reload:
+        running = hass.async_create_task(old.async_check())
+        for _ in range(10):
+            await asyncio.sleep(0)
+        assert old.running
+        await _change_options(hass, entry, block=False, **{CONF_SCAN_INTERVAL: 10})
+        for _ in range(50):
+            await asyncio.sleep(0)
+        assert entry.runtime_data is not old
+        # The new instance's first check is waiting for the old one.
+        assert entry.runtime_data.running
+        release.set()
+        async with asyncio.timeout(5):
+            await running
+        await hass.async_block_till_done()
+        assert [c.args[0] for c in reload.await_args_list].count(dead.entry_id) == 1

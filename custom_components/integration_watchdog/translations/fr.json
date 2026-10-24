@@ -95,24 +95,12 @@
       "description": "Recherche les intégrations dont toutes les entités sont indisponibles et recharge celles dont le délai de grâce est écoulé."
     }
   },
-  "exceptions": {
-    "reloaded_title": {
-      "message": "Intégration rechargée"
-    },
-    "reloaded": {
-      "message": "{title} ({domain}) a été rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}."
-    },
-    "reload_failed_title": {
-      "message": "Échec du rechargement d'une intégration"
-    },
-    "reload_failed": {
-      "message": "{title} ({domain}) n'a pas pu être rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}, voir les journaux."
-    },
-    "gave_up_title": {
-      "message": "Intégration toujours indisponible"
-    },
-    "gave_up": {
-      "message": "{title} ({domain}) est toujours indisponible après {max} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible."
-    }
+  "common": {
+    "reloaded_title": "Intégration rechargée",
+    "reloaded": "{title} ({domain}) a été rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}.",
+    "reload_failed_title": "Échec du rechargement d'une intégration",
+    "reload_failed": "{title} ({domain}) n'a pas pu être rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}, voir les journaux.",
+    "gave_up_title": "Intégration toujours indisponible",
+    "gave_up": "{title} ({domain}) est toujours indisponible après {max} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible."
   }
 }

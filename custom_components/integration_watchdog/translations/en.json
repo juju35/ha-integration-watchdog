@@ -95,24 +95,12 @@
       "description": "Looks for the integrations whose entities are all unavailable and reloads those past the grace period."
     }
   },
-  "exceptions": {
-    "reloaded_title": {
-      "message": "Integration reloaded"
-    },
-    "reloaded": {
-      "message": "{title} ({domain}) was reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}."
-    },
-    "reload_failed_title": {
-      "message": "Integration reload failed"
-    },
-    "reload_failed": {
-      "message": "{title} ({domain}) could not be reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}, see the logs."
-    },
-    "gave_up_title": {
-      "message": "Integration still unavailable"
-    },
-    "gave_up": {
-      "message": "{title} ({domain}) is still unavailable after {max} reloads. It won't be reloaded again until one of its entities is available."
-    }
+  "common": {
+    "reloaded_title": "Integration reloaded",
+    "reloaded": "{title} ({domain}) was reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}.",
+    "reload_failed_title": "Integration reload failed",
+    "reload_failed": "{title} ({domain}) could not be reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}, see the logs.",
+    "gave_up_title": "Integration still unavailable",
+    "gave_up": "{title} ({domain}) is still unavailable after {max} reloads. It won't be reloaded again until one of its entities is available."
   }
 }
