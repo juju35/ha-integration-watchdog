@@ -116,10 +116,17 @@ class IntegrationWatchdog:
         self._helpers: dict[str, bool] = {}
         self._lock: asyncio.Lock = shared.setdefault("lock", asyncio.Lock())
         self._listeners: list[CALLBACK_TYPE] = []
+        # Set when the watchdog's entry is unloaded: a check still running stops reloading.
+        self._stopped = False
 
     @property
     def running(self) -> bool:
         return self._lock.locked()
+
+    @callback
+    def async_stop(self) -> None:
+        """Stop a check still running: the watchdog's entry is being unloaded or removed."""
+        self._stopped = True
 
     @callback
     def async_entry_changed(self, _change: ConfigEntryChange, entry: ConfigEntry) -> None:
@@ -215,7 +222,7 @@ class IntegrationWatchdog:
             _LOGGER.debug("A check is already running")
             return
         async with self._lock:
-            if self.hass.state is not CoreState.running:
+            if self.hass.state is not CoreState.running or self._stopped:
                 return
             self._notify_listeners()
             await self._async_load_helpers()
@@ -244,8 +251,8 @@ class IntegrationWatchdog:
                 if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
                     del self.attempts[entry_id]
             for item in self.unavailable:
-                # Stop as soon as Home Assistant starts stopping.
-                if self.hass.state is not CoreState.running:
+                # Stop as soon as Home Assistant starts stopping, or the watchdog is unloaded or removed.
+                if self.hass.state is not CoreState.running or self._stopped:
                     break
                 await self._async_handle(item)
             self.unavailable = self.async_find_unavailable()

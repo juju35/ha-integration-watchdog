@@ -62,6 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
         hass.data.setdefault(DOMAIN, {}),
     )
     entry.runtime_data = watchdog
+    entry.async_on_unload(watchdog.async_stop)
     entry.async_on_unload(async_dispatcher_connect(hass, SIGNAL_CONFIG_ENTRY_CHANGED, watchdog.async_entry_changed))
 
     async def scheduled(_now: datetime) -> None:
