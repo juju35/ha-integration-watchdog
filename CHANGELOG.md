@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.2
+
+### Fixes
+- Disabling an integration resets its reload count right away. Before, the count was only reset if a check ran while it was disabled, so disabling and enabling it again within a few minutes left the watchdog given up on it.
+- Removing Integration Watchdog during a check stops that check after the reload in progress, instead of going on reloading the other unavailable integrations while the removal waits.
+
+### Maintenance
+- Tests for the fixes; the duplication check runs on Node 22.
+
 ## 0.4.1
 
 ### Changes
