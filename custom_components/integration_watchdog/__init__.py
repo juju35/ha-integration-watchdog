@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from homeassistant.config_entries import ConfigEntry, ConfigEntryState
+from homeassistant.config_entries import SIGNAL_CONFIG_ENTRY_CHANGED, ConfigEntry, ConfigEntryState
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.service import async_register_admin_service
 from homeassistant.helpers.start import async_at_started
@@ -61,6 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
         hass.data.setdefault(DOMAIN, {}),
     )
     entry.runtime_data = watchdog
+    entry.async_on_unload(async_dispatcher_connect(hass, SIGNAL_CONFIG_ENTRY_CHANGED, watchdog.async_entry_changed))
 
     async def scheduled(_now: datetime) -> None:
         # The check itself does nothing while Home Assistant is starting or stopping.

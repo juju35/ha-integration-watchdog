@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components import persistent_notification
-from homeassistant.config_entries import ConfigEntry, ConfigEntryState
+from homeassistant.config_entries import ConfigEntry, ConfigEntryChange, ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
@@ -120,6 +120,15 @@ class IntegrationWatchdog:
     @property
     def running(self) -> bool:
         return self._lock.locked()
+
+    @callback
+    def async_entry_changed(self, _change: ConfigEntryChange, entry: ConfigEntry) -> None:
+        """Forget the reloads of an entry disabled by the user: once enabled again, it starts over.
+
+        Done on the change itself: disabling then enabling again usually takes less than a check interval.
+        """
+        if entry.disabled_by is not None:
+            self.attempts.pop(entry.entry_id, None)
 
     @callback
     def async_add_listener(self, update_callback: CALLBACK_TYPE) -> Callable[[], None]:
@@ -221,7 +230,8 @@ class IntegrationWatchdog:
                     attempts.recovered_at = None
                     continue
                 entry = self.hass.config_entries.async_get_entry(entry_id)
-                # Removed, or disabled by the user: once enabled again, it starts over.
+                # Removed, or disabled by the user (also forgotten as soon as it is disabled, see
+                # async_entry_changed): once enabled again, it starts over.
                 if entry is None or entry.disabled_by is not None:
                     del self.attempts[entry_id]
                     continue

@@ -735,3 +735,33 @@ async def test_disabled_entry_starts_over(hass: HomeAssistant, freezer: FrozenDa
         # Reloaded again, then given up again after max_reloads.
         reload.assert_awaited_once_with(dead.entry_id)
         assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+
+
+async def test_disabled_entry_starts_over_without_a_check_in_between(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+):
+    """Disabled then enabled again within seconds (no check meanwhile), still down: it is reloaded again."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        for _ in range(12):
+            await _check(hass)
+            freezer.tick(timedelta(minutes=5))
+        assert reload.await_count == 1
+        assert watchdog.attempts[dead.entry_id].gave_up is True
+        # Disabled and enabled again right away: no check runs in between.
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, ConfigEntryDisabler.USER)
+        await hass.async_block_till_done()
+        dead.mock_state(hass, ConfigEntryState.NOT_LOADED)
+        freezer.tick(timedelta(seconds=30))
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, None)
+        await hass.async_block_till_done()
+        dead.mock_state(hass, ConfigEntryState.SETUP_RETRY)
+        hass.states.async_set("sensor.dead_0", STATE_UNAVAILABLE)
+        reload.reset_mock()
+        for _ in range(12):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+        reload.assert_awaited_once_with(dead.entry_id)
