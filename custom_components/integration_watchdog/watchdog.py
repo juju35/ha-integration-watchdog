@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components import persistent_notification
-from homeassistant.config_entries import ConfigEntry, ConfigEntryState
+from homeassistant.config_entries import ConfigEntry, ConfigEntryChange, ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
@@ -116,10 +116,26 @@ class IntegrationWatchdog:
         self._helpers: dict[str, bool] = {}
         self._lock: asyncio.Lock = shared.setdefault("lock", asyncio.Lock())
         self._listeners: list[CALLBACK_TYPE] = []
+        # Set when the watchdog's entry is unloaded: a check still running stops reloading.
+        self._stopped = False
 
     @property
     def running(self) -> bool:
         return self._lock.locked()
+
+    @callback
+    def async_stop(self) -> None:
+        """Stop a check still running: the watchdog's entry is being unloaded or removed."""
+        self._stopped = True
+
+    @callback
+    def async_entry_changed(self, _change: ConfigEntryChange, entry: ConfigEntry) -> None:
+        """Forget the reloads of an entry disabled by the user: once enabled again, it starts over.
+
+        Done on the change itself: disabling then enabling again usually takes less than a check interval.
+        """
+        if entry.disabled_by is not None:
+            self.attempts.pop(entry.entry_id, None)
 
     @callback
     def async_add_listener(self, update_callback: CALLBACK_TYPE) -> Callable[[], None]:
@@ -206,7 +222,7 @@ class IntegrationWatchdog:
             _LOGGER.debug("A check is already running")
             return
         async with self._lock:
-            if self.hass.state is not CoreState.running:
+            if self.hass.state is not CoreState.running or self._stopped:
                 return
             self._notify_listeners()
             await self._async_load_helpers()
@@ -221,7 +237,8 @@ class IntegrationWatchdog:
                     attempts.recovered_at = None
                     continue
                 entry = self.hass.config_entries.async_get_entry(entry_id)
-                # Removed, or disabled by the user: once enabled again, it starts over.
+                # Removed, or disabled by the user (also forgotten as soon as it is disabled, see
+                # async_entry_changed): once enabled again, it starts over.
                 if entry is None or entry.disabled_by is not None:
                     del self.attempts[entry_id]
                     continue
@@ -234,8 +251,8 @@ class IntegrationWatchdog:
                 if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
                     del self.attempts[entry_id]
             for item in self.unavailable:
-                # Stop as soon as Home Assistant starts stopping.
-                if self.hass.state is not CoreState.running:
+                # Stop as soon as Home Assistant starts stopping, or the watchdog is unloaded or removed.
+                if self.hass.state is not CoreState.running or self._stopped:
                     break
                 await self._async_handle(item)
             self.unavailable = self.async_find_unavailable()

@@ -735,3 +735,60 @@ async def test_disabled_entry_starts_over(hass: HomeAssistant, freezer: FrozenDa
         # Reloaded again, then given up again after max_reloads.
         reload.assert_awaited_once_with(dead.entry_id)
         assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+
+
+async def test_disabled_entry_starts_over_without_a_check_in_between(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+):
+    """Disabled then enabled again within seconds (no check meanwhile), still down: it is reloaded again."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        for _ in range(12):
+            await _check(hass)
+            freezer.tick(timedelta(minutes=5))
+        assert reload.await_count == 1
+        assert watchdog.attempts[dead.entry_id].gave_up is True
+        # Disabled and enabled again right away: no check runs in between.
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, ConfigEntryDisabler.USER)
+        await hass.async_block_till_done()
+        dead.mock_state(hass, ConfigEntryState.NOT_LOADED)
+        freezer.tick(timedelta(seconds=30))
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, None)
+        await hass.async_block_till_done()
+        dead.mock_state(hass, ConfigEntryState.SETUP_RETRY)
+        hass.states.async_set("sensor.dead_0", STATE_UNAVAILABLE)
+        reload.reset_mock()
+        for _ in range(12):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+        reload.assert_awaited_once_with(dead.entry_id)
+
+
+async def test_removed_watchdog_stops_its_running_check(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """A check still running when the watchdog is removed reloads nothing more."""
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    add_integration(hass, "down", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    release = asyncio.Event()
+
+    async def slow(_entry_id):
+        await release.wait()
+        return True
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=slow)) as reload:
+        check = hass.async_create_task(entry.runtime_data.async_check(wait=True))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        assert reload.await_count == 1
+        remove = hass.async_create_task(hass.config_entries.async_remove(entry.entry_id))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        release.set()
+        await check
+        await remove
+        assert reload.await_count == 1
+    assert DOMAIN not in hass.data
