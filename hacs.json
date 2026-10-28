@@ -2,5 +2,7 @@
   "name": "Integration Watchdog",
   "content_in_root": false,
   "render_readme": true,
+  "zip_release": true,
+  "filename": "integration_watchdog.zip",
   "homeassistant": "2024.12.0"
 }

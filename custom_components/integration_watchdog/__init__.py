@@ -98,8 +98,10 @@ async def async_remove_entry(hass: HomeAssistant, entry: IntegrationWatchdogConf
     if (lock := shared.get("lock")) is not None:
         async with lock:
             pass
-    # Only if nothing replaced it meanwhile (integration added again).
-    if hass.data.get(DOMAIN) is shared:
+    # Only if the integration wasn't added back while the removal waited for the check: a new setup
+    # gets the same dict from setdefault, popping it would hand a later options reload a second lock
+    # while a check may still run under this one.
+    if not hass.config_entries.async_entries(DOMAIN) and hass.data.get(DOMAIN) is shared:
         hass.data.pop(DOMAIN)
 
 
