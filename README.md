@@ -26,7 +26,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
 - One failing reload doesn't stop the others; two checks never run at the same time
-- English and French
+- English, French, German and Spanish
 
 ## Prerequisites
 
@@ -176,6 +176,8 @@ The integration follows the language of Home Assistant. Currently supported:
 |---|---|
 | English | `en` |
 | Français | `fr` |
+| Deutsch | `de` |
+| Español | `es` |
 
 Contributions for additional languages are welcome!
 
