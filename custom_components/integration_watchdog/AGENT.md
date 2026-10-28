@@ -13,7 +13,7 @@ custom_components/integration_watchdog/
 ├── button.py        # button.*_check_now (unavailable while a check runs)
 ├── sensor.py        # unavailable (count + integrations/ignored), last_reload (+ domain/title/success/reloads), last_check
 ├── entity.py        # Shared service device, listener on IntegrationWatchdog
-├── const.py / icons.json / services.yaml / translations/{en,fr}.json / brand/
+├── const.py / icons.json / services.yaml / translations/{en,fr,de,es}.json / brand/
 ```
 
 ## Rules
