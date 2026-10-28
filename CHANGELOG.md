@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+
+### What's new
+- German and Spanish translations (configuration, options, entities, action, notifications).
+
+### Maintenance
+- Test checking that every translation has the same keys and placeholders as English.
+
 ## 0.4.3
 
 ### Fixes

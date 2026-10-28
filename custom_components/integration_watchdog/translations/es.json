@@ -1,0 +1,109 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Recarga las integraciones en las que ninguna entidad está disponible.",
+        "data": {
+          "scan_interval": "Intervalo de comprobación",
+          "grace_period": "Periodo de gracia",
+          "max_reloads": "Recargas seguidas",
+          "ignored_integrations": "Integraciones ignoradas",
+          "notify_services": "Acciones de notificación"
+        },
+        "data_description": {
+          "scan_interval": "Minutos entre dos comprobaciones.",
+          "grace_period": "Minutos que todas las entidades de una integración deben haber estado no disponibles antes de recargarla. No se recarga nada durante este tiempo tras el inicio de Home Assistant.",
+          "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
+          "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
+          "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog ya está configurado.",
+      "single_instance_allowed": "Integration Watchdog ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Integration Watchdog",
+        "data": {
+          "scan_interval": "Intervalo de comprobación",
+          "grace_period": "Periodo de gracia",
+          "max_reloads": "Recargas seguidas",
+          "ignored_integrations": "Integraciones ignoradas",
+          "notify_services": "Acciones de notificación"
+        },
+        "data_description": {
+          "scan_interval": "Minutos entre dos comprobaciones.",
+          "grace_period": "Minutos que todas las entidades de una integración deben haber estado no disponibles antes de recargarla. No se recarga nada durante este tiempo tras el inicio de Home Assistant.",
+          "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
+          "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
+          "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Comprobar ahora"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Integraciones no disponibles",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integraciones"
+          },
+          "ignored": {
+            "name": "Ignoradas"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Última recarga",
+        "state_attributes": {
+          "domain": {
+            "name": "Dominio"
+          },
+          "title": {
+            "name": "Título"
+          },
+          "entry_id": {
+            "name": "ID de la entrada"
+          },
+          "success": {
+            "name": "Correcta"
+          },
+          "reloads": {
+            "name": "Recargas"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Última comprobación"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Comprobar integraciones",
+      "description": "Busca las integraciones en las que ninguna entidad está disponible y recarga aquellas cuyo periodo de gracia ha transcurrido."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integración recargada",
+    "reloaded": "{title} ({domain}) se ha recargado: todas sus entidades estaban no disponibles desde {since}. Recarga {attempt}/{max}.",
+    "reload_failed_title": "Error al recargar una integración",
+    "reload_failed": "{title} ({domain}) no se ha podido recargar: todas sus entidades estaban no disponibles desde {since}. Recarga {attempt}/{max}, consulta los registros.",
+    "gave_up_title": "Integración aún no disponible",
+    "gave_up": "{title} ({domain}) sigue sin estar disponible tras {max} recargas. No se volverá a recargar hasta que una de sus entidades esté disponible."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog no está cargado." }
+  }
+}

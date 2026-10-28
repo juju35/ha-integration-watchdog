@@ -1,0 +1,109 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Lädt die Integrationen neu, deren Entitäten alle nicht verfügbar sind.",
+        "data": {
+          "scan_interval": "Prüfintervall",
+          "grace_period": "Karenzzeit",
+          "max_reloads": "Neuladevorgänge in Folge",
+          "ignored_integrations": "Ignorierte Integrationen",
+          "notify_services": "Benachrichtigungsaktionen"
+        },
+        "data_description": {
+          "scan_interval": "Minuten zwischen zwei Prüfungen.",
+          "grace_period": "Minuten, die alle Entitäten einer Integration nicht verfügbar gewesen sein müssen, bevor sie neu geladen wird. Während dieser Zeit nach dem Start von Home Assistant wird nichts neu geladen.",
+          "max_reloads": "Neuladevorgänge einer weiterhin nicht verfügbaren Integration, bevor sie aufgegeben wird, bis sie sich erholt. Die Wartezeit zwischen zwei Neuladevorgängen verdoppelt sich jedes Mal: Karenzzeit, 2 × Karenzzeit…",
+          "ignored_integrations": "Integrationen, die nie neu geladen werden. Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen.",
+          "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog ist bereits eingerichtet.",
+      "single_instance_allowed": "Integration Watchdog ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen von Integration Watchdog",
+        "data": {
+          "scan_interval": "Prüfintervall",
+          "grace_period": "Karenzzeit",
+          "max_reloads": "Neuladevorgänge in Folge",
+          "ignored_integrations": "Ignorierte Integrationen",
+          "notify_services": "Benachrichtigungsaktionen"
+        },
+        "data_description": {
+          "scan_interval": "Minuten zwischen zwei Prüfungen.",
+          "grace_period": "Minuten, die alle Entitäten einer Integration nicht verfügbar gewesen sein müssen, bevor sie neu geladen wird. Während dieser Zeit nach dem Start von Home Assistant wird nichts neu geladen.",
+          "max_reloads": "Neuladevorgänge einer weiterhin nicht verfügbaren Integration, bevor sie aufgegeben wird, bis sie sich erholt. Die Wartezeit zwischen zwei Neuladevorgängen verdoppelt sich jedes Mal: Karenzzeit, 2 × Karenzzeit…",
+          "ignored_integrations": "Integrationen, die nie neu geladen werden. Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen.",
+          "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Jetzt prüfen"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Nicht verfügbare Integrationen",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrationen"
+          },
+          "ignored": {
+            "name": "Ignoriert"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Letztes Neuladen",
+        "state_attributes": {
+          "domain": {
+            "name": "Domain"
+          },
+          "title": {
+            "name": "Titel"
+          },
+          "entry_id": {
+            "name": "Eintrags-ID"
+          },
+          "success": {
+            "name": "Erfolgreich"
+          },
+          "reloads": {
+            "name": "Neuladevorgänge"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Letzte Prüfung"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Integrationen prüfen",
+      "description": "Sucht die Integrationen, deren Entitäten alle nicht verfügbar sind, und lädt diejenigen neu, deren Karenzzeit abgelaufen ist."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integration neu geladen",
+    "reloaded": "{title} ({domain}) wurde neu geladen: Alle ihre Entitäten waren seit {since} nicht verfügbar. Neuladen {attempt}/{max}.",
+    "reload_failed_title": "Neuladen einer Integration fehlgeschlagen",
+    "reload_failed": "{title} ({domain}) konnte nicht neu geladen werden: Alle ihre Entitäten waren seit {since} nicht verfügbar. Neuladen {attempt}/{max}, siehe Protokolle.",
+    "gave_up_title": "Integration weiterhin nicht verfügbar",
+    "gave_up": "{title} ({domain}) ist nach {max} Neuladevorgängen weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog ist nicht geladen." }
+  }
+}
