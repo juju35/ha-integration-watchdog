@@ -302,6 +302,10 @@ class IntegrationWatchdog:
         entry: ConfigEntry | None = self.hass.config_entries.async_get_entry(item.entry_id)
         if entry is None or entry.state not in WATCHED_STATES:
             return
+        # The unavailable list is a snapshot taken at the start of the check, and the earlier reloads
+        # of this check may have taken minutes: skip one that has become available again since.
+        if self._has_available_entity(entry):
+            return
         _LOGGER.warning(
             "Reloading %s (%s): all its entities are unavailable since %s",
             item.title,
@@ -360,7 +364,12 @@ class IntegrationWatchdog:
 
         def text(name: str) -> str:
             template = strings.get(f"component.{DOMAIN}.common.{name}", name)
-            return template.format(**placeholders)
+            # A translation with an unknown placeholder or a stray brace must not abort the check.
+            try:
+                return template.format(**placeholders)
+            except (KeyError, IndexError, ValueError):
+                _LOGGER.warning("Invalid placeholders in the %s translation: %r", name, template)
+                return template
 
         title, message = text(f"{key}_title"), text(key)
         persistent_notification.async_create(
