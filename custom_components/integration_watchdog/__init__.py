@@ -100,8 +100,10 @@ async def async_remove_entry(hass: HomeAssistant, entry: IntegrationWatchdogConf
             pass
     # Only if the integration wasn't added back while the removal waited for the check: a new setup
     # gets the same dict from setdefault, popping it would hand a later options reload a second lock
-    # while a check may still run under this one.
-    if not hass.config_entries.async_entries(DOMAIN) and hass.data.get(DOMAIN) is shared:
+    # while a check may still run under this one. The entry being removed is skipped: before Home
+    # Assistant 2025.3 it is still registered while this callback runs.
+    others = [e for e in hass.config_entries.async_entries(DOMAIN) if e.entry_id != entry.entry_id]
+    if not others and hass.data.get(DOMAIN) is shared:
         hass.data.pop(DOMAIN)
 
 
