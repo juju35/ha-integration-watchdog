@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.3
+
+### Fixes
+- An integration that becomes available again while a check is reloading others is no longer reloaded (and its reload count no longer goes up).
+- A notification translation with a broken placeholder no longer aborts the check: the raw text is sent and a warning is logged. A missing notification text is logged too.
+- A scheduled check that queued behind another one no longer runs a second check right after it.
+- Removing Integration Watchdog and adding it back while a check runs no longer allows two checks at the same time after the next options change.
+- Removing Integration Watchdog now clears its state on Home Assistant versions before 2025.3 too.
+
+### Maintenance
+- HACS installs the release zip, which no longer contains the internal agent documentation and brand images.
+- Release runs are serialized; lint and pre-commit config cleanup, Lint can be run manually; tests for the fixes.
+
 ## 0.4.2
 
 ### Fixes
