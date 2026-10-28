@@ -181,10 +181,11 @@ class IntegrationWatchdog:
                 if entity.disabled:
                     continue
                 state = self.hass.states.get(entity.entity_id)
-                # Entities the integration hasn't created (device off, connection lost at setup) keep an
-                # "unavailable" placeholder with `restored: true`: they count as unavailable too.
                 if state is None:
                     continue
+                # This keeps the entities the integration hasn't created (device off, connection lost at
+                # setup): they hold an "unavailable" placeholder state with `restored: true` and count
+                # as unavailable too.
                 states.append(state)
             if not states or any(s.state != STATE_UNAVAILABLE for s in states):
                 continue
@@ -372,7 +373,10 @@ class IntegrationWatchdog:
         }
 
         def text(name: str) -> str:
-            template = strings.get(f"component.{DOMAIN}.common.{name}", name)
+            template = strings.get(f"component.{DOMAIN}.common.{name}")
+            if template is None:
+                _LOGGER.warning("Missing notification translation %s: using the key itself", name)
+                return name
             # A translation with an unknown placeholder or a stray brace must not abort the check.
             try:
                 return template.format(**placeholders)
