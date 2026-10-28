@@ -364,7 +364,12 @@ class IntegrationWatchdog:
 
         def text(name: str) -> str:
             template = strings.get(f"component.{DOMAIN}.common.{name}", name)
-            return template.format(**placeholders)
+            # A translation with an unknown placeholder or a stray brace must not abort the check.
+            try:
+                return template.format(**placeholders)
+            except (KeyError, IndexError, ValueError):
+                _LOGGER.warning("Invalid placeholders in the %s translation: %r", name, template)
+                return template
 
         title, message = text(f"{key}_title"), text(key)
         persistent_notification.async_create(

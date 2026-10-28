@@ -214,6 +214,29 @@ async def test_recovered_during_check_is_not_reloaded(hass: HomeAssistant, freez
     assert hass.states.get(UNAVAILABLE).state == "1"
 
 
+async def test_broken_translation_does_not_stop_the_check(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """A translation with an unknown placeholder falls back to the raw template, the check goes on."""
+    first = add_integration(hass, "aaa", [STATE_UNAVAILABLE])
+    second = add_integration(hass, "bbb", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=20))
+    strings = {
+        f"component.{DOMAIN}.common.reloaded_title": "Reloaded {unknown}",
+        f"component.{DOMAIN}.common.reloaded": "Stray brace } in {title}",
+    }
+    with (
+        patch.object(watchdog_module, "async_get_translations", AsyncMock(return_value=strings)),
+        patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload,
+    ):
+        await _check(hass)
+    assert [c.args[0] for c in reload.await_args_list] == [first.entry_id, second.entry_id]
+    notifications = persistent_notification._async_get_or_create_notifications(hass)
+    notification = notifications[f"{DOMAIN}_{first.entry_id}"]
+    assert notification["title"] == "Reloaded {unknown}"
+    assert notification["message"] == "Stray brace } in {title}"
+    assert hass.states.get(LAST_CHECK).state not in ("unknown", "unavailable")
+
+
 async def test_scheduled_check_and_button(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
     await _setup(hass, **{CONF_SCAN_INTERVAL: 1, CONF_GRACE_PERIOD: 1})
