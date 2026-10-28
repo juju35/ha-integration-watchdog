@@ -742,6 +742,69 @@ async def test_remove_entry_waits_for_a_running_check(hass: HomeAssistant, freez
     assert DOMAIN not in hass.data
 
 
+async def test_added_back_during_removal_keeps_the_shared_state(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Added back while the removal waits for a running check: the shared lock stays registered."""
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    shared = hass.data[DOMAIN]
+    release = asyncio.Event()
+
+    async def slow(_entry_id):
+        await release.wait()
+        return True
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=slow)):
+        check = hass.async_create_task(entry.runtime_data.async_check(wait=True))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        remove = hass.async_create_task(hass.config_entries.async_remove(entry.entry_id))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        # The removal is waiting for the check: the integration is added back meanwhile.
+        new = MockConfigEntry(domain=DOMAIN, unique_id=DOMAIN, options=OPTIONS)
+        new.add_to_hass(hass)
+        setup = hass.async_create_task(hass.config_entries.async_setup(new.entry_id))
+        for _ in range(20):
+            await asyncio.sleep(0)
+        release.set()
+        async with asyncio.timeout(5):
+            await check
+            await remove
+            assert await setup
+        await hass.async_block_till_done()
+    # The new instance's shared state is still the one registered: a later options reload reuses its lock.
+    assert hass.data[DOMAIN] is shared
+    assert new.runtime_data._lock is shared["lock"]
+
+
+async def test_scheduled_check_queued_behind_a_waiting_one_is_skipped(hass: HomeAssistant):
+    """A scheduled check that saw the lock free but queued behind a waiting one is skipped, not run again."""
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    lock = hass.data[DOMAIN]["lock"]
+    checks = []
+    real_load = watchdog._async_load_helpers
+
+    async def counted_load():
+        checks.append(1)
+        await real_load()
+
+    with patch.object(watchdog, "_async_load_helpers", counted_load):
+        await lock.acquire()  # A check is running.
+        waiting = hass.async_create_task(watchdog.async_check(wait=True))
+        for _ in range(5):
+            await asyncio.sleep(0)
+        # The running check ends; the scheduled one starts (eagerly) before the waiting one resumes:
+        # it sees the lock free, queues behind the waiting one, and must then be skipped, not run again.
+        lock.release()
+        scheduled = hass.async_create_task(watchdog.async_check())
+        async with asyncio.timeout(5):
+            await waiting
+            await scheduled
+    assert len(checks) == 1
+
+
 async def test_disabled_entry_starts_over(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     """Disabled by the user after a give-up, then enabled again still down: it is reloaded again."""
     dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])

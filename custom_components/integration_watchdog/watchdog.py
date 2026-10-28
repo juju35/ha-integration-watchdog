@@ -102,6 +102,8 @@ class IntegrationWatchdog:
         # an integration given up stays so, and a check still running in the previous instance
         # keeps the new one waiting instead of reloading the same entries twice.
         shared = shared if shared is not None else {}
+        self._shared = shared
+        shared.setdefault("checks", 0)
         self.attempts: dict[str, Attempts] = shared.setdefault("attempts", {})
         self.last_check: datetime | None = None
         self.last_reload: Reload | None = None
@@ -221,9 +223,16 @@ class IntegrationWatchdog:
         if self._lock.locked() and not wait:
             _LOGGER.debug("A check is already running")
             return
+        seen = self._shared["checks"]
         async with self._lock:
             if self.hass.state is not CoreState.running or self._stopped:
                 return
+            # A scheduled check can see the lock free right after a release and still queue behind a
+            # waiting one: a check done since the counter was read above means it already ran, skip it.
+            if not wait and self._shared["checks"] != seen:
+                _LOGGER.debug("A check ran while this one was waiting for the lock")
+                return
+            self._shared["checks"] += 1
             self._notify_listeners()
             await self._async_load_helpers()
             self.unavailable = self.async_find_unavailable()
