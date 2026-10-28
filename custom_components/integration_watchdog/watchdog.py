@@ -302,6 +302,10 @@ class IntegrationWatchdog:
         entry: ConfigEntry | None = self.hass.config_entries.async_get_entry(item.entry_id)
         if entry is None or entry.state not in WATCHED_STATES:
             return
+        # The unavailable list is a snapshot taken at the start of the check, and the earlier reloads
+        # of this check may have taken minutes: skip one that has become available again since.
+        if self._has_available_entity(entry):
+            return
         _LOGGER.warning(
             "Reloading %s (%s): all its entities are unavailable since %s",
             item.title,

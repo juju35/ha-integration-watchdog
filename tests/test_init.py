@@ -197,6 +197,23 @@ async def test_failed_reload_does_not_stop_the_others(hass: HomeAssistant, freez
     assert hass.states.get(LAST_RELOAD).attributes["reloads"] == 2
 
 
+async def test_recovered_during_check_is_not_reloaded(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """An integration available again between the snapshot and its turn in the reload loop is skipped."""
+    first = add_integration(hass, "aaa", [STATE_UNAVAILABLE])
+    add_integration(hass, "bbb", [STATE_UNAVAILABLE])
+    await _setup(hass)
+    freezer.tick(timedelta(minutes=20))
+
+    async def recover_second(entry_id: str) -> bool:
+        hass.states.async_set("sensor.bbb_0", "on")
+        return True
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=recover_second)) as reload:
+        await _check(hass)
+    reload.assert_awaited_once_with(first.entry_id)
+    assert hass.states.get(UNAVAILABLE).state == "1"
+
+
 async def test_scheduled_check_and_button(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
     await _setup(hass, **{CONF_SCAN_INTERVAL: 1, CONF_GRACE_PERIOD: 1})
