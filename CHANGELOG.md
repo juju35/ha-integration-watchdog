@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.1
+
+### Fixes
+- The integration icon is back in Settings → Devices & services: the release zip installed by HACS includes the brand images again.
+- Changing the options no longer resets the last reload sensor (it went back to unknown) and its `reloads` total, which now really count since Home Assistant started.
+- An unexpected error while handling one integration is logged and no longer stops the check of the others; the sensors and the Check now button are updated even when a check fails.
+- The give-up notification gives the number of reloads actually done, instead of the current limit after it was lowered.
+- Spanish: more natural wording of the reload notifications.
+
+### Maintenance
+- The list of unavailable integrations and the ignored domains are no longer stored in the recorder database at every check.
+- A release is published only once the tests pass; the Ruff lint job uses the same Ruff version as pre-commit.
+
 ## 0.5.0
 
 ### What's new
