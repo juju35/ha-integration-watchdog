@@ -101,7 +101,7 @@
     "reload_failed_title": "Neuladen einer Integration fehlgeschlagen",
     "reload_failed": "{title} ({domain}) konnte nicht neu geladen werden: Alle ihre Entitäten waren seit {since} nicht verfügbar. Neuladen {attempt}/{max}, siehe Protokolle.",
     "gave_up_title": "Integration weiterhin nicht verfügbar",
-    "gave_up": "{title} ({domain}) ist nach {max} Neuladevorgängen weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist."
+    "gave_up": "{title} ({domain}) ist nach {attempt} Neuladevorgängen weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist."
   },
   "exceptions": {
     "not_loaded": { "message": "Integration Watchdog ist nicht geladen." }

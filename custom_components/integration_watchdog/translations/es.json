@@ -97,11 +97,11 @@
   },
   "common": {
     "reloaded_title": "Integración recargada",
-    "reloaded": "{title} ({domain}) se ha recargado: todas sus entidades estaban no disponibles desde {since}. Recarga {attempt}/{max}.",
+    "reloaded": "{title} ({domain}) se ha recargado: todas sus entidades llevaban sin estar disponibles desde {since}. Recarga {attempt}/{max}.",
     "reload_failed_title": "Error al recargar una integración",
-    "reload_failed": "{title} ({domain}) no se ha podido recargar: todas sus entidades estaban no disponibles desde {since}. Recarga {attempt}/{max}, consulta los registros.",
+    "reload_failed": "{title} ({domain}) no se ha podido recargar: todas sus entidades llevaban sin estar disponibles desde {since}. Recarga {attempt}/{max}, consulta los registros.",
     "gave_up_title": "Integración aún no disponible",
-    "gave_up": "{title} ({domain}) sigue sin estar disponible tras {max} recargas. No se volverá a recargar hasta que una de sus entidades esté disponible."
+    "gave_up": "{title} ({domain}) sigue sin estar disponible tras {attempt} recargas. No se volverá a recargar hasta que una de sus entidades esté disponible."
   },
   "exceptions": {
     "not_loaded": { "message": "Integration Watchdog no está cargado." }

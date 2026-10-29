@@ -104,10 +104,10 @@ class IntegrationWatchdog:
         shared = shared if shared is not None else {}
         self._shared = shared
         shared.setdefault("checks", 0)
+        # The reload count and the last reload too, so that the sensor doesn't start over at each options change.
+        shared.setdefault("reloads", 0)
         self.attempts: dict[str, Attempts] = shared.setdefault("attempts", {})
         self.last_check: datetime | None = None
-        self.last_reload: Reload | None = None
-        self.reloads = 0
         # When Home Assistant finished starting: nothing is reloaded before the grace period has
         # passed since then, whatever the states say. None until it has started; set far in the
         # past when the watchdog itself is set up later (options changed, update installed).
@@ -124,6 +124,15 @@ class IntegrationWatchdog:
     @property
     def running(self) -> bool:
         return self._lock.locked()
+
+    @property
+    def reloads(self) -> int:
+        """Reloads done since Home Assistant started."""
+        return self._shared["reloads"]
+
+    @property
+    def last_reload(self) -> Reload | None:
+        return self._shared.get("last_reload")
 
     @callback
     def async_stop(self) -> None:
@@ -225,49 +234,61 @@ class IntegrationWatchdog:
             _LOGGER.debug("A check is already running")
             return
         seen = self._shared["checks"]
-        async with self._lock:
-            if self.hass.state is not CoreState.running or self._stopped:
-                return
-            # A scheduled check can see the lock free right after a release and still queue behind a
-            # waiting one: a check done since the counter was read above means it already ran, skip it.
-            if not wait and self._shared["checks"] != seen:
-                _LOGGER.debug("A check ran while this one was waiting for the lock")
-                return
-            self._shared["checks"] += 1
-            self._notify_listeners()
-            await self._async_load_helpers()
-            self.unavailable = self.async_find_unavailable()
-            # An integration available again starts over, once it has stayed so for its current
-            # delay, counted from the first check that found it back: one that comes back for a
-            # moment and falls again keeps its count.
-            now = dt_util.utcnow()
-            current = {u.entry_id for u in self.unavailable}
-            for entry_id, attempts in list(self.attempts.items()):
-                if entry_id in current:
-                    attempts.recovered_at = None
-                    continue
-                entry = self.hass.config_entries.async_get_entry(entry_id)
-                # Removed, or disabled by the user (also forgotten as soon as it is disabled, see
-                # async_entry_changed): once enabled again, it starts over.
-                if entry is None or entry.disabled_by is not None:
-                    del self.attempts[entry_id]
-                    continue
-                # Out of the list is not available again: a setup or unload still in progress (a reload past
-                # its timeout), or no entity with an available state. Left as it is.
-                if not self._has_available_entity(entry):
-                    continue
-                if attempts.recovered_at is None:
-                    attempts.recovered_at = now
-                if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
-                    del self.attempts[entry_id]
-            for item in self.unavailable:
-                # Stop as soon as Home Assistant starts stopping, or the watchdog is unloaded or removed.
+        try:
+            async with self._lock:
                 if self.hass.state is not CoreState.running or self._stopped:
-                    break
+                    return
+                # A scheduled check can see the lock free right after a release and still queue behind a
+                # waiting one: a check done since the counter was read above means it already ran, skip it.
+                if not wait and self._shared["checks"] != seen:
+                    _LOGGER.debug("A check ran while this one was waiting for the lock")
+                    return
+                self._shared["checks"] += 1
+                self._notify_listeners()
+                try:
+                    await self._async_check()
+                finally:
+                    self.last_check = dt_util.utcnow()
+        finally:
+            # Also after an unexpected error: the entities (and the button, available again) must not stay stale.
+            self._notify_listeners()
+
+    async def _async_check(self) -> None:
+        """The check itself, run under the lock."""
+        await self._async_load_helpers()
+        self.unavailable = self.async_find_unavailable()
+        # An integration available again starts over, once it has stayed so for its current
+        # delay, counted from the first check that found it back: one that comes back for a
+        # moment and falls again keeps its count.
+        now = dt_util.utcnow()
+        current = {u.entry_id for u in self.unavailable}
+        for entry_id, attempts in list(self.attempts.items()):
+            if entry_id in current:
+                attempts.recovered_at = None
+                continue
+            entry = self.hass.config_entries.async_get_entry(entry_id)
+            # Removed, or disabled by the user (also forgotten as soon as it is disabled, see
+            # async_entry_changed): once enabled again, it starts over.
+            if entry is None or entry.disabled_by is not None:
+                del self.attempts[entry_id]
+                continue
+            # Out of the list is not available again: a setup or unload still in progress (a reload past
+            # its timeout), or no entity with an available state. Left as it is.
+            if not self._has_available_entity(entry):
+                continue
+            if attempts.recovered_at is None:
+                attempts.recovered_at = now
+            if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
+                del self.attempts[entry_id]
+        for item in self.unavailable:
+            # Stop as soon as Home Assistant starts stopping, or the watchdog is unloaded or removed.
+            if self.hass.state is not CoreState.running or self._stopped:
+                break
+            try:
                 await self._async_handle(item)
-            self.unavailable = self.async_find_unavailable()
-            self.last_check = dt_util.utcnow()
-        self._notify_listeners()
+            except Exception:  # noqa: BLE001 - one integration must not stop the check of the others
+                _LOGGER.exception("Handling %s (%s) failed", item.title, item.domain)
+        self.unavailable = self.async_find_unavailable()
 
     async def _async_handle(self, item: UnavailableIntegration) -> None:
         now = dt_util.utcnow()
@@ -345,8 +366,8 @@ class IntegrationWatchdog:
             success = False
         attempts.count += 1
         attempts.last = dt_util.utcnow()
-        self.reloads += 1
-        self.last_reload = Reload(item.entry_id, item.domain, item.title, success, attempts.last)
+        self._shared["reloads"] += 1
+        self._shared["last_reload"] = Reload(item.entry_id, item.domain, item.title, success, attempts.last)
         self.hass.bus.async_fire(
             EVENT_RELOADED,
             {

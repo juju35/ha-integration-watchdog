@@ -895,3 +895,94 @@ async def test_removed_watchdog_stops_its_running_check(hass: HomeAssistant, fre
         await remove
         assert reload.await_count == 1
     assert DOMAIN not in hass.data
+
+
+async def test_options_change_keeps_the_last_reload(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """The last reload sensor and its reload total survive a reload of the watchdog's own entry."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    real_reload = hass.config_entries.async_reload
+
+    async def reload_side_effect(entry_id):
+        return True if entry_id == dead.entry_id else await real_reload(entry_id)
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)):
+        await _check(hass)
+        before = hass.states.get(LAST_RELOAD)
+        assert before.attributes["reloads"] == 1
+        await _change_options(hass, entry, **{CONF_SCAN_INTERVAL: 10})
+    after = hass.states.get(LAST_RELOAD)
+    assert after.state == before.state
+    assert after.attributes["reloads"] == 1
+    assert after.attributes["entry_id"] == dead.entry_id
+
+
+async def test_error_on_one_integration_does_not_stop_the_check(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory, caplog: pytest.LogCaptureFixture
+):
+    """An unexpected error on one integration is logged, the others are still reloaded and the entities updated."""
+    first = add_integration(hass, "first", [STATE_UNAVAILABLE])
+    second = add_integration(hass, "second", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    freezer.tick(timedelta(minutes=15))
+    real_send = watchdog._async_send
+
+    async def broken_send(key, item, attempt):
+        if item.entry_id == first.entry_id:
+            raise RuntimeError("boom")
+        await real_send(key, item, attempt)
+
+    with (
+        patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload,
+        patch.object(watchdog, "_async_send", broken_send),
+    ):
+        await _check(hass)
+    assert {c.args[0] for c in reload.await_args_list} == {first.entry_id, second.entry_id}
+    assert "Handling First (first) failed" in caplog.text
+    assert hass.states.get(LAST_CHECK).state not in ("unknown", "unavailable")
+    assert hass.states.get(BUTTON).state != "unavailable"
+
+
+async def test_error_during_the_check_still_updates_the_entities(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """A check that fails outright still records its end and frees the button."""
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    before = watchdog.last_check
+    state_before = hass.states.get(LAST_CHECK).state
+    freezer.tick(timedelta(minutes=1))
+    with (
+        patch.object(watchdog, "_async_load_helpers", AsyncMock(side_effect=RuntimeError("boom"))),
+        pytest.raises(RuntimeError),
+    ):
+        await watchdog.async_check(wait=True)
+    await hass.async_block_till_done()
+    assert watchdog.last_check is not None and watchdog.last_check != before
+    assert hass.states.get(LAST_CHECK).state != state_before
+    assert hass.states.get(BUTTON).state != "unavailable"
+
+
+async def test_give_up_after_lowering_the_limit_tells_the_real_count(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+):
+    """Given up after the limit was lowered: the notification gives the reloads done, not the new limit."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)  # grace 15 min, 3 reloads
+    freezer.tick(timedelta(minutes=15))
+    real_reload = hass.config_entries.async_reload
+
+    async def reload_side_effect(entry_id):
+        return True if entry_id == dead.entry_id else await real_reload(entry_id)
+
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)):
+        await _check(hass)
+        freezer.tick(timedelta(minutes=15))
+        await _check(hass)
+        assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["reloads"] == 2
+        await _change_options(hass, entry, **{CONF_MAX_RELOADS: 1})
+        freezer.tick(timedelta(minutes=30))
+        await _check(hass)
+    assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
+    notification = persistent_notification._async_get_or_create_notifications(hass)[f"{DOMAIN}_{dead.entry_id}"]
+    assert "still unavailable after 2 reloads" in notification["message"]

@@ -101,7 +101,7 @@
     "reload_failed_title": "Échec du rechargement d'une intégration",
     "reload_failed": "{title} ({domain}) n'a pas pu être rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}, voir les journaux.",
     "gave_up_title": "Intégration toujours indisponible",
-    "gave_up": "{title} ({domain}) est toujours indisponible après {max} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible."
+    "gave_up": "{title} ({domain}) est toujours indisponible après {attempt} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible."
   },
   "exceptions": {
     "not_loaded": { "message": "Integration Watchdog n'est pas chargé." }
