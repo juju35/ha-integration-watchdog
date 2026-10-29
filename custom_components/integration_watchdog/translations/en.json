@@ -101,7 +101,7 @@
     "reload_failed_title": "Integration reload failed",
     "reload_failed": "{title} ({domain}) could not be reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}, see the logs.",
     "gave_up_title": "Integration still unavailable",
-    "gave_up": "{title} ({domain}) is still unavailable after {max} reloads. It won't be reloaded again until one of its entities is available."
+    "gave_up": "{title} ({domain}) is still unavailable after {attempt} reloads. It won't be reloaded again until one of its entities is available."
   },
   "exceptions": {
     "not_loaded": { "message": "Integration Watchdog is not loaded." }
