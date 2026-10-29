@@ -34,6 +34,8 @@ class UnavailableSensor(IntegrationWatchdogEntity, SensorEntity):
     """Number of integrations whose entities are all unavailable, listed in the attributes."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
+    # Rewritten at every check: kept out of the recorder database.
+    _unrecorded_attributes = frozenset({"integrations", "ignored"})
 
     @property
     def native_value(self) -> int | None:
