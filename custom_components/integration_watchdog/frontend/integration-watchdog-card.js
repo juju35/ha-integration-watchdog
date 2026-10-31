@@ -277,6 +277,8 @@ class IntegrationWatchdogCard extends HTMLElement {
       old &&
       this._sig &&
       ids &&
+      // No sensor found yet (watchdog not loaded): its return must be seen at once, not at the next minute.
+      ids.unavailable &&
       hass.entities === old.entities &&
       Object.values(ids).every((id) => !id || hass.states[id] === old.states[id]) &&
       iwLang(hass, this._config) === iwLang(old, this._config) &&
@@ -353,14 +355,16 @@ class IntegrationWatchdogCard extends HTMLElement {
     const ids = this._lookup();
     this._ids = ids;
     const states = this._hass.states;
-    const st = ids.unavailable && states[ids.unavailable];
+    // Without its list (unavailable or restored while the watchdog is not loaded), the sensor says nothing: not set up.
+    const sensorSt = ids.unavailable && states[ids.unavailable];
+    const st = Array.isArray(sensorSt?.attributes?.integrations) ? sensorSt : null;
     const reloadSt = ids.last_reload && states[ids.last_reload];
     const checkSt = ids.last_check && states[ids.last_check];
     const buttonSt = ids.button && states[ids.button];
 
     const minute = Math.floor(Date.now() / 60000);
     this._sigMinute = minute;
-    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, st, reloadSt, checkSt, buttonSt?.state, minute]);
+    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, sensorSt, reloadSt, checkSt, buttonSt?.state, minute]);
     if (sig === this._sig) return;
     this._sig = sig;
 
