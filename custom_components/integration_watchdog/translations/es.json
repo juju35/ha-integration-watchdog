@@ -61,6 +61,9 @@
           },
           "ignored": {
             "name": "Ignoradas"
+          },
+          "max_reloads": {
+            "name": "Recargas máximas"
           }
         }
       },
@@ -81,6 +84,9 @@
           },
           "reloads": {
             "name": "Recargas"
+          },
+          "history": {
+            "name": "Historial"
           }
         }
       },

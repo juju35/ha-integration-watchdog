@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0
+
+### What's new
+- **Integration Watchdog Card**, bundled with the integration and added to the dashboard resources automatically: overall status, time of the last check, **Check now** button, summary (unavailable, reloads, ignored), unavailable integrations with their reloads or *Given up*, and the recent reloads (reloaded, failed, given up). A row opens the integration's page. Visual editor; English, French, German and Spanish.
+- History of the last 20 reloads and give-ups, newest first, in the `history` attribute of the **Last reload** sensor, saved across restarts (not recorded in the database). The **Unavailable integrations** sensor gives `max_reloads` too.
+
+### Maintenance
+- Card unit tests, Biome lint, and a Screenshots workflow that renders the README captures (light and dark) on pull requests.
+
 ## 0.5.1
 
 ### Fixes

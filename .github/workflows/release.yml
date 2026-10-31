@@ -1,7 +1,7 @@
 name: Release
 
 # Publishes a GitHub release whenever main carries a version that has no tag yet:
-# bump the version in manifest.json, add its CHANGELOG.md section, push, and the release follows.
+# bump the version in manifest.json, const.py and the card, add its CHANGELOG.md section, push, and the release follows.
 on:
   push:
     branches: [main]
@@ -47,6 +47,8 @@ jobs:
         id: version
         run: |
           VERSION="$(jq -r .version custom_components/integration_watchdog/manifest.json)"
+          grep -q "VERSION: Final = \"$VERSION\"" custom_components/integration_watchdog/const.py
+          grep -q "INTEGRATION_WATCHDOG_CARD_VERSION = '$VERSION'" custom_components/integration_watchdog/frontend/integration-watchdog-card.js
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"

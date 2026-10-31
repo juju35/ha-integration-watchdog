@@ -1,18 +1,19 @@
 # Integration Watchdog — Agent Context
 
 ## Purpose
-Home Assistant custom integration that reloads the integrations (config entries) whose enabled entities are all `unavailable`, except the domains listed in the options.
+Home Assistant custom integration that reloads the integrations (config entries) whose enabled entities are all `unavailable`, except the domains listed in the options. It bundles a Lovelace card with the overall status and the recent reloads.
 
 ## Architecture
 
 ```
 custom_components/integration_watchdog/
-├── __init__.py      # Action check (admin), entry setup, time interval, first check once HA has started
+├── __init__.py      # Static path + dashboard resource for the card, action check (admin), entry setup, time interval, first check once HA has started
 ├── watchdog.py      # IntegrationWatchdog: finds unavailable entries, reloads with backoff and limit, event + notifications
 ├── config_flow.py   # Single entry; options: scan_interval, grace_period (min), max_reloads, ignored_integrations (domains), notify_services
 ├── button.py        # button.*_check_now (unavailable while a check runs)
-├── sensor.py        # unavailable (count + integrations/ignored), last_reload (+ domain/title/success/reloads), last_check
+├── sensor.py        # unavailable (count + integrations/ignored/max_reloads), last_reload (+ domain/title/success/reloads/history), last_check
 ├── entity.py        # Shared service device, listener on IntegrationWatchdog
+├── frontend/integration-watchdog-card.js   # custom:integration-watchdog-card, reads the sensors' attributes and presses the button
 ├── const.py / icons.json / services.yaml / translations/{en,fr,de,es}.json / brand/
 ```
 
@@ -25,8 +26,11 @@ custom_components/integration_watchdog/
 - Each reload / failed reload / give-up: persistent notification id `integration_watchdog_<entry_id>` + optional `notify.*` actions; texts in translations `common.*` (rendered with `str.format`).
 - Checks are serialized by a lock shared across entry reloads: the scheduled check skips while one runs; the action and the first check after a reload (`wait=True`) wait for it. A failing reload or notifier, or any error while handling one entry, is logged and doesn't stop the others; `last_check` and the entities are updated even if the check fails.
 
+- History (card): `_record` inserts each reload / failed reload / give-up at the front of `history` (max `HISTORY_SIZE`), shared in `hass.data[DOMAIN]` like the counts, saved with a delayed write to `.storage/integration_watchdog.history` and read once per run by `async_load` (malformed items skipped). Removing the entry deletes the file through the shared store (which also cancels a pending write) and the card resource.
+- The card is served at `/integration_watchdog/integration-watchdog-card.js` and added to the dashboard resources (storage mode) or loaded with `add_extra_js_url` (YAML mode); `_storage_resources()` reads `hass.data["lovelace"]` as a dict (before 2025.2) or a dataclass (`mode`, then `resource_mode` from 2026.2). The card finds its entities by `platform` and `translation_key` in `hass.entities` (entity ID suffix as fallback), all on the device of the chosen sensor; the button being `unavailable` means a check is running.
+
 ## Release
-Bump `version` in manifest.json and add its CHANGELOG.md section; pushing to main publishes `vX.Y.Z` with `integration_watchdog.zip` when that tag doesn't exist yet. Rerun notes with the "Update release notes" workflow (input `tag`).
+Bump `version` in manifest.json, `VERSION` in const.py and `INTEGRATION_WATCHDOG_CARD_VERSION` in the card, and add its CHANGELOG.md section; pushing to main publishes `vX.Y.Z` with `integration_watchdog.zip` when that tag doesn't exist yet. Rerun notes with the "Update release notes" workflow (input `tag`).
 
 ## Tests
-`pip install -r requirements_test.txt && pytest` — integrations are `MockConfigEntry` + registry entities (`tests/conftest.py`), reloads are mocked. Job `tests` runs on Python 3.14, i.e. the latest Home Assistant (2026.3+ needs Python 3.14; 3.13 would silently resolve to 2026.2) and prints its version as an annotation; job `pytest-min-ha` runs the suite on HA 2024.12.0. An autouse fixture (`tests/conftest.py`, `no_deprecated_calls`) fails any test during which Home Assistant reports a deprecated call naming `integration_watchdog`, and CI turns those reports into annotations.
+`pip install -r requirements_test.txt && pytest` — integrations are `MockConfigEntry` + registry entities (`tests/conftest.py`), reloads are mocked. Card: `node --test test/*.test.mjs` (the card file is evaluated in a `vm` context with stubs). Screenshots: `python scripts/screenshots.py` (Playwright, mock data, English, brand images blocked, 16 px frame). Job `tests` runs on Python 3.14, i.e. the latest Home Assistant (2026.3+ needs Python 3.14; 3.13 would silently resolve to 2026.2) and prints its version as an annotation; job `pytest-min-ha` runs the suite on HA 2024.12.0. An autouse fixture (`tests/conftest.py`, `no_deprecated_calls`) fails any test during which Home Assistant reports a deprecated call naming `integration_watchdog`, and CI turns those reports into annotations.

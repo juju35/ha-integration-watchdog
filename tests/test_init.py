@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import gc
 from datetime import timedelta
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -16,6 +17,7 @@ from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
+from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_capture_events,
@@ -25,6 +27,7 @@ from pytest_homeassistant_custom_component.common import (
 
 from custom_components.integration_watchdog import watchdog as watchdog_module
 from custom_components.integration_watchdog.const import (
+    CARD_URL,
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
     CONF_MAX_RELOADS,
@@ -32,6 +35,8 @@ from custom_components.integration_watchdog.const import (
     CONF_SCAN_INTERVAL,
     DOMAIN,
     EVENT_RELOADED,
+    HISTORY_SIZE,
+    STORAGE_KEY,
 )
 
 from .conftest import add_integration
@@ -986,3 +991,157 @@ async def test_give_up_after_lowering_the_limit_tells_the_real_count(
     assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is True
     notification = persistent_notification._async_get_or_create_notifications(hass)[f"{DOMAIN}_{dead.entry_id}"]
     assert "still unavailable after 2 reloads" in notification["message"]
+
+
+def _resources(hass: HomeAssistant):
+    """The Lovelace resources collection: hass.data["lovelace"] is a dict before 2025.2, a dataclass after."""
+    lovelace = hass.data["lovelace"]
+    return lovelace["resources"] if isinstance(lovelace, dict) else lovelace.resources
+
+
+def _card_urls(resources) -> list[str]:
+    return [i["url"] for i in resources.async_items() if i["url"].split("?")[0] == CARD_URL]
+
+
+async def test_history_of_reloads_and_give_up(hass: HomeAssistant, freezer: FrozenDateTimeFactory, hass_storage: dict):
+    """Each reload, failed reload and give-up is listed for the card, newest first, and saved."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass, **{CONF_MAX_RELOADS: 2})
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=[True, False])):
+        await _check(hass)  # reload 1/2
+        freezer.tick(timedelta(minutes=15))
+        await _check(hass)  # reload 2/2, fails
+        freezer.tick(timedelta(minutes=30))
+        await _check(hass)  # given up
+    history = hass.states.get(LAST_RELOAD).attributes["history"]
+    assert [h["kind"] for h in history] == ["gave_up", "reload_failed", "reloaded"]
+    assert [h["attempt"] for h in history] == [2, 2, 1]
+    assert all(h["entry_id"] == dead.entry_id and h["domain"] == "dead" and h["title"] == "Dead" for h in history)
+    assert all(h["max_reloads"] == 2 for h in history)
+    assert hass.states.get(UNAVAILABLE).attributes["max_reloads"] == 2
+    # Written a little later, once for the whole check.
+    freezer.tick(timedelta(seconds=watchdog_module.HISTORY_SAVE_DELAY + 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert [h["kind"] for h in hass_storage[STORAGE_KEY]["data"]["history"]] == ["gave_up", "reload_failed", "reloaded"]
+
+
+async def test_history_is_capped(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Only the most recent HISTORY_SIZE items are kept."""
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    item = watchdog_module.UnavailableIntegration("id", "dead", "Dead", freezer())
+    for n in range(HISTORY_SIZE + 5):
+        watchdog._record("reloaded", item, n, freezer())
+    assert len(watchdog.history) == HISTORY_SIZE
+    assert watchdog.history[0]["attempt"] == HISTORY_SIZE + 4
+
+
+async def test_history_restored_after_restart(hass: HomeAssistant, hass_storage: dict):
+    """The history saved by a previous run is loaded; malformed items are skipped."""
+    saved = {
+        "kind": "reloaded",
+        "at": "2026-10-30T08:00:00+00:00",
+        "entry_id": "abc",
+        "domain": "zha",
+        "title": "Zigbee",
+        "attempt": 1,
+        "max_reloads": 3,
+        "unavailable_since": "2026-10-30T07:40:00+00:00",
+    }
+    hass_storage[STORAGE_KEY] = {
+        "version": 1,
+        "key": STORAGE_KEY,
+        "data": {"history": [saved, {"kind": "exploded"}, {**saved, "at": "not a date"}, "junk"]},
+    }
+    await _setup(hass)
+    assert hass.states.get(LAST_RELOAD).attributes["history"] == [saved]
+
+
+async def test_history_kept_across_options_change(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """Changing the options reloads the watchdog: the history it already had stays."""
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        await _check(hass)
+    hass.config_entries.async_update_entry(entry, options={**OPTIONS, CONF_SCAN_INTERVAL: 10})
+    await hass.async_block_till_done()
+    assert [h["kind"] for h in hass.states.get(LAST_RELOAD).attributes["history"]] == ["reloaded"]
+
+
+async def test_history_corrupt_file(hass: HomeAssistant, hass_storage: dict):
+    """A history file that is not what the watchdog wrote starts an empty history."""
+    hass_storage[STORAGE_KEY] = {"version": 1, "key": STORAGE_KEY, "data": ["not", "a", "dict"]}
+    await _setup(hass)
+    assert hass.states.get(LAST_RELOAD).attributes["history"] == []
+
+
+async def test_remove_drops_the_history(hass: HomeAssistant, freezer: FrozenDateTimeFactory, hass_storage: dict):
+    """Removing the integration deletes the saved history, through the store holding a save still pending."""
+    hass_storage[STORAGE_KEY] = {"version": 1, "key": STORAGE_KEY, "data": {"history": []}}
+    add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    entry = await _setup(hass)
+    store = hass.data[DOMAIN]["store"]
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        await _check(hass)
+    # Real Store.async_remove also cancels the pending delayed save; the test storage mock only drops the data.
+    with patch.object(store, "async_remove", wraps=store.async_remove) as remove:
+        assert await hass.config_entries.async_remove(entry.entry_id)
+        await hass.async_block_till_done()
+    remove.assert_awaited_once()
+    assert STORAGE_KEY not in hass_storage
+
+
+async def test_card_is_served(hass: HomeAssistant, hass_client):
+    """The card is served at CARD_URL."""
+    await _setup(hass)
+    client = await hass_client()
+    response = await client.get(CARD_URL)
+    assert response.status == 200
+    assert "integration-watchdog-card" in await response.text()
+
+
+async def test_card_resource_back_after_remove_and_add(hass: HomeAssistant):
+    """Removing the entry drops the card resource; adding it again without a restart brings it back."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = _resources(hass)
+    entry = await _setup(hass)
+    assert len(_card_urls(resources)) == 1
+
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert _card_urls(resources) == []
+
+    await _setup(hass)
+    assert len(_card_urls(resources)) == 1
+
+
+@pytest.mark.parametrize(
+    ("key", "container"),
+    [("mode", dict), ("resource_mode", dict), ("mode", SimpleNamespace), ("resource_mode", SimpleNamespace)],
+)
+async def test_card_resource_with_lovelace_data_variants(hass: HomeAssistant, key: str, container: type):
+    """hass.data["lovelace"]: a dict before 2025.2, then a dataclass with `mode`, renamed `resource_mode` in 2026.2."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = _resources(hass)
+    hass.data["lovelace"] = container(**{key: "storage", "resources": resources, "dashboards": {}})
+    entry = await _setup(hass)
+    assert len(_card_urls(resources)) == 1
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert _card_urls(resources) == []
+
+
+async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant):
+    """Resources in YAML mode are not edited (the card is loaded on every page instead)."""
+    from homeassistant.components.lovelace.resources import ResourceYAMLCollection
+
+    assert await async_setup_component(hass, "lovelace", {})
+    hass.data["lovelace"] = {"mode": "yaml", "resources": ResourceYAMLCollection([]), "dashboards": {}}
+    with patch("custom_components.integration_watchdog.add_extra_js_url") as add_js:
+        await _setup(hass)
+        await hass.async_block_till_done()
+    add_js.assert_called_once()
