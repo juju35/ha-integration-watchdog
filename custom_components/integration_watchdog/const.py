@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "integration_watchdog"
+# Same as manifest.json and the card: the card URL carries it, so that browsers load a new release.
+VERSION: Final = "0.6.0"
 
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 CONF_GRACE_PERIOD: Final = "grace_period"
@@ -24,3 +26,11 @@ MAX_MAX_RELOADS: Final = 10
 
 SERVICE_CHECK: Final = "check"
 EVENT_RELOADED: Final = f"{DOMAIN}_reloaded"
+
+# The card bundled with the integration, served by Home Assistant and added to the dashboard resources.
+CARD_URL: Final = f"/{DOMAIN}/integration-watchdog-card.js"
+
+# Recent reloads (and give-ups) kept for the card, newest first, saved across restarts.
+HISTORY_SIZE: Final = 20
+STORAGE_KEY: Final = f"{DOMAIN}.history"
+STORAGE_VERSION: Final = 1

@@ -46,13 +46,16 @@ class UnavailableSensor(IntegrationWatchdogEntity, SensorEntity):
         return {
             "integrations": [self.watchdog.as_dict(u) for u in self.watchdog.unavailable],
             "ignored": sorted(self.watchdog.ignored - {DOMAIN}),
+            "max_reloads": self.watchdog.max_reloads,
         }
 
 
 class LastReloadSensor(IntegrationWatchdogEntity, SensorEntity):
-    """Time of the last reload, with the integration reloaded."""
+    """Time of the last reload, with the integration reloaded and the recent reloads for the card."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    # Up to HISTORY_SIZE items, saved in the integration's own storage: kept out of the recorder database.
+    _unrecorded_attributes = frozenset({"history"})
 
     @property
     def native_value(self) -> datetime | None:
@@ -67,6 +70,7 @@ class LastReloadSensor(IntegrationWatchdogEntity, SensorEntity):
             "entry_id": r.entry_id if r else None,
             "success": r.success if r else None,
             "reloads": self.watchdog.reloads,
+            "history": self.watchdog.history,
         }
 
 

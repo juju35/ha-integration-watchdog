@@ -26,11 +26,12 @@ from homeassistant.config_entries import ConfigEntry, ConfigEntryChange, ConfigE
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.loader import async_get_integrations
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, EVENT_RELOADED
+from .const import DOMAIN, EVENT_RELOADED, HISTORY_SIZE, STORAGE_KEY, STORAGE_VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,6 +42,12 @@ WATCHED_STATES = (
     ConfigEntryState.SETUP_RETRY,
     ConfigEntryState.SETUP_ERROR,
 )
+
+# Seconds a change of the history waits before being written, so that a check reloading several integrations
+# writes it once.
+HISTORY_SAVE_DELAY = 10
+# Kinds of the history items: the notification sent for each.
+HISTORY_KINDS = ("reloaded", "reload_failed", "gave_up")
 
 # A reload or a notify action that doesn't return within this time counts as failed, so that
 # a hung integration can't keep the check (and its lock) busy forever.
@@ -107,6 +114,10 @@ class IntegrationWatchdog:
         # The reload count and the last reload too, so that the sensor doesn't start over at each options change.
         shared.setdefault("reloads", 0)
         self.attempts: dict[str, Attempts] = shared.setdefault("attempts", {})
+        # Recent reloads and give-ups for the card, newest first: loaded from storage by async_load (once per
+        # Home Assistant run, then shared like the counts above).
+        self.history: list[dict[str, Any]] = shared.setdefault("history", [])
+        self._store: Store[dict[str, Any]] = shared.setdefault("store", Store(hass, STORAGE_VERSION, STORAGE_KEY))
         self.last_check: datetime | None = None
         # When Home Assistant finished starting: nothing is reloaded before the grace period has
         # passed since then, whatever the states say. None until it has started; set far in the
@@ -133,6 +144,42 @@ class IntegrationWatchdog:
     @property
     def last_reload(self) -> Reload | None:
         return self._shared.get("last_reload")
+
+    async def async_load(self) -> None:
+        """Read the history saved by a previous run of Home Assistant, once."""
+        if self._shared.get("history_loaded"):
+            return
+        self._shared["history_loaded"] = True
+        try:
+            data = await self._store.async_load()
+        except Exception:  # noqa: BLE001 - a broken file must not prevent the watchdog from starting
+            _LOGGER.exception("Could not read the reload history: starting a new one")
+            return
+        items = data.get("history") if isinstance(data, dict) else None
+        if not isinstance(items, list):
+            return
+        valid = [i for i in items if _valid_history_item(i)]
+        # Items recorded since the start (before the file was read) stay first.
+        self.history.extend(valid[: max(HISTORY_SIZE - len(self.history), 0)])
+
+    @callback
+    def _record(self, kind: str, item: UnavailableIntegration, attempt: int, at: datetime) -> None:
+        """Add a reload or a give-up to the history, newest first, and save it a little later."""
+        self.history.insert(
+            0,
+            {
+                "kind": kind,
+                "at": at.isoformat(),
+                "entry_id": item.entry_id,
+                "domain": item.domain,
+                "title": item.title,
+                "attempt": attempt,
+                "max_reloads": self.max_reloads,
+                "unavailable_since": item.since.isoformat(),
+            },
+        )
+        del self.history[HISTORY_SIZE:]
+        self._store.async_delay_save(lambda: {"history": list(self.history)}, HISTORY_SAVE_DELAY)
 
     @callback
     def async_stop(self) -> None:
@@ -307,6 +354,7 @@ class IntegrationWatchdog:
                     item.domain,
                     attempts.count,
                 )
+                self._record("gave_up", item, attempts.count, now)
                 await self._async_send("gave_up", item, attempts.count)
             return
         # Given up with a lower limit, before the options were changed: reloaded again up to the new one.
@@ -368,6 +416,7 @@ class IntegrationWatchdog:
         attempts.last = dt_util.utcnow()
         self._shared["reloads"] += 1
         self._shared["last_reload"] = Reload(item.entry_id, item.domain, item.title, success, attempts.last)
+        self._record("reloaded" if success else "reload_failed", item, attempts.count, attempts.last)
         self.hass.bus.async_fire(
             EVENT_RELOADED,
             {
@@ -423,3 +472,12 @@ class IntegrationWatchdog:
                 _LOGGER.warning("Sending the notification with notify.%s didn't finish within %s", name, NOTIFY_TIMEOUT)
             except Exception:  # noqa: BLE001 - a broken notifier must not stop the watchdog
                 _LOGGER.exception("Sending the notification with notify.%s failed", name)
+
+
+def _valid_history_item(item: Any) -> bool:
+    """A history item as written by _record: the card relies on these fields."""
+    if not isinstance(item, dict) or item.get("kind") not in HISTORY_KINDS:
+        return False
+    if not all(isinstance(item.get(k), str) for k in ("at", "entry_id", "domain", "title")):
+        return False
+    return dt_util.parse_datetime(item["at"]) is not None and isinstance(item.get("attempt"), int)

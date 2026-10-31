@@ -8,7 +8,12 @@
 
 <p align="center"><img src="custom_components/integration_watchdog/brand/icon.png" alt="Integration Watchdog" width="120"></p>
 
-Home Assistant integration that watches your integrations and reloads the ones whose entities are all unavailable, except those you choose to ignore.
+Home Assistant integration that watches your integrations and reloads the ones whose entities are all unavailable, except those you choose to ignore. It comes with a Lovelace card showing the overall status and the recent reloads.
+
+<p align="center">
+  <img src="screenshots/card.png" alt="Integration Watchdog card with unavailable integrations" width="420">
+  <img src="screenshots/card-dark.png" alt="Integration Watchdog card, dark theme" width="420">
+</p>
 
 Some integrations lose their connection (cloud API, device reboot, expired session) and never recover until they are reloaded by hand. Integration Watchdog does that reload for you.
 
@@ -25,13 +30,14 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Check now** button and `integration_watchdog.check` action
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
+- **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
 - One failing reload doesn't stop the others; two checks never run at the same time
 - English, French, German and Spanish
 
 ## Prerequisites
 
 - Home Assistant 2024.12 or newer
-- Nothing else: the watchdog only uses Home Assistant's own registries and the integrations' **Reload**. The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can show its sensors on a dashboard
+- Nothing else: the watchdog only uses Home Assistant's own registries and the integrations' **Reload**, and its card is installed with it. The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can also show its sensors on a dashboard
 
 ## Installation
 
@@ -88,7 +94,7 @@ An integration that stays unavailable after a reload is reloaded again after the
 
 A reload that doesn't finish within 5 minutes, or a notify action that doesn't answer within 30 seconds, counts as failed, so that a hung integration can't block the following checks.
 
-The count is kept in memory: restarting Home Assistant starts over. Changing the options keeps it, so an integration given up stays so (until a higher **Reloads in a row** allows more reloads).
+The count is kept in memory: restarting Home Assistant starts over (the history shown by the card is saved, though). Changing the options keeps it, so an integration given up stays so (until a higher **Reloads in a row** allows more reloads).
 
 ### Notifications
 
@@ -99,8 +105,8 @@ Each reload, failed reload and give-up creates a persistent notification, one pe
 | Entity | Description |
 |---|---|
 | `button.integration_watchdog_check_now` | Runs a check now. Unavailable while one is running |
-| `sensor.integration_watchdog_unavailable_integrations` | Number of integrations whose entities are all unavailable. Attributes: `integrations` (list of `domain`, `title`, `entry_id`, `since`, `reloads`, `gave_up`), `ignored` |
-| `sensor.integration_watchdog_last_reload` | Time of the last reload. Attributes: `domain`, `title`, `entry_id`, `success`, `reloads` (since Home Assistant started) |
+| `sensor.integration_watchdog_unavailable_integrations` | Number of integrations whose entities are all unavailable. Attributes: `integrations` (list of `domain`, `title`, `entry_id`, `since`, `reloads`, `gave_up`), `ignored`, `max_reloads` |
+| `sensor.integration_watchdog_last_reload` | Time of the last reload. Attributes: `domain`, `title`, `entry_id`, `success`, `reloads` (since Home Assistant started), `history` (the last 20 reloads and give-ups, newest first: `kind` = `reloaded` / `reload_failed` / `gave_up`, `at`, `domain`, `title`, `entry_id`, `attempt`, `max_reloads`, `unavailable_since`; kept across restarts, not recorded in the database) |
 | `sensor.integration_watchdog_last_check` | End of the last check |
 
 ### Action `integration_watchdog.check`
@@ -138,11 +144,40 @@ actions:
         attempt {{ trigger.event.data.attempt }}/{{ trigger.event.data.max_reloads }}
 ```
 
-## Screenshots
+## Card
 
-The watchdog has no card of its own: its sensors are shown by the [System Monitor Card](https://github.com/juju35/ha-system-monitor-card), here with two unavailable integrations, the last reload and the **Check now** button.
+The integration serves the **Integration Watchdog Card** and adds it to the dashboard resources (or loads it on every page when the resources are managed in YAML): no separate install. Add it from the card picker, or:
 
-![Unavailable integrations in the System Monitor Card](https://raw.githubusercontent.com/juju35/ha-system-monitor-card/main/screenshots/card-watchdog.png)
+```yaml
+type: custom:integration-watchdog-card
+```
+
+| Unavailable integrations | Everything available |
+|---|---|
+| ![Card](screenshots/card.png) | ![Card, all available](screenshots/card-ok.png) |
+| ![Card, dark theme](screenshots/card-dark.png) | ![Card, all available, dark theme](screenshots/card-ok-dark.png) |
+
+- **Header**: status (all available, *n* unavailable, *n* given up, checking…), time of the last check and the **Check now** button
+- **Summary**: unavailable integrations, reloads since Home Assistant started, ignored integrations (listed on hover)
+- **Unavailable integrations**: for each one, how long it has been down and its reloads (*1/3 reloads*), *Grace period* before the first one, *Given up* once the limit is reached
+- **Recent reloads**: reloaded, failed and given up, newest first, with the attempt and how long ago. The history is saved, so it survives a restart
+- A row opens the integration's page in **Settings**, to reload it by hand or read its logs. Integration logos come from the Home Assistant brands
+
+Every option is in the visual editor:
+
+| Option | Default | Description |
+|---|---|---|
+| `entity` | found automatically | The **Unavailable integrations** sensor |
+| `title` | Integration Watchdog | Card title |
+| `show_stats` | `true` | Summary tiles |
+| `show_unavailable` | `true` | Unavailable integrations |
+| `show_history` | `true` | Recent reloads |
+| `history_count` | `5` | Recent reloads shown, from 1 to 20 |
+| `check_button` | `true` | **Check now** button in the header |
+| `hide_when_ok` | `false` | Hide the card while every integration is available |
+| `language` | Home Assistant's | `en`, `fr`, `de` or `es` |
+
+The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can also show the watchdog's sensors next to the rest of the system.
 
 ## How it works
 
@@ -160,17 +195,19 @@ logger:
 
 ```bash
 pip install -r requirements_test.txt && pytest
+node --test test/*.test.mjs        # card
+python scripts/screenshots.py      # README screenshots (Playwright)
 ```
 
 ### Releasing
 
-1. Bump the version in `custom_components/integration_watchdog/manifest.json`
+1. Bump the version in `custom_components/integration_watchdog/manifest.json`, `const.py` (`VERSION`) and the card (`INTEGRATION_WATCHDOG_CARD_VERSION`)
 2. Add a `## <version>` section at the top of [CHANGELOG.md](CHANGELOG.md)
 3. Push to `main`: the **Release** workflow creates the tag and the GitHub release with the changelog section as notes
 
 ## Translations
 
-The integration follows the language of Home Assistant. Currently supported:
+The integration and its card follow the language of Home Assistant. Currently supported:
 
 | Language | Code |
 |---|---|
