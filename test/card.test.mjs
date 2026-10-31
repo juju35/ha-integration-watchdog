@@ -283,3 +283,38 @@ test('editor leaves the defaults out of the YAML', () => {
   editor.setConfig({ show_history: false });
   assert.ok(!editor._form.schema.some((s) => s.name === 'history_count'));
 });
+
+// The sensor while the watchdog is not loaded (entry disabled or failed, Home Assistant starting): restored, no list.
+const notLoaded = (hass) => ({
+  ...hass,
+  states: { ...hass.states, [UNAVAILABLE]: { state: 'unavailable', attributes: { restored: true, friendly_name: 'Unavailable integrations' } } },
+});
+
+test('chosen sensor unavailable: not set up, never "All available", never hidden', () => {
+  for (const config of [{ entity: UNAVAILABLE }, { entity: UNAVAILABLE, hide_when_ok: true }, {}]) {
+    const card = render(config, notLoaded(makeHass()));
+    const out = html(card);
+    assert.match(out, /lvl-na/, JSON.stringify(config));
+    assert.match(out, /Integration Watchdog is not set up/, JSON.stringify(config));
+    assert.doesNotMatch(out, /All available/, JSON.stringify(config));
+    assert.equal(card.style.display, '', JSON.stringify(config));
+  }
+});
+
+test('sensor back after being unavailable: shown at once, same registry and minute', () => {
+  for (const config of [{}, { entity: UNAVAILABLE }]) {
+    const hass = makeHass();
+    const card = render(config, notLoaded(hass));
+    assert.match(html(card), /not set up/);
+    card.hass = makeHass({ integrations: [{ domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(1), reloads: 0 }] });
+    assert.match(html(card), /1 unavailable/, JSON.stringify(config));
+  }
+});
+
+test('sensor going unavailable after being loaded: the card follows', () => {
+  const hass = makeHass();
+  const card = render({}, hass);
+  assert.match(html(card), /All available/);
+  card.hass = notLoaded(hass);
+  assert.match(html(card), /not set up/);
+});

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import gc
+import json
 from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
@@ -12,7 +13,7 @@ import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState, OperationNotAllowed
-from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, STATE_UNAVAILABLE
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, EVENT_STATE_CHANGED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import ServiceValidationError
@@ -1013,7 +1014,13 @@ async def test_history_of_reloads_and_give_up(hass: HomeAssistant, freezer: Froz
         freezer.tick(timedelta(minutes=15))
         await _check(hass)  # reload 2/2, fails
         freezer.tick(timedelta(minutes=30))
+        changes = async_capture_events(hass, EVENT_STATE_CHANGED)
         await _check(hass)  # given up
+    # The give-up changes neither the state nor `reloads`: it must still be written, as the card shows it.
+    assert [e.data["entity_id"] for e in changes].count(LAST_RELOAD) == 1
+    # What the frontend receives (the JSON of the state), not the list held in memory.
+    sent = json.loads(hass.states.get(LAST_RELOAD).as_dict_json)["attributes"]["history"]
+    assert [h["kind"] for h in sent] == ["gave_up", "reload_failed", "reloaded"]
     history = hass.states.get(LAST_RELOAD).attributes["history"]
     assert [h["kind"] for h in history] == ["gave_up", "reload_failed", "reloaded"]
     assert [h["attempt"] for h in history] == [2, 2, 1]
@@ -1038,6 +1045,25 @@ async def test_history_is_capped(hass: HomeAssistant, freezer: FrozenDateTimeFac
     assert watchdog.history[0]["attempt"] == HISTORY_SIZE + 4
 
 
+async def test_give_up_with_full_history_reaches_the_card(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """With the history full (same length) and the same state, a give-up is still sent to the frontend."""
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    item = watchdog_module.UnavailableIntegration("id", "dead", "Dead", freezer())
+    for n in range(HISTORY_SIZE):
+        watchdog._record("reloaded", item, n, freezer())
+    watchdog._notify_listeners()
+    await hass.async_block_till_done()
+    changes = async_capture_events(hass, EVENT_STATE_CHANGED)
+    watchdog._record("gave_up", item, HISTORY_SIZE, freezer())
+    watchdog._notify_listeners()
+    await hass.async_block_till_done()
+    assert [e.data["entity_id"] for e in changes].count(LAST_RELOAD) == 1
+    sent = json.loads(hass.states.get(LAST_RELOAD).as_dict_json)["attributes"]["history"]
+    assert len(sent) == HISTORY_SIZE
+    assert sent[0]["kind"] == "gave_up"
+
+
 async def test_history_restored_after_restart(hass: HomeAssistant, hass_storage: dict):
     """The history saved by a previous run is loaded; malformed items are skipped."""
     saved = {
@@ -1057,6 +1083,7 @@ async def test_history_restored_after_restart(hass: HomeAssistant, hass_storage:
     }
     await _setup(hass)
     assert hass.states.get(LAST_RELOAD).attributes["history"] == [saved]
+    assert json.loads(hass.states.get(LAST_RELOAD).as_dict_json)["attributes"]["history"] == [saved]
 
 
 async def test_history_kept_across_options_change(hass: HomeAssistant, freezer: FrozenDateTimeFactory):

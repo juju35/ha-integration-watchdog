@@ -70,7 +70,9 @@ class LastReloadSensor(IntegrationWatchdogEntity, SensorEntity):
             "entry_id": r.entry_id if r else None,
             "success": r.success if r else None,
             "reloads": self.watchdog.reloads,
-            "history": self.watchdog.history,
+            # A copy: a list shared with the published state always compares equal to it, so a give-up
+            # (same state, same total) would not be written.
+            "history": list(self.watchdog.history),
         }
 
 

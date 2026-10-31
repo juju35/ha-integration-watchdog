@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.1
+
+### Fixes
+- A give-up now appears in the card's **Recent reloads** right away: it was only shown after the next reload of another integration, or after a restart.
+- Card: when the watchdog is not loaded (entry disabled or failed, Home Assistant starting), a card with a chosen sensor says *Integration Watchdog is not set up* instead of *All available*, and is no longer hidden by `hide_when_ok`.
+- Card: once the sensor is back (after changing the options or a restart), the card shows it at once instead of up to a minute later.
+- Card editor: the **Check now** button help no longer says it is for administrators: any user who sees the card can run a check.
+
+### Maintenance
+- A release now also needs the card tests and the tests on the minimum Home Assistant version to pass.
+- Dependabot updates the pre-commit hooks; the Ruff and Biome lint jobs read their version from the pre-commit configuration. The Screenshots workflow no longer installs ffmpeg.
+
 ## 0.6.0
 
 ### What's new

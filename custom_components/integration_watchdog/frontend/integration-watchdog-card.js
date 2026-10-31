@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '0.6.0';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '0.6.1';
 
 const IW_I18N = {
   en: {
@@ -50,7 +50,7 @@ const IW_I18N = {
     ed_show_history_helper: 'The last reloads, failed reloads and integrations given up',
     ed_history_count: 'Reloads shown',
     ed_check_button: '“Check now” button',
-    ed_check_button_helper: 'Runs a check from the header (administrators)',
+    ed_check_button_helper: 'Runs a check from the header, for every user who sees the card',
     ed_hide_when_ok: 'Hide the card when everything is available',
     ed_hide_when_ok_helper: 'The card only appears when an integration is unavailable',
     ed_language: 'Language',
@@ -99,7 +99,7 @@ const IW_I18N = {
     ed_show_history_helper: 'Les derniers rechargements, échecs et intégrations abandonnées',
     ed_history_count: 'Rechargements affichés',
     ed_check_button: 'Bouton « Vérifier maintenant »',
-    ed_check_button_helper: 'Lance une vérification depuis l’en-tête (administrateurs)',
+    ed_check_button_helper: 'Lance une vérification depuis l’en-tête, pour tout utilisateur qui voit la carte',
     ed_hide_when_ok: 'Masquer la carte quand tout est disponible',
     ed_hide_when_ok_helper: 'La carte n’apparaît que si une intégration est indisponible',
     ed_language: 'Langue',
@@ -148,7 +148,7 @@ const IW_I18N = {
     ed_show_history_helper: 'Die letzten Neuladungen, Fehlschläge und aufgegebenen Integrationen',
     ed_history_count: 'Angezeigte Neuladungen',
     ed_check_button: 'Schaltfläche „Jetzt prüfen“',
-    ed_check_button_helper: 'Startet eine Prüfung aus der Kopfzeile (Administratoren)',
+    ed_check_button_helper: 'Startet eine Prüfung aus der Kopfzeile, für alle Benutzer, die die Karte sehen',
     ed_hide_when_ok: 'Karte ausblenden, wenn alles verfügbar ist',
     ed_hide_when_ok_helper: 'Die Karte erscheint nur, wenn eine Integration nicht verfügbar ist',
     ed_language: 'Sprache',
@@ -197,7 +197,7 @@ const IW_I18N = {
     ed_show_history_helper: 'Las últimas recargas, los fallos y las integraciones abandonadas',
     ed_history_count: 'Recargas mostradas',
     ed_check_button: 'Botón «Comprobar ahora»',
-    ed_check_button_helper: 'Lanza una comprobación desde la cabecera (administradores)',
+    ed_check_button_helper: 'Lanza una comprobación desde la cabecera, para cualquier usuario que vea la tarjeta',
     ed_hide_when_ok: 'Ocultar la tarjeta cuando todo esté disponible',
     ed_hide_when_ok_helper: 'La tarjeta solo aparece cuando una integración no está disponible',
     ed_language: 'Idioma',
@@ -277,6 +277,8 @@ class IntegrationWatchdogCard extends HTMLElement {
       old &&
       this._sig &&
       ids &&
+      // No sensor found yet (watchdog not loaded): its return must be seen at once, not at the next minute.
+      ids.unavailable &&
       hass.entities === old.entities &&
       Object.values(ids).every((id) => !id || hass.states[id] === old.states[id]) &&
       iwLang(hass, this._config) === iwLang(old, this._config) &&
@@ -353,14 +355,16 @@ class IntegrationWatchdogCard extends HTMLElement {
     const ids = this._lookup();
     this._ids = ids;
     const states = this._hass.states;
-    const st = ids.unavailable && states[ids.unavailable];
+    // Without its list (unavailable or restored while the watchdog is not loaded), the sensor says nothing: not set up.
+    const sensorSt = ids.unavailable && states[ids.unavailable];
+    const st = Array.isArray(sensorSt?.attributes?.integrations) ? sensorSt : null;
     const reloadSt = ids.last_reload && states[ids.last_reload];
     const checkSt = ids.last_check && states[ids.last_check];
     const buttonSt = ids.button && states[ids.button];
 
     const minute = Math.floor(Date.now() / 60000);
     this._sigMinute = minute;
-    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, st, reloadSt, checkSt, buttonSt?.state, minute]);
+    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, sensorSt, reloadSt, checkSt, buttonSt?.state, minute]);
     if (sig === this._sig) return;
     this._sig = sig;
 
