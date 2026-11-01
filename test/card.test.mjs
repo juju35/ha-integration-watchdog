@@ -403,11 +403,12 @@ test('a re-render keeps the keyboard focus on the same row or button', () => {
   const keys = card.shadowRoot.querySelectorAll('[data-focus]').map((el) => el.dataset.focus);
   assert.equal(new Set(keys).size, keys.length, 'one key per element');
   assert.ok(keys.includes('check'));
-  for (const key of keys) {
+  for (const [n, key] of keys.entries()) {
     focused.length = 0;
     card.shadowRoot.activeElement = { dataset: { focus: key } };
     // A state change re-renders the card (innerHTML): the same element gets the focus back.
-    card.hass = makeHass({ integrations: [hue, { ...zha, reloads: 2 }], history: [event('reloaded', 'Hue', 1, minutesAgo(1)), ...history] });
+    // The reload count differs at each turn: an identical state (same millisecond) is rightly not re-rendered.
+    card.hass = makeHass({ integrations: [hue, zha], history: [event('reloaded', 'Hue', 1, minutesAgo(1)), ...history], reloads: n + 1 });
     assert.deepEqual(focused, [key], key);
   }
   // Nothing focused in the card: nothing is focused.
