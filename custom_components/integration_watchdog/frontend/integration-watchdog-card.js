@@ -507,10 +507,12 @@ const iwLang = (hass, config) => {
 };
 
 // The locale for Intl: Home Assistant's full tag (pt-BR, nl-BE…) when it is the card's language, else the card's language.
+// A bare "pt" is Home Assistant's European Portuguese, but Intl reads it as Brazilian: it becomes pt-PT.
 const iwLocale = (hass, config) => {
   const lang = iwLang(hass, config);
   const ha = String(hass?.locale?.language || hass?.language || '');
-  return ha && (ha === lang || ha.split('-')[0] === lang) ? ha : lang;
+  const tag = ha && (ha === lang || ha.split('-')[0] === lang) ? ha : lang;
+  return tag === 'pt' ? 'pt-PT' : tag;
 };
 
 const iwT = (lang, key, vars = {}) =>

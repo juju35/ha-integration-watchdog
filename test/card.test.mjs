@@ -200,7 +200,12 @@ test('the editor offers every language of the card', () => {
 test('Intl gets Home Assistant\'s full locale when it matches the card language', () => {
   assert.equal(iwLocale({ language: 'pt-BR' }, {}), 'pt-BR');
   assert.equal(iwLocale({ locale: { language: 'nl-BE' }, language: 'nl' }, {}), 'nl-BE');
-  assert.equal(iwLocale({ language: 'pt' }, {}), 'pt');
+  // Home Assistant's "pt" is European Portuguese: Intl must not fall back to Brazilian formats.
+  assert.equal(iwLocale({ language: 'pt' }, {}), 'pt-PT');
+  assert.equal(iwLocale({ locale: { language: 'pt' }, language: 'pt' }, {}), 'pt-PT');
+  assert.equal(iwLocale({ language: 'en' }, { language: 'pt' }), 'pt-PT');
+  assert.equal(iwLocale({ language: 'pt' }, { language: 'de' }), 'de');
+  assert.equal(new Intl.NumberFormat(iwLocale({ language: 'pt' }, {})).format(12345), new Intl.NumberFormat('pt-PT').format(12345));
   assert.equal(iwLocale({ language: 'sr-Latn' }, {}), 'sr-Latn');
   // The card's language: option wins over a different Home Assistant language.
   assert.equal(iwLocale({ language: 'pt-BR' }, { language: 'pl' }), 'pl');
