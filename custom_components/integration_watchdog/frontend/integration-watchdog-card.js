@@ -388,6 +388,8 @@ class IntegrationWatchdogCard extends HTMLElement {
 
     const checkedAt = checkSt && !['unknown', 'unavailable'].includes(checkSt.state) ? checkSt.state : null;
     const subtitle = !st ? '' : checkedAt ? this._t('checked', { d: this._ago(checkedAt) }) : this._t('never_checked');
+    // innerHTML replaces every element: the one that had the keyboard focus gets it back after the render.
+    const focusKey = this.shadowRoot.activeElement?.dataset?.focus;
     const icon = { ok: 'mdi:shield-check-outline', warn: 'mdi:shield-alert-outline', alert: 'mdi:shield-off-outline', na: 'mdi:shield-outline' }[level];
 
     this.shadowRoot.innerHTML = `
@@ -422,6 +424,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     for (const img of this.shadowRoot.querySelectorAll('img.brand')) {
       img.addEventListener('error', () => img.parentElement?.classList.add('nobrand'), { once: true });
     }
+    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus();
   }
 
   _status(st, items, givenUp, checking) {
@@ -437,7 +440,7 @@ class IntegrationWatchdogCard extends HTMLElement {
   _checkButton(checking) {
     if (!this._config.check_button || !this._ids.button) return '';
     const label = iwEsc(this._t('check_now'));
-    return `<button class="check" title="${label}" aria-label="${label}"${checking ? ' disabled' : ''}><ha-icon icon="mdi:refresh"></ha-icon></button>`;
+    return `<button class="check" data-focus="check" title="${label}" aria-label="${label}"${checking ? ' disabled' : ''}><ha-icon icon="mdi:refresh"></ha-icon></button>`;
   }
 
   _check() {
@@ -470,7 +473,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     const sub = [i.domain, i.since ? this._t('since', { d: this._duration(iwMinutes(i.since)) }) : ''].filter(Boolean).join(' · ');
     const value = i.gave_up ? this._t('gave_up') : i.reloads && max ? this._t('attempts', { n: i.reloads, max }) : this._t('waiting');
     return `
-          <button class="row ${kind}" data-domain="${iwEsc(i.domain)}" title="${iwEsc(i.title)} (${iwEsc(i.domain)})">
+          <button class="row ${kind}" data-domain="${iwEsc(i.domain)}" data-focus="${iwEsc(`u:${i.entry_id || i.domain}`)}" title="${iwEsc(i.title)} (${iwEsc(i.domain)})">
             ${this._brand(i.domain, 'mdi:puzzle-remove-outline')}
             <span class="txt">
               <span class="name">${iwEsc(i.title)}</span>
@@ -492,7 +495,7 @@ class IntegrationWatchdogCard extends HTMLElement {
           : '';
     const sub = [h.domain, detail].filter(Boolean).join(' · ');
     return `
-          <button class="row hist ${kind}" data-domain="${iwEsc(h.domain)}" title="${iwEsc(label)} — ${iwEsc(this._absolute(h.at))}">
+          <button class="row hist ${kind}" data-domain="${iwEsc(h.domain)}" data-focus="${iwEsc(`h:${h.at}:${h.entry_id || h.domain}`)}" title="${iwEsc(label)} — ${iwEsc(this._absolute(h.at))}">
             <span class="ic ev"><ha-icon icon="${icon}"></ha-icon></span>
             <span class="txt">
               <span class="name">${iwEsc(h.title)}</span>
