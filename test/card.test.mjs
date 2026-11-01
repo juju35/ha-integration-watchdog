@@ -3,11 +3,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import vm from 'node:vm';
+import { contrast, over, resolve, rules } from './wcag.mjs';
 
 const source = readFileSync(
   new URL('../custom_components/integration_watchdog/frontend/integration-watchdog-card.js', import.meta.url),
   'utf8',
 );
+
+// Keys of the elements focused by the card.
+const focused = [];
 
 // Elements found in the rendered HTML by a selector: enough to click the check button.
 const fakeNode = () => ({
@@ -31,7 +35,17 @@ const fakeNode = () => ({
         elements[sel] ||= fakeNode();
         return elements[sel];
       },
-      querySelectorAll: () => [],
+      // The focusable elements of the rendered HTML, by their data-focus key.
+      querySelectorAll: (sel) =>
+        sel === '[data-focus]'
+          ? [...this.shadowRoot.innerHTML.matchAll(/data-focus="([^"]*)"/g)].map(([, key]) => ({
+              dataset: { focus: key.replace(/&amp;/g, '&').replace(/&quot;/g, '"') },
+              focus() {
+                focused.push(key);
+              },
+            }))
+          : [],
+      activeElement: null,
       elements,
     };
     return this.shadowRoot;
@@ -317,4 +331,93 @@ test('sensor going unavailable after being loaded: the card follows', () => {
   assert.match(html(card), /All available/);
   card.hass = notLoaded(hass);
   assert.match(html(card), /not set up/);
+});
+
+// Home Assistant's default light and dark themes (the colours of the screenshots).
+const STATE_COLOURS = { '--success-color': '#43a047', '--warning-color': '#ffa600', '--error-color': '#db4437' };
+const THEMES = {
+  light: {
+    ...STATE_COLOURS,
+    '--card-background-color': '#ffffff',
+    '--secondary-background-color': '#ececec',
+    '--primary-text-color': '#212121',
+    '--secondary-text-color': '#727272',
+    '--disabled-color': '#bdbdbd',
+  },
+  dark: {
+    ...STATE_COLOURS,
+    '--card-background-color': '#1c1c1c',
+    '--secondary-background-color': '#282828',
+    '--primary-text-color': '#e1e1e1',
+    '--secondary-text-color': '#9b9b9b',
+    '--disabled-color': '#6f6f6f',
+  },
+};
+
+test('text is readable on its tile in light and dark themes (WCAG AA, 4.5:1)', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  const last = (selectors, prop) => selectors.map((s) => css[s]?.[prop]).filter(Boolean).at(-1);
+  const level = { ok: 'var(--iw-ok)', warn: 'var(--iw-warn)', alert: 'var(--iw-alert)', na: 'var(--iw-na)' };
+  // [what, custom properties of the element, selectors giving its colour, selectors of each background it sits on]
+  const cases = [];
+  for (const k of ['ok', 'warn', 'alert', 'na']) cases.push([`status pill ${k}`, { '--c': level[k] }, ['.pill'], [['.pill']]]);
+  for (const k of ['warn', 'alert']) {
+    const tile = [['.row:not(.hist)'], ['.row:hover']];
+    for (const text of ['.tag', '.name', '.sub']) cases.push([`unavailable ${k} ${text}`, { '--t': level[k] }, [text], tile]);
+  }
+  for (const k of ['ok', 'warn', 'alert']) {
+    for (const text of ['.when .lbl', '.when .ago']) cases.push([`history ${k} ${text}`, { '--t': level[k] }, [text], [['.row'], ['.row.hist:hover']]]);
+  }
+  cases.push(['stat warn value', { '--t': 'var(--iw-warn)' }, ['.stat .val', '.stat.warn .val'], [['.stat.warn']]]);
+  cases.push(['stat warn label', { '--t': 'var(--iw-warn)' }, ['.stat .lbl'], [['.stat.warn']]]);
+  cases.push(['empty history', {}, ['.empty'], [['.empty']]]);
+  const failures = [];
+  for (const [what, own, text, backgrounds] of cases) {
+    for (const [theme, colours] of Object.entries(THEMES)) {
+      const vars = { ...colours, ...css[':host'], ...own };
+      const card = resolve(vars['--card-background-color'], vars);
+      const fg = resolve(last(text, 'color'), vars);
+      for (const bg of backgrounds) {
+        const ratio = contrast(fg, over(resolve(last(bg, 'background'), vars), card));
+        if (ratio < 4.5) failures.push(`${what} (${theme}, on ${bg.at(-1)}): ${ratio.toFixed(2)}:1`);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
+test('state colours stay on the badge, pill and icons', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  assert.match(css['.badge'].color, /^var\(--c\)$/);
+  assert.match(css['.pill'].background, /var\(--c\)/);
+  assert.match(css['.ic'].color, /^var\(--t\)$/);
+  // The state text keeps its hue, darkened (light theme) or lightened (dark theme) towards the text colour.
+  for (const sel of ['.pill', '.tag', '.when .lbl', '.stat.warn .val']) assert.match(css[sel].color, /color-mix\(in srgb, var\(--[ct]\) \d+%, var\(--primary-text-color\)\)/, sel);
+});
+
+test('a re-render keeps the keyboard focus on the same row or button', () => {
+  const zha = { domain: 'zha', title: 'Zigbee', entry_id: 'e1', since: minutesAgo(5), reloads: 1 };
+  const hue = { domain: 'hue', title: 'Hue', entry_id: 'e2', since: minutesAgo(9), reloads: 0 };
+  const history = [event('reload_failed', 'Zha', 1, minutesAgo(2))];
+  const card = render({}, makeHass({ integrations: [zha, hue], history }));
+  const keys = card.shadowRoot.querySelectorAll('[data-focus]').map((el) => el.dataset.focus);
+  assert.equal(new Set(keys).size, keys.length, 'one key per element');
+  assert.ok(keys.includes('check'));
+  for (const [n, key] of keys.entries()) {
+    focused.length = 0;
+    card.shadowRoot.activeElement = { dataset: { focus: key } };
+    // A state change re-renders the card (innerHTML): the same element gets the focus back.
+    // The reload count differs at each turn: an identical state (same millisecond) is rightly not re-rendered.
+    card.hass = makeHass({ integrations: [hue, zha], history: [event('reloaded', 'Hue', 1, minutesAgo(1)), ...history], reloads: n + 1 });
+    assert.deepEqual(focused, [key], key);
+  }
+  // Nothing focused in the card: nothing is focused.
+  focused.length = 0;
+  card.shadowRoot.activeElement = null;
+  card.hass = makeHass({ integrations: [hue], history });
+  assert.deepEqual(focused, []);
+  // The focused row gone: no error, no focus.
+  card.shadowRoot.activeElement = { dataset: { focus: keys.find((k) => k.includes('e1')) } };
+  card.hass = makeHass({ integrations: [], history: [] });
+  assert.deepEqual(focused, []);
 });
