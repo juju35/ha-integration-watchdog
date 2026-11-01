@@ -151,6 +151,8 @@ def mock_hass(integrations, history, reloads):
         },
         "language": "en",
         "locale": {"language": "en"},
+        # An administrator: the rows open the integration's page.
+        "user": {"is_admin": True},
     }
 
 
