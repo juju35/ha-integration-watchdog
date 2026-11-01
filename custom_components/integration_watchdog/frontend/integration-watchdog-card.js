@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '0.6.3';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '0.6.4';
 
 const IW_I18N = {
   en: {
@@ -203,6 +203,202 @@ const IW_I18N = {
     ed_language: 'Idioma',
     ed_language_helper: 'Déjalo vacío para seguir a Home Assistant',
   },
+  it: {
+    title: 'Integration Watchdog',
+    all_ok: 'Tutto disponibile',
+    unavailable_one: '{n} non disponibile',
+    unavailable_many: '{n} non disponibili',
+    gave_up_one: '{n} abbandonata',
+    gave_up_many: '{n} abbandonate',
+    checking: 'Controllo in corso…',
+    not_loaded: 'Integration Watchdog non è configurato',
+    never_checked: 'Non ancora controllato',
+    checked: 'Controllato {d}',
+    check_now: 'Controlla ora',
+    stat_unavailable: 'Non disponibili',
+    stat_reloads: 'Ricaricamenti',
+    stat_reloads_hint: 'Dall’avvio di Home Assistant',
+    stat_ignored: 'Ignorate',
+    unavailable_title: 'Integrazioni non disponibili',
+    history_title: 'Ricaricamenti recenti',
+    no_history: 'Ancora nessun ricaricamento',
+    since: 'non disponibile da {d}',
+    attempts: '{n}/{max} ricaricamenti',
+    attempt: 'ricaricamento {n}/{max}',
+    waiting: 'In attesa',
+    gave_up: 'Abbandonata',
+    reloaded: 'Ricaricata',
+    reload_failed: 'Fallito',
+    gave_up_event: 'Abbandono',
+    gave_up_after: 'dopo {n} ricaricamenti',
+    minutes: '{n} min',
+    hours: '{n} h',
+    days: '{n} g',
+    ed_entity: 'Sensore Integration Watchdog',
+    ed_entity_helper: 'Sensore delle integrazioni non disponibili; lascia vuoto per trovarlo automaticamente',
+    ed_title: 'Titolo',
+    ed_title_helper: 'Lascia vuoto per «Integration Watchdog»',
+    ed_show_stats: 'Riepilogo',
+    ed_show_stats_helper: 'Non disponibili, ricaricamenti dall’avvio e integrazioni ignorate',
+    ed_show_unavailable: 'Integrazioni non disponibili',
+    ed_show_unavailable_helper: 'Le integrazioni le cui entità sono tutte non disponibili, con i loro ricaricamenti',
+    ed_show_history: 'Ricaricamenti recenti',
+    ed_show_history_helper: 'Gli ultimi ricaricamenti, quelli non riusciti e le integrazioni abbandonate',
+    ed_history_count: 'Ricaricamenti mostrati',
+    ed_check_button: 'Pulsante «Controlla ora»',
+    ed_check_button_helper: 'Avvia un controllo dall’intestazione, per ogni utente che vede la scheda',
+    ed_hide_when_ok: 'Nascondi la scheda quando tutto è disponibile',
+    ed_hide_when_ok_helper: 'La scheda appare solo quando un’integrazione non è disponibile',
+    ed_language: 'Lingua',
+    ed_language_helper: 'Lascia vuoto per seguire Home Assistant',
+  },
+  nl: {
+    title: 'Integration Watchdog',
+    all_ok: 'Alles beschikbaar',
+    unavailable_one: '{n} niet beschikbaar',
+    unavailable_many: '{n} niet beschikbaar',
+    gave_up_one: '{n} opgegeven',
+    gave_up_many: '{n} opgegeven',
+    checking: 'Controleren…',
+    not_loaded: 'Integration Watchdog is niet ingesteld',
+    never_checked: 'Nog niet gecontroleerd',
+    checked: 'Gecontroleerd {d}',
+    check_now: 'Nu controleren',
+    stat_unavailable: 'Niet beschikbaar',
+    stat_reloads: 'Herladen',
+    stat_reloads_hint: 'Sinds Home Assistant is gestart',
+    stat_ignored: 'Genegeerd',
+    unavailable_title: 'Niet-beschikbare integraties',
+    history_title: 'Recente herlaadpogingen',
+    no_history: 'Nog geen herlaadpogingen',
+    since: '{d} niet beschikbaar',
+    attempts: '{n}/{max} herlaadpogingen',
+    attempt: 'herlaadpoging {n}/{max}',
+    waiting: 'Wachttijd',
+    gave_up: 'Opgegeven',
+    reloaded: 'Herladen',
+    reload_failed: 'Mislukt',
+    gave_up_event: 'Opgegeven',
+    gave_up_after: 'na {n} herlaadpogingen',
+    minutes: '{n} min',
+    hours: '{n} u',
+    days: '{n} d',
+    ed_entity: 'Integration Watchdog-sensor',
+    ed_entity_helper: 'Sensor van de niet-beschikbare integraties; laat leeg om hem automatisch te vinden',
+    ed_title: 'Titel',
+    ed_title_helper: 'Laat leeg voor ‘Integration Watchdog’',
+    ed_show_stats: 'Overzicht',
+    ed_show_stats_helper: 'Niet beschikbaar, herlaadpogingen sinds de start en genegeerde integraties',
+    ed_show_unavailable: 'Niet-beschikbare integraties',
+    ed_show_unavailable_helper: 'De integraties waarvan alle entiteiten niet beschikbaar zijn, met hun herlaadpogingen',
+    ed_show_history: 'Recente herlaadpogingen',
+    ed_show_history_helper: 'De laatste herlaadpogingen, mislukte pogingen en opgegeven integraties',
+    ed_history_count: 'Getoonde herlaadpogingen',
+    ed_check_button: 'Knop ‘Nu controleren’',
+    ed_check_button_helper: 'Start een controle vanuit de koptekst, voor elke gebruiker die de kaart ziet',
+    ed_hide_when_ok: 'Kaart verbergen als alles beschikbaar is',
+    ed_hide_when_ok_helper: 'De kaart verschijnt alleen als een integratie niet beschikbaar is',
+    ed_language: 'Taal',
+    ed_language_helper: 'Laat leeg om Home Assistant te volgen',
+  },
+  pt: {
+    title: 'Integration Watchdog',
+    all_ok: 'Tudo disponível',
+    unavailable_one: '{n} indisponível',
+    unavailable_many: '{n} indisponíveis',
+    gave_up_one: '{n} abandonada',
+    gave_up_many: '{n} abandonadas',
+    checking: 'A verificar…',
+    not_loaded: 'Não configurado',
+    never_checked: 'Ainda não verificado',
+    checked: 'Verificado {d}',
+    check_now: 'Verificar agora',
+    stat_unavailable: 'Indisponíveis',
+    stat_reloads: 'Recarregamentos',
+    stat_reloads_hint: 'Desde o arranque do Home Assistant',
+    stat_ignored: 'Ignoradas',
+    unavailable_title: 'Integrações indisponíveis',
+    history_title: 'Recarregamentos recentes',
+    no_history: 'Ainda nenhum recarregamento',
+    since: 'indisponível há {d}',
+    attempts: '{n}/{max} recarregamentos',
+    attempt: 'recarregamento {n}/{max}',
+    waiting: 'Em espera',
+    gave_up: 'Abandonada',
+    reloaded: 'Recarregada',
+    reload_failed: 'Falhou',
+    gave_up_event: 'Abandono',
+    gave_up_after: 'após {n} recarregamentos',
+    minutes: '{n} min',
+    hours: '{n} h',
+    days: '{n} d',
+    ed_entity: 'Sensor do Integration Watchdog',
+    ed_entity_helper: 'Sensor das integrações indisponíveis; deixe vazio para o encontrar automaticamente',
+    ed_title: 'Título',
+    ed_title_helper: 'Deixe vazio para «Integration Watchdog»',
+    ed_show_stats: 'Resumo',
+    ed_show_stats_helper: 'Indisponíveis, recarregamentos desde o arranque e integrações ignoradas',
+    ed_show_unavailable: 'Integrações indisponíveis',
+    ed_show_unavailable_helper: 'As integrações cujas entidades estão todas indisponíveis, com os seus recarregamentos',
+    ed_show_history: 'Recarregamentos recentes',
+    ed_show_history_helper: 'Os últimos recarregamentos, as falhas e as integrações abandonadas',
+    ed_history_count: 'Recarregamentos mostrados',
+    ed_check_button: 'Botão «Verificar agora»',
+    ed_check_button_helper: 'Inicia uma verificação a partir do cabeçalho, para qualquer utilizador que veja o cartão',
+    ed_hide_when_ok: 'Ocultar o cartão quando tudo está disponível',
+    ed_hide_when_ok_helper: 'O cartão só aparece quando uma integração está indisponível',
+    ed_language: 'Idioma',
+    ed_language_helper: 'Deixe vazio para seguir o Home Assistant',
+  },
+  pl: {
+    title: 'Integration Watchdog',
+    all_ok: 'Wszystko dostępne',
+    unavailable_one: '{n} niedostępna',
+    unavailable_many: 'Niedostępne: {n}',
+    gave_up_one: '{n} porzucona',
+    gave_up_many: 'Porzucone: {n}',
+    checking: 'Sprawdzanie…',
+    not_loaded: 'Nie skonfigurowano',
+    never_checked: 'Jeszcze nie sprawdzono',
+    checked: 'Sprawdzono {d}',
+    check_now: 'Sprawdź teraz',
+    stat_unavailable: 'Niedostępne',
+    stat_reloads: 'Przeładowania',
+    stat_reloads_hint: 'Od uruchomienia Home Assistant',
+    stat_ignored: 'Ignorowane',
+    unavailable_title: 'Niedostępne integracje',
+    history_title: 'Ostatnie ponowne wczytania',
+    no_history: 'Brak ponownych wczytań',
+    since: 'niedostępna od {d}',
+    attempts: 'Próby: {n}/{max}',
+    attempt: 'ponowne wczytanie {n}/{max}',
+    waiting: 'Okres karencji',
+    gave_up: 'Porzucona',
+    reloaded: 'Przeładowana',
+    reload_failed: 'Błąd',
+    gave_up_event: 'Porzucenie',
+    gave_up_after: 'ponowne wczytania: {n}',
+    minutes: '{n} min',
+    hours: '{n} godz.',
+    days: '{n} dni',
+    ed_entity: 'Sensor Integration Watchdog',
+    ed_entity_helper: 'Sensor niedostępnych integracji; pozostaw puste, aby znaleźć go automatycznie',
+    ed_title: 'Tytuł',
+    ed_title_helper: 'Pozostaw puste dla „Integration Watchdog”',
+    ed_show_stats: 'Podsumowanie',
+    ed_show_stats_helper: 'Niedostępne, ponowne wczytania od uruchomienia i ignorowane integracje',
+    ed_show_unavailable: 'Niedostępne integracje',
+    ed_show_unavailable_helper: 'Integracje, których wszystkie encje są niedostępne, z ich ponownymi wczytaniami',
+    ed_show_history: 'Ostatnie ponowne wczytania',
+    ed_show_history_helper: 'Ostatnie ponowne wczytania, niepowodzenia i porzucone integracje',
+    ed_history_count: 'Liczba wyświetlanych ponownych wczytań',
+    ed_check_button: 'Przycisk „Sprawdź teraz”',
+    ed_check_button_helper: 'Uruchamia sprawdzenie z nagłówka, dla każdego użytkownika, który widzi kartę',
+    ed_hide_when_ok: 'Ukryj kartę, gdy wszystko jest dostępne',
+    ed_hide_when_ok_helper: 'Karta pojawia się tylko wtedy, gdy jakaś integracja jest niedostępna',
+    ed_language: 'Język',
+    ed_language_helper: 'Pozostaw puste, aby używać języka Home Assistant',
+  },
   sr: {
     title: 'Integration Watchdog',
     all_ok: 'Све је доступно',
@@ -310,6 +506,15 @@ const iwLang = (hass, config) => {
   return IW_I18N[l] ? l : 'en';
 };
 
+// The locale for Intl: Home Assistant's full tag (pt-BR, nl-BE…) when it is the card's language, else the card's language.
+// A bare "pt" is Home Assistant's European Portuguese, but Intl reads it as Brazilian: it becomes pt-PT.
+const iwLocale = (hass, config) => {
+  const lang = iwLang(hass, config);
+  const ha = String(hass?.locale?.language || hass?.language || '');
+  const tag = ha && (ha === lang || ha.split('-')[0] === lang) ? ha : lang;
+  return tag === 'pt' ? 'pt-PT' : tag;
+};
+
 const iwT = (lang, key, vars = {}) =>
   (IW_I18N[lang]?.[key] ?? IW_I18N.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
@@ -409,10 +614,9 @@ class IntegrationWatchdogCard extends HTMLElement {
   // "3 minutes ago", "yesterday"… in the card's language.
   _ago(iso) {
     const m = iwMinutes(iso);
-    const lang = iwLang(this._hass, this._config);
     let rtf;
     try {
-      rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+      rtf = new Intl.RelativeTimeFormat(iwLocale(this._hass, this._config), { numeric: 'auto' });
     } catch {
       return this._duration(m);
     }
@@ -426,7 +630,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     const d = new Date(iso);
     if (!Number.isFinite(d.getTime())) return '';
     try {
-      return d.toLocaleString(iwLang(this._hass, this._config), { dateStyle: 'medium', timeStyle: 'short' });
+      return d.toLocaleString(iwLocale(this._hass, this._config), { dateStyle: 'medium', timeStyle: 'short' });
     } catch {
       return d.toISOString();
     }
@@ -752,6 +956,10 @@ class IntegrationWatchdogCardEditor extends HTMLElement {
               { value: 'fr', label: 'Français' },
               { value: 'de', label: 'Deutsch' },
               { value: 'es', label: 'Español' },
+              { value: 'it', label: 'Italiano' },
+              { value: 'nl', label: 'Nederlands' },
+              { value: 'pt', label: 'Português (Portugal)' },
+              { value: 'pl', label: 'Polski' },
               { value: 'sr', label: 'Српски' },
               { value: 'sr-Latn', label: 'Srpski (latinica)' },
             ],

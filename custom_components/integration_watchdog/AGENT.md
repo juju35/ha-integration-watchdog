@@ -14,7 +14,7 @@ custom_components/integration_watchdog/
 ├── sensor.py        # unavailable (count + integrations/ignored/max_reloads), last_reload (+ domain/title/success/reloads/history), last_check
 ├── entity.py        # Shared service device, listener on IntegrationWatchdog
 ├── frontend/integration-watchdog-card.js   # custom:integration-watchdog-card, reads the sensors' attributes and presses the button
-├── const.py / icons.json / services.yaml / translations/{en,fr,de,es}.json / brand/
+├── const.py / icons.json / services.yaml / translations/{en,fr,de,es,it,nl,pt,pl,sr,sr-Latn}.json / brand/
 ```
 
 ## Rules

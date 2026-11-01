@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.4 - 2026-11-01
+
+### What's new
+- Added Italian, Dutch, European Portuguese and Polish translations: configuration, options, entities, action, notifications and the card (`it`, `nl`, `pt`, `pl`). pt-BR uses the European Portuguese texts, in the integration and the card, and dates follow the Brazilian format. The card editor offers the four languages.
+
 ## 0.6.3 - 2026-11-01
 
 ### What's new
