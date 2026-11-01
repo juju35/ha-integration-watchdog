@@ -32,7 +32,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
 - **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
 - One failing reload doesn't stop the others; two checks never run at the same time
-- English, French, German and Spanish
+- English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish and Serbian (Cyrillic and Latin); pt-BR uses the European Portuguese texts
 
 ## Prerequisites
 
@@ -175,7 +175,7 @@ Every option is in the visual editor:
 | `history_count` | `5` | Recent reloads shown, from 1 to 20 |
 | `check_button` | `true` | **Check now** button in the header. It presses the button entity, so any user who sees the card can run a check (only the `integration_watchdog.check` action is limited to administrators) |
 | `hide_when_ok` | `false` | Hide the card while every integration is available |
-| `language` | Home Assistant's | `en`, `fr`, `de` or `es` |
+| `language` | Home Assistant's | `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `pl`, `sr` or `sr-Latn` |
 
 The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can also show the watchdog's sensors next to the rest of the system.
 
@@ -215,6 +215,13 @@ The integration and its card follow the language of Home Assistant. Currently su
 | Français | `fr` |
 | Deutsch | `de` |
 | Español | `es` |
+| Italiano | `it` |
+| Nederlands | `nl` |
+| Português (Portugal) | `pt` |
+| Português (Brasil) | `pt-BR` (pt-BR uses the European Portuguese texts) |
+| Polski | `pl` |
+| Српски | `sr` |
+| Srpski (latinica) | `sr-Latn` |
 
 Contributions for additional languages are welcome!
 

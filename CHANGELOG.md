@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.6.4 - 2026-11-01
+
+### What's new
+- Added Italian, Dutch, European Portuguese and Polish translations: configuration, options, entities, action, notifications and the card (`it`, `nl`, `pt`, `pl`). pt-BR uses the European Portuguese texts, in the integration and the card, and dates follow the Brazilian format. The card editor offers the four languages.
+
+## 0.6.3 - 2026-11-01
+
+### What's new
+- Added Serbian (Cyrillic and Latin) translations: configuration, options, entities, action, notifications and the card (`sr`, `sr-Latn`). The card picks `sr-Latn` when Home Assistant is set to Serbian Latin, and its editor offers both.
+
+## 0.6.2
+
+### Fixes
+- Card: the status, the reload attempts, the outcome of the recent reloads and the unavailable count are readable again in the light theme (orange and green text was too faint on its tile), and in the dark theme for the red ones. The colours stay on the badge, the icons and the tiles; the secondary text on the tinted tiles is a little darker too.
+- Card: a keyboard user keeps the focus on the **Check now** button or on a row when the card updates.
+
+### Maintenance
+- A release now also waits for the Lint and HACS Validation workflows, not only Validate.
+- Biome 2.6.3 and Ruff 0.17.3 in the pre-commit hooks and the lint jobs.
+
 ## 0.6.1
 
 ### Fixes

@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Recarrega as integrações cujas entidades estão todas indisponíveis.",
+        "data": {
+          "scan_interval": "Intervalo de verificação",
+          "grace_period": "Período de tolerância",
+          "max_reloads": "Recarregamentos seguidos",
+          "ignored_integrations": "Integrações ignoradas",
+          "notify_services": "Ações de notificação"
+        },
+        "data_description": {
+          "scan_interval": "Minutos entre duas verificações.",
+          "grace_period": "Minutos durante os quais todas as entidades de uma integração têm de estar indisponíveis antes de esta ser recarregada. Nada é recarregado durante este período após o arranque do Home Assistant.",
+          "max_reloads": "Recarregamentos de uma integração que continua indisponível antes de desistir dela até que recupere. O intervalo entre dois recarregamentos duplica de cada vez: período de tolerância, 2 × período de tolerância…",
+          "ignored_integrations": "Integrações nunca recarregadas. Escreva um domínio para adicionar uma que ainda não esteja configurada.",
+          "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "O Integration Watchdog já está configurado.",
+      "single_instance_allowed": "O Integration Watchdog já está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opções do Integration Watchdog",
+        "data": {
+          "scan_interval": "Intervalo de verificação",
+          "grace_period": "Período de tolerância",
+          "max_reloads": "Recarregamentos seguidos",
+          "ignored_integrations": "Integrações ignoradas",
+          "notify_services": "Ações de notificação"
+        },
+        "data_description": {
+          "scan_interval": "Minutos entre duas verificações.",
+          "grace_period": "Minutos durante os quais todas as entidades de uma integração têm de estar indisponíveis antes de esta ser recarregada. Nada é recarregado durante este período após o arranque do Home Assistant.",
+          "max_reloads": "Recarregamentos de uma integração que continua indisponível antes de desistir dela até que recupere. O intervalo entre dois recarregamentos duplica de cada vez: período de tolerância, 2 × período de tolerância…",
+          "ignored_integrations": "Integrações nunca recarregadas. Escreva um domínio para adicionar uma que ainda não esteja configurada.",
+          "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Verificar agora"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Integrações indisponíveis",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrações"
+          },
+          "ignored": {
+            "name": "Ignoradas"
+          },
+          "max_reloads": {
+            "name": "Recarregamentos máximos"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Último recarregamento",
+        "state_attributes": {
+          "domain": {
+            "name": "Domínio"
+          },
+          "title": {
+            "name": "Título"
+          },
+          "entry_id": {
+            "name": "ID da entrada"
+          },
+          "success": {
+            "name": "Bem-sucedido"
+          },
+          "reloads": {
+            "name": "Recarregamentos"
+          },
+          "history": {
+            "name": "Histórico"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Última verificação"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Verificar integrações",
+      "description": "Procura as integrações cujas entidades estão todas indisponíveis e recarrega aquelas cujo período de tolerância terminou."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integração recarregada",
+    "reloaded": "{title} ({domain}) foi recarregada: todas as suas entidades estavam indisponíveis desde {since}. Recarregamento {attempt}/{max}.",
+    "reload_failed_title": "Falha ao recarregar uma integração",
+    "reload_failed": "Não foi possível recarregar {title} ({domain}): todas as suas entidades estavam indisponíveis desde {since}. Recarregamento {attempt}/{max}, consulte os registos.",
+    "gave_up_title": "Integração ainda indisponível",
+    "gave_up": "{title} ({domain}) continua indisponível após {attempt} recarregamentos. Não voltará a ser recarregada até que uma das suas entidades esteja disponível."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "O Integration Watchdog não está carregado." }
+  }
+}
