@@ -578,24 +578,34 @@ test('the card is at least 8 columns wide: 6 columns of a phone section (~156 px
   assert.deepEqual({ ...card.getGridOptions() }, { columns: 12, min_columns: 8, rows: 'auto' });
 });
 
-test('in a container sized by its content (inline-block, grid auto column) the header keeps a usable width', () => {
+test('in a container sized by its content (inline-block, grid auto column) the card keeps a natural width', () => {
   const css = rules(IntegrationWatchdogCard.styles);
-  // A size container contributes nothing to its parent's intrinsic width: without an intrinsic size the card
-  // falls to its padding (~24 px) in layout-card, button-card or a grid `auto` column.
-  const size = Number.parseFloat(css['.head']['contain-intrinsic-inline-size']);
-  assert.ok(size >= 180, css['.head']['contain-intrinsic-inline-size']);
-  // ...but no wider than the content of the narrowest card allowed by getGridOptions (8 columns ≈ 208 px on a phone).
-  assert.ok(size <= 208 - 24, css['.head']['contain-intrinsic-inline-size']);
+  // The card contributes no width of its own (inline-size containment): an empty, zero-height grid on the host
+  // gives it a natural (max-content) width, so it does not fall to its padding in layout-card, button-card or a
+  // grid `auto` column...
+  const before = css[':host::before'];
+  assert.ok(before, ':host::before gives the card its natural width');
+  assert.equal(before.content, '""');
+  assert.equal(before.display, 'grid');
+  assert.equal(before.height, '0');
+  // ...without a minimum: its min-content width is 0 (minmax(0, …)).
+  const track = before['grid-template-columns'].match(/^minmax\(0,\s*(.+)\)$/);
+  assert.ok(track, before['grid-template-columns']);
+  const natural = Number.parseFloat(track[1].startsWith('var(') ? css[':host'][track[1].match(/var\((--[\w-]+)\)/)[1]] : track[1]);
+  assert.ok(natural >= 300 && natural <= 400, String(natural));
 });
 
-test('in a two-column grid (1fr 1fr, horizontal-stack) the card shrinks with its column instead of overflowing it', () => {
+test('wrapped in a div in a 1fr 1fr grid or a flex row, the card shrinks with its column instead of overflowing it', () => {
   const css = rules(IntegrationWatchdogCard.styles);
-  // The intrinsic size of the header becomes the card's min-content width: without min-width: 0 on the host,
-  // a `1fr` column (minmax(auto, 1fr)) or a flex item cannot go below it and the card runs out of the grid.
+  // min-width: 0 on the host lets the card shrink when it is the grid or flex item itself...
   assert.equal(css[':host']['min-width'], '0');
   assert.equal(css[':host'].display, 'block');
-  // Never a fixed minimum on the host: that would bring the overflow back.
+  // ...but a wrapper div keeps min-width: auto: the card must have no min-content width at all. Its content
+  // (stats, rows, pill: 210-354 px) adds nothing to it (inline-size containment on ha-card)...
+  assert.match(css['ha-card'].contain ?? css['ha-card']['container-type'] ?? '', /inline-size/);
+  // ...and nothing sets a minimum: no intrinsic size (it is a min-content width) and no min-width in px.
   for (const [sel, decls] of Object.entries(css)) {
+    for (const prop of Object.keys(decls)) assert.doesNotMatch(prop, /^contain-intrinsic/, `${sel} ${prop}`);
     if (!sel.startsWith(':host')) continue;
     for (const prop of ['min-width', 'min-inline-size']) assert.doesNotMatch(decls[prop] ?? '', /px/, `${sel} ${prop}`);
   }
