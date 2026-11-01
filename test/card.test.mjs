@@ -135,17 +135,63 @@ function render(config, hass) {
 
 const html = (card) => card.shadowRoot.innerHTML;
 
-test('every language has the English keys', () => {
+// The {x} placeholders of a string, sorted.
+const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+
+test('every language has the English keys, arrays and placeholders', () => {
   const keys = Object.keys(IW_I18N.en).sort();
+  for (const lang of ['fr', 'de', 'es', 'sr', 'sr-Latn']) assert.ok(IW_I18N[lang], lang);
   for (const [lang, strings] of Object.entries(IW_I18N)) {
     assert.deepEqual(Object.keys(strings).sort(), keys, lang);
+    for (const key of keys) {
+      const en = IW_I18N.en[key];
+      const other = strings[key];
+      assert.equal(Array.isArray(other), Array.isArray(en), `${lang}.${key}`);
+      if (Array.isArray(en)) assert.equal(other.length, en.length, `${lang}.${key}`);
+      for (const [i, s] of (Array.isArray(en) ? en : [en]).entries()) {
+        const o = Array.isArray(other) ? other[i] : other;
+        assert.ok(String(o).trim(), `${lang}.${key}`);
+        assert.deepEqual(placeholders(o), placeholders(s), `${lang}.${key}`);
+      }
+    }
   }
+});
+
+// Serbian: no Latin letter in Cyrillic, no Cyrillic in Latin, but brands, placeholders and units.
+test('Serbian strings stay in their script', () => {
+  const strip = (s) => s.replace(/Integration Watchdog|Home Assistant|\{\w+\}|\b(?:min|h|d)$/g, '');
+  for (const [key, s] of Object.entries(IW_I18N.sr)) assert.doesNotMatch(strip(s), /[A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F]/, `sr.${key}`);
+  for (const [key, s] of Object.entries(IW_I18N['sr-Latn'])) assert.doesNotMatch(s, /[\u0400-\u04FF]/, `sr-Latn.${key}`);
 });
 
 test('language follows Home Assistant, then the config, with English as fallback', () => {
   assert.equal(iwLang({ language: 'fr-FR' }, {}), 'fr');
   assert.equal(iwLang({ language: 'fr' }, { language: 'de' }), 'de');
   assert.equal(iwLang({ language: 'ja' }, {}), 'en');
+  assert.equal(iwLang({ language: 'sr-Latn' }, {}), 'sr-Latn');
+  assert.equal(iwLang({ language: 'sr' }, {}), 'sr');
+  assert.equal(iwLang({ language: 'pt-BR' }, {}), 'en');
+  assert.equal(iwLang({ locale: { language: 'sr-Latn' }, language: 'sr' }, {}), 'sr-Latn');
+  assert.equal(iwLang({ language: 'sr-Latn' }, { language: 'sr' }), 'sr');
+});
+
+test('Serbian: Cyrillic and Latin, relative times included', () => {
+  const hass = (language) =>
+    makeHass({
+      language,
+      integrations: [{ domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(30), reloads: 1, gave_up: false }],
+      history: [event('reloaded', 'Zigbee', 1, minutesAgo(10))],
+    });
+  const cyr = html(render({}, hass('sr')));
+  assert.match(cyr, /1 недоступна/);
+  assert.match(cyr, /Недавна поновна учитавања/);
+  assert.match(cyr, /Проверено пре 3 минута/);
+  const lat = html(render({}, hass('sr-Latn')));
+  assert.match(lat, /1 nedostupna/);
+  assert.match(lat, /Nedavna ponovna učitavanja/);
+  // Intl in sr-Latn writes the relative time in Latin script.
+  assert.match(lat, /Provereno pre 3 minuta/);
+  assert.doesNotMatch(lat, /[\u0400-\u04FF]/);
 });
 
 test('entities found by translation key, or by entity ID when it is missing', () => {
