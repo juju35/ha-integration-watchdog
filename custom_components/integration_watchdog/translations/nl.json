@@ -107,7 +107,7 @@
     "reload_failed_title": "Herladen van integratie mislukt",
     "reload_failed": "{title} ({domain}) kon niet worden herladen: al zijn entiteiten waren niet beschikbaar sinds {since}. Herlaadpoging {attempt}/{max}, zie de logboeken.",
     "gave_up_title": "Integratie nog steeds niet beschikbaar",
-    "gave_up": "{title} ({domain}) is nog steeds niet beschikbaar na {attempt} herlaadpogingen. Het wordt niet opnieuw herladen totdat een van zijn entiteiten beschikbaar is."
+    "gave_up": "{title} ({domain}) is nog steeds niet beschikbaar na {attempt} herlaadpogingen. Deze wordt niet opnieuw herladen totdat een van zijn entiteiten beschikbaar is."
   },
   "exceptions": {
     "not_loaded": { "message": "Integration Watchdog is niet geladen." }

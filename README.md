@@ -32,7 +32,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
 - **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
 - One failing reload doesn't stop the others; two checks never run at the same time
-- English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish and Serbian (Cyrillic and Latin)
+- English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish and Serbian (Cyrillic and Latin); pt-BR uses the European Portuguese texts
 
 ## Prerequisites
 
@@ -218,6 +218,7 @@ The integration and its card follow the language of Home Assistant. Currently su
 | Italiano | `it` |
 | Nederlands | `nl` |
 | Português (Portugal) | `pt` |
+| Português (Brasil) | `pt-BR` (pt-BR uses the European Portuguese texts) |
 | Polski | `pl` |
 | Српски | `sr` |
 | Srpski (latinica) | `sr-Latn` |

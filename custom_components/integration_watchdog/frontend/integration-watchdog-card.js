@@ -225,10 +225,10 @@ const IW_I18N = {
     since: 'non disponibile da {d}',
     attempts: '{n}/{max} ricaricamenti',
     attempt: 'ricaricamento {n}/{max}',
-    waiting: 'Periodo di tolleranza',
+    waiting: 'In attesa',
     gave_up: 'Abbandonata',
     reloaded: 'Ricaricata',
-    reload_failed: 'Non riuscito',
+    reload_failed: 'Fallito',
     gave_up_event: 'Abbandono',
     gave_up_after: 'dopo {n} ricaricamenti',
     minutes: '{n} min',
@@ -265,7 +265,7 @@ const IW_I18N = {
     checked: 'Gecontroleerd {d}',
     check_now: 'Nu controleren',
     stat_unavailable: 'Niet beschikbaar',
-    stat_reloads: 'Herlaadpogingen',
+    stat_reloads: 'Herladen',
     stat_reloads_hint: 'Sinds Home Assistant is gestart',
     stat_ignored: 'Genegeerd',
     unavailable_title: 'Niet-beschikbare integraties',
@@ -309,7 +309,7 @@ const IW_I18N = {
     gave_up_one: '{n} abandonada',
     gave_up_many: '{n} abandonadas',
     checking: 'A verificar…',
-    not_loaded: 'O Integration Watchdog não está configurado',
+    not_loaded: 'Não configurado',
     never_checked: 'Ainda não verificado',
     checked: 'Verificado {d}',
     check_now: 'Verificar agora',
@@ -323,7 +323,7 @@ const IW_I18N = {
     since: 'indisponível há {d}',
     attempts: '{n}/{max} recarregamentos',
     attempt: 'recarregamento {n}/{max}',
-    waiting: 'Período de tolerância',
+    waiting: 'Em espera',
     gave_up: 'Abandonada',
     reloaded: 'Recarregada',
     reload_failed: 'Falhou',
@@ -358,29 +358,29 @@ const IW_I18N = {
     gave_up_one: '{n} porzucona',
     gave_up_many: 'Porzucone: {n}',
     checking: 'Sprawdzanie…',
-    not_loaded: 'Integration Watchdog nie jest skonfigurowany',
+    not_loaded: 'Nie skonfigurowano',
     never_checked: 'Jeszcze nie sprawdzono',
     checked: 'Sprawdzono {d}',
     check_now: 'Sprawdź teraz',
     stat_unavailable: 'Niedostępne',
-    stat_reloads: 'Ponowne wczytania',
+    stat_reloads: 'Przeładowania',
     stat_reloads_hint: 'Od uruchomienia Home Assistant',
     stat_ignored: 'Ignorowane',
     unavailable_title: 'Niedostępne integracje',
     history_title: 'Ostatnie ponowne wczytania',
     no_history: 'Brak ponownych wczytań',
     since: 'niedostępna od {d}',
-    attempts: 'Ponowne wczytania: {n}/{max}',
+    attempts: 'Próby: {n}/{max}',
     attempt: 'ponowne wczytanie {n}/{max}',
     waiting: 'Okres karencji',
     gave_up: 'Porzucona',
-    reloaded: 'Wczytana ponownie',
-    reload_failed: 'Niepowodzenie',
+    reloaded: 'Przeładowana',
+    reload_failed: 'Błąd',
     gave_up_event: 'Porzucenie',
     gave_up_after: 'ponowne wczytania: {n}',
     minutes: '{n} min',
     hours: '{n} godz.',
-    days: '{n} d',
+    days: '{n} dni',
     ed_entity: 'Sensor Integration Watchdog',
     ed_entity_helper: 'Sensor niedostępnych integracji; pozostaw puste, aby znaleźć go automatycznie',
     ed_title: 'Tytuł',
@@ -506,6 +506,13 @@ const iwLang = (hass, config) => {
   return IW_I18N[l] ? l : 'en';
 };
 
+// The locale for Intl: Home Assistant's full tag (pt-BR, nl-BE…) when it is the card's language, else the card's language.
+const iwLocale = (hass, config) => {
+  const lang = iwLang(hass, config);
+  const ha = String(hass?.locale?.language || hass?.language || '');
+  return ha && (ha === lang || ha.split('-')[0] === lang) ? ha : lang;
+};
+
 const iwT = (lang, key, vars = {}) =>
   (IW_I18N[lang]?.[key] ?? IW_I18N.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
@@ -605,10 +612,9 @@ class IntegrationWatchdogCard extends HTMLElement {
   // "3 minutes ago", "yesterday"… in the card's language.
   _ago(iso) {
     const m = iwMinutes(iso);
-    const lang = iwLang(this._hass, this._config);
     let rtf;
     try {
-      rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+      rtf = new Intl.RelativeTimeFormat(iwLocale(this._hass, this._config), { numeric: 'auto' });
     } catch {
       return this._duration(m);
     }
@@ -622,7 +628,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     const d = new Date(iso);
     if (!Number.isFinite(d.getTime())) return '';
     try {
-      return d.toLocaleString(iwLang(this._hass, this._config), { dateStyle: 'medium', timeStyle: 'short' });
+      return d.toLocaleString(iwLocale(this._hass, this._config), { dateStyle: 'medium', timeStyle: 'short' });
     } catch {
       return d.toISOString();
     }
@@ -950,7 +956,7 @@ class IntegrationWatchdogCardEditor extends HTMLElement {
               { value: 'es', label: 'Español' },
               { value: 'it', label: 'Italiano' },
               { value: 'nl', label: 'Nederlands' },
-              { value: 'pt', label: 'Português' },
+              { value: 'pt', label: 'Português (Portugal)' },
               { value: 'pl', label: 'Polski' },
               { value: 'sr', label: 'Српски' },
               { value: 'sr-Latn', label: 'Srpski (latinica)' },

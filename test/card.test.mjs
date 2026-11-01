@@ -74,10 +74,10 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.iw = { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwDevices, IW_DEFAULTS };`,
+  `${source}\nthis.iw = { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS };`,
   context,
 );
-const { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwDevices, IW_DEFAULTS } = context.iw;
+const { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS } = context.iw;
 
 const UNAVAILABLE = 'sensor.integration_watchdog_unavailable_integrations';
 const LAST_RELOAD = 'sensor.integration_watchdog_last_reload';
@@ -193,6 +193,19 @@ test('the editor offers every language of the card', () => {
   editor.hass = makeHass();
   const field = editor._form.schema.find((f) => f.name === 'language');
   assert.equal(JSON.stringify(field.selector.select.options.map((o) => o.value).sort()), JSON.stringify(Object.keys(IW_I18N).sort()));
+  // European Portuguese is named as such: pt-BR users get it as a fallback.
+  assert.equal(field.selector.select.options.find((o) => o.value === 'pt').label, 'Português (Portugal)');
+});
+
+test('Intl gets Home Assistant\'s full locale when it matches the card language', () => {
+  assert.equal(iwLocale({ language: 'pt-BR' }, {}), 'pt-BR');
+  assert.equal(iwLocale({ locale: { language: 'nl-BE' }, language: 'nl' }, {}), 'nl-BE');
+  assert.equal(iwLocale({ language: 'pt' }, {}), 'pt');
+  assert.equal(iwLocale({ language: 'sr-Latn' }, {}), 'sr-Latn');
+  // The card's language: option wins over a different Home Assistant language.
+  assert.equal(iwLocale({ language: 'pt-BR' }, { language: 'pl' }), 'pl');
+  assert.equal(iwLocale({ language: 'pt-BR' }, { language: 'pt' }), 'pt-BR');
+  assert.equal(iwLocale({ language: 'ja' }, {}), 'en');
 });
 
 test('Serbian: Cyrillic and Latin, relative times included', () => {
