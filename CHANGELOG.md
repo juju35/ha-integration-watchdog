@@ -6,7 +6,7 @@
 - Card: on a narrow card (a phone, a narrow masonry column), the title is visible again and the status no longer runs out of the card. The status shortens, then keeps only its coloured dot (full text on hover); *Integration Watchdog is not set up* becomes *Not set up*, since the title already names the integration.
 - Card: in a Sections view the card is now at least 8 columns wide: at 6 columns a phone leaves it about 156 px, too little for the header.
 - Card: the status shows its full text whenever it fits (*2 unavailable* on a 245 px card); the title no longer takes its room. Short of room, it goes onto a second line before it is cut (*Sve je / dostupno*).
-- Card: inside layout-card, button-card or another container sized by its content, the card no longer shrinks to a sliver; in two columns side by side (a `1fr 1fr` grid, a horizontal stack) it shrinks with its column instead of running out of it, and on a very narrow header the round icon gives way to the status.
+- Card: inside layout-card, button-card or another container sized by its content, the card no longer shrinks to a sliver; in two columns side by side (a `1fr 1fr` grid, a horizontal stack, with or without a wrapper around the card) it shrinks with its column instead of running out of it, whatever its state, and on a very narrow header the round icon gives way to the status.
 - Card: giving the keyboard focus back after an update no longer scrolls the page.
 - Card: the outcome of a row (*Reloaded*, *Grace period*…) gives way to the integration's name on a narrow card.
 - Card: rows only open the integration's page in **Settings** for administrators; for other users, who can't open Settings, they are no longer clickable.

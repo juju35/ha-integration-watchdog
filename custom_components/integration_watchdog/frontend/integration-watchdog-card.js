@@ -881,11 +881,10 @@ class IntegrationWatchdogCard extends HTMLElement {
 
   static get styles() {
     return `
-      /* min-width: 0 lets the card shrink with a 1fr grid column or a flex item (layout-card, horizontal-stack):
-         the intrinsic size of the header would otherwise become a floor and the card would run out of its column */
       :host {
         display: block;
         min-width: 0;
+        --iw-natural-width: 360px;
         --iw-ok: var(--success-color, #43a047);
         --iw-warn: var(--warning-color, #ffa600);
         --iw-alert: var(--error-color, #db4437);
@@ -893,16 +892,23 @@ class IntegrationWatchdogCard extends HTMLElement {
         /* Secondary text on the tinted tiles: nudged towards the primary text so it stays readable (WCAG AA) */
         --iw-muted: color-mix(in srgb, var(--secondary-text-color) 70%, var(--primary-text-color));
       }
-      ha-card { padding: 12px; overflow: hidden; }
+      /* Width without a minimum. The card contributes no width of its own (inline-size containment): its stats,
+         rows and pill would otherwise set a min-content width of 210-354 px, a floor that a 1fr grid column or a
+         flex row cannot go below once the card is wrapped in a div (min-width: 0 on the host does not reach the
+         wrapper), so the card would run out of its column. The empty, zero-height grid below gives it a natural
+         (max-content) width with a min-content width of 0: in a parent sized by its content (layout-card,
+         button-card, an inline-block, a grid "auto" column) the card gets that width instead of falling to its
+         padding, and in a 1fr 1fr grid or a flex row, wrapped or not, it shrinks to its track. No
+         contain-intrinsic-* and no min-width in px: both would be a minimum. */
+      :host::before { content: ""; display: grid; grid-template-columns: minmax(0, var(--iw-natural-width)); height: 0; }
+      ha-card { padding: 12px; overflow: hidden; contain: inline-size; }
       ha-card.lvl-ok    { --c: var(--iw-ok); }
       ha-card.lvl-warn  { --c: var(--iw-warn); }
       ha-card.lvl-alert { --c: var(--iw-alert); }
       ha-card.lvl-na    { --c: var(--iw-na); }
 
-      /* The header is a size container: the pill keeps only its dot when it is narrow. A size container adds nothing
-         to its parent's intrinsic width: the intrinsic size keeps the card usable in a container sized by its content
-         (layout-card, button-card, an auto grid column) instead of falling to its padding */
-      .head { display: flex; align-items: center; gap: 8px; container-type: inline-size; contain-intrinsic-inline-size: 184px; }
+      /* The header is a size container: the pill keeps only its dot when it is narrow */
+      .head { display: flex; align-items: center; gap: 8px; container-type: inline-size; }
       .badge { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
       .badge ha-icon { --mdc-icon-size: 24px; }
