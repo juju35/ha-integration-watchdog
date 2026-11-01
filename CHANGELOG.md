@@ -10,6 +10,9 @@
 - Card: correct Serbian plurals (*2 недоступне*, *5 недоступних*, *21 недоступна*) and Polish plurals (*2 niedostępne*, *5 niedostępnych*); an integration given up is *Напуштена* / *Napuštena* in Serbian everywhere, like in the status.
 - Card: Polish uses *ponowne wczytanie* for a reload everywhere (*Ponowne wczytania*, *Wczytana ponownie*), like the rest of the card and the integration.
 
+### Maintenance
+- Biome 2.6.4 in the pre-commit hook and the lint job.
+
 ## 0.6.4 - 2026-11-01
 
 ### What's new
