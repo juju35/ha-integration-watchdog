@@ -519,6 +519,8 @@ class IntegrationWatchdogCard extends HTMLElement {
         --iw-warn: var(--warning-color, #ffa600);
         --iw-alert: var(--error-color, #db4437);
         --iw-na: var(--disabled-color, #9e9e9e);
+        /* Secondary text on the tinted tiles: nudged towards the primary text so it stays readable (WCAG AA) */
+        --iw-muted: color-mix(in srgb, var(--secondary-text-color) 70%, var(--primary-text-color));
       }
       ha-card { padding: 12px; overflow: hidden; }
       ha-card.lvl-ok    { --c: var(--iw-ok); }
@@ -536,7 +538,8 @@ class IntegrationWatchdogCard extends HTMLElement {
       .subtitle { font-size: 12px; line-height: 1.3; color: var(--secondary-text-color);
                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .pill { flex: none; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
-              color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+              color: color-mix(in srgb, var(--c) 40%, var(--primary-text-color));
+              background: color-mix(in srgb, var(--c) 14%, transparent); }
       .check { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
                display: grid; place-items: center; color: var(--secondary-text-color); }
       .check:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
@@ -550,15 +553,15 @@ class IntegrationWatchdogCard extends HTMLElement {
               background: var(--secondary-background-color, rgba(127,127,127,.08)); }
       .stat.warn { --t: var(--iw-warn); background: color-mix(in srgb, var(--t) 12%, var(--secondary-background-color, transparent)); }
       .stat .val { font-size: 18px; font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--primary-text-color); }
-      .stat.warn .val { color: var(--t); }
-      .stat .lbl { font-size: 11px; color: var(--secondary-text-color); max-width: 100%;
+      .stat.warn .val { color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); }
+      .stat .lbl { font-size: 11px; color: var(--iw-muted); max-width: 100%;
                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
       .section { margin-top: 12px; }
       .stitle { font-size: 12px; font-weight: 500; color: var(--secondary-text-color); margin: 0 2px 6px;
                 text-transform: uppercase; letter-spacing: .04em; }
       .list { display: flex; flex-direction: column; gap: 6px; }
-      .empty { font-size: 13px; color: var(--secondary-text-color); padding: 8px 10px; border-radius: 10px;
+      .empty { font-size: 13px; color: var(--iw-muted); padding: 8px 10px; border-radius: 10px;
                background: var(--secondary-background-color, rgba(127,127,127,.08)); }
       .row { --t: var(--iw-ok); all: unset; box-sizing: border-box; cursor: pointer; min-width: 0;
              display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 5px; border-radius: 10px;
@@ -579,12 +582,12 @@ class IntegrationWatchdogCard extends HTMLElement {
       .txt { flex: 1; display: flex; flex-direction: column; min-width: 0; }
       .name { font-size: 13px; font-weight: 500; line-height: 1.2; color: var(--primary-text-color);
               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .sub { font-size: 11px; line-height: 1.2; color: var(--secondary-text-color);
+      .sub { font-size: 11px; line-height: 1.2; color: var(--iw-muted);
              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .tag { flex: none; font-size: 12px; font-weight: 500; color: var(--t); font-variant-numeric: tabular-nums; }
+      .tag { flex: none; font-size: 12px; font-weight: 500; color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); font-variant-numeric: tabular-nums; }
       .when { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
-      .when .lbl { font-size: 12px; font-weight: 500; line-height: 1.2; color: var(--t); }
-      .when .ago { font-size: 11px; line-height: 1.2; color: var(--secondary-text-color); }
+      .when .lbl { font-size: 12px; font-weight: 500; line-height: 1.2; color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); }
+      .when .ago { font-size: 11px; line-height: 1.2; color: var(--iw-muted); }
     `;
   }
 }
