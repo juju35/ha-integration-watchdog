@@ -10,8 +10,9 @@ const source = readFileSync(
   'utf8',
 );
 
-// Keys of the elements focused by the card.
+// Keys of the elements focused by the card, and the options of each focus() call.
 const focused = [];
+const focusOptions = [];
 
 // Elements found in the rendered HTML by a selector: enough to click the check button.
 const fakeNode = () => ({
@@ -40,8 +41,9 @@ const fakeNode = () => ({
         sel === '[data-focus]'
           ? [...this.shadowRoot.innerHTML.matchAll(/data-focus="([^"]*)"/g)].map(([, key]) => ({
               dataset: { focus: key.replace(/&amp;/g, '&').replace(/&quot;/g, '"') },
-              focus() {
+              focus(options) {
                 focused.push(key);
+                focusOptions.push(options);
               },
             }))
           : [],
@@ -511,6 +513,18 @@ test('a re-render keeps the keyboard focus on the same row or button', () => {
   assert.deepEqual(focused, []);
 });
 
+test('giving the focus back after a re-render never scrolls the page', () => {
+  const hue = { domain: 'hue', title: 'Hue', entry_id: 'e2', since: minutesAgo(9), reloads: 0 };
+  const card = render({}, makeHass({ integrations: [hue] }));
+  focusOptions.length = 0;
+  card.shadowRoot.activeElement = { dataset: { focus: 'check' } };
+  card.hass = makeHass({ integrations: [hue], reloads: 7 });
+  assert.equal(focusOptions.length, 1);
+  assert.equal(focusOptions[0]?.preventScroll, true);
+  // The source has no other focus() call that could scroll.
+  for (const m of source.matchAll(/\.focus\(([^)]*)\)/g)) assert.match(m[1], /preventScroll: true/, m[0]);
+});
+
 // ── Review pass 9 ────────────────────────────────────────────────────────────
 
 // The @container blocks of the stylesheet: { query: { selector: { property: value } } }.
@@ -520,26 +534,31 @@ const containerRules = (css) => {
   return out;
 };
 
-test('narrow header: the pill shrinks and truncates, the title keeps a few characters, the button never shrinks', () => {
+test('narrow header: the pill keeps its full text while there is room, the title keeps a few characters, the button never shrinks', () => {
   const css = rules(IntegrationWatchdogCard.styles);
+  // The pill takes the room it needs and only shrinks (then truncates) when there is not enough of it.
   assert.equal(css['.pill'].flex, '0 1 auto');
   assert.equal(css['.pill']['min-width'], '0');
-  assert.ok(Number.parseFloat(css['.pill']['max-width']) <= 50, css['.pill']['max-width']);
+  assert.equal(css['.pill']['max-width'], undefined, 'no cap on the pill: it truncates only when the room runs out');
   assert.equal(css['.pill'].overflow, 'hidden');
   assert.equal(css['.pill']['white-space'], 'nowrap');
   assert.equal(css['.pill .ptxt']['text-overflow'], 'ellipsis');
-  assert.equal(css['.heading'].flex, '1 1 auto');
-  // At least ~4 characters of the title stay visible.
+  // The title takes what is left (basis 0, so it does not take the pill's room) and keeps ~4 characters.
+  assert.equal(css['.heading'].flex, '1 1 0');
   assert.match(css['.heading']['min-width'], /^[4-9](\.\d+)?ch$/);
   assert.equal(css['.check'].flex, 'none');
   assert.equal(css['.badge'].flex, 'none');
   // The header is a size container: below the threshold the pill keeps only its coloured dot.
   assert.equal(css['.head']['container-type'], 'inline-size');
-  const compact = Object.values(containerRules(IntegrationWatchdogCard.styles));
-  assert.equal(compact.length, 1);
-  assert.equal(compact[0]['.head .pill .dot'].display, 'block');
+  const queries = containerRules(IntegrationWatchdogCard.styles);
+  assert.equal(Object.keys(queries).length, 1);
+  const [[query, compact]] = Object.entries(queries);
+  // Only where even a short status cannot fit: a 245 px card (header 221 px) still shows the text.
+  const threshold = Number(query.match(/max-width:\s*(\d+)px/)?.[1]);
+  assert.ok(threshold >= 150 && threshold < 221, query);
+  assert.equal(compact['.head .pill .dot'].display, 'block');
   // The text is hidden visually only: screen readers still read it.
-  assert.match(compact[0]['.head .pill .ptxt'].clip || compact[0]['.head .pill .ptxt']['clip-path'], /rect|inset/);
+  assert.match(compact['.head .pill .ptxt'].clip || compact['.head .pill .ptxt']['clip-path'], /rect|inset/);
   assert.equal(css['.pill .dot'].display, 'none');
   // In the rows, the outcome on the right gives way (up to half the row) instead of hiding the name.
   for (const sel of ['.tag', '.when']) {
@@ -549,6 +568,21 @@ test('narrow header: the pill shrinks and truncates, the title keeps a few chara
   }
   assert.equal(css['.tag']['text-overflow'], 'ellipsis');
   assert.equal(css['.when > span']['text-overflow'], 'ellipsis');
+});
+
+test('the card is at least 8 columns wide: 6 columns of a phone section (~156 px) cannot hold the header', () => {
+  const card = new IntegrationWatchdogCard();
+  assert.deepEqual(card.getGridOptions(), { columns: 12, min_columns: 8, rows: 'auto' });
+});
+
+test('in a container sized by its content (inline-block, grid auto column) the header keeps a usable width', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  // A size container contributes nothing to its parent's intrinsic width: without an intrinsic size the card
+  // falls to its padding (~24 px) in layout-card, button-card or a grid `auto` column.
+  const size = Number.parseFloat(css['.head']['contain-intrinsic-inline-size']);
+  assert.ok(size >= 180, css['.head']['contain-intrinsic-inline-size']);
+  // ...but no wider than the content of the narrowest card allowed by getGridOptions (8 columns ≈ 208 px on a phone).
+  assert.ok(size <= 208 - 24, css['.head']['contain-intrinsic-inline-size']);
 });
 
 test('the pill carries its full text in a tooltip', () => {
