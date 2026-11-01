@@ -541,7 +541,10 @@ test('narrow header: the pill keeps its full text while there is room, the title
   assert.equal(css['.pill']['min-width'], '0');
   assert.equal(css['.pill']['max-width'], undefined, 'no cap on the pill: it truncates only when the room runs out');
   assert.equal(css['.pill'].overflow, 'hidden');
-  assert.equal(css['.pill']['white-space'], 'nowrap');
+  // Short of room, the status goes onto a second line (« Sve je / dostupno » on a 245 px card) before it is cut.
+  assert.equal(css['.pill .ptxt']['white-space'], 'normal');
+  assert.equal(css['.pill .ptxt']['-webkit-line-clamp'], '2');
+  assert.equal(css['.pill .ptxt'].display, '-webkit-box');
   assert.equal(css['.pill .ptxt']['text-overflow'], 'ellipsis');
   // The title takes what is left (basis 0, so it does not take the pill's room) and keeps ~4 characters.
   assert.equal(css['.heading'].flex, '1 1 0');
@@ -551,8 +554,8 @@ test('narrow header: the pill keeps its full text while there is room, the title
   // The header is a size container: below the threshold the pill keeps only its coloured dot.
   assert.equal(css['.head']['container-type'], 'inline-size');
   const queries = containerRules(IntegrationWatchdogCard.styles);
-  assert.equal(Object.keys(queries).length, 1);
-  const [[query, compact]] = Object.entries(queries);
+  const [query, compact] = Object.entries(queries).find(([, r]) => r['.head .pill .dot']) ?? [];
+  assert.ok(query, 'a container query turns the pill into its dot');
   // Only where even a short status cannot fit: a 245 px card (header 221 px) still shows the text.
   const threshold = Number(query.match(/max-width:\s*(\d+)px/)?.[1]);
   assert.ok(threshold >= 150 && threshold < 221, query);
@@ -583,6 +586,31 @@ test('in a container sized by its content (inline-block, grid auto column) the h
   assert.ok(size >= 180, css['.head']['contain-intrinsic-inline-size']);
   // ...but no wider than the content of the narrowest card allowed by getGridOptions (8 columns ≈ 208 px on a phone).
   assert.ok(size <= 208 - 24, css['.head']['contain-intrinsic-inline-size']);
+});
+
+test('in a two-column grid (1fr 1fr, horizontal-stack) the card shrinks with its column instead of overflowing it', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  // The intrinsic size of the header becomes the card's min-content width: without min-width: 0 on the host,
+  // a `1fr` column (minmax(auto, 1fr)) or a flex item cannot go below it and the card runs out of the grid.
+  assert.equal(css[':host']['min-width'], '0');
+  assert.equal(css[':host'].display, 'block');
+  // Never a fixed minimum on the host: that would bring the overflow back.
+  for (const [sel, decls] of Object.entries(css)) {
+    if (!sel.startsWith(':host')) continue;
+    for (const prop of ['min-width', 'min-inline-size']) assert.doesNotMatch(decls[prop] ?? '', /px/, `${sel} ${prop}`);
+  }
+});
+
+test('in a 156 px column (1fr 1fr on a 320 px phone) the header still fits: the badge gives way', () => {
+  const queries = containerRules(IntegrationWatchdogCard.styles);
+  const [query, rule] = Object.entries(queries).find(([, r]) => r['.head .badge']) ?? [];
+  assert.ok(query, 'a container query hides the badge on a very narrow header');
+  const threshold = Number(query.match(/max-width:\s*(\d+)px/)?.[1]);
+  // A 156 px card has a 132 px header: badge (40) + title (5ch) + dot + button + gaps do not fit in it...
+  assert.ok(threshold >= 132, query);
+  // ...a 180 px card (156 px header) holds everything, badge included.
+  assert.ok(threshold < 156, query);
+  assert.equal(rule['.head .badge'].display, 'none');
 });
 
 test('the pill carries its full text in a tooltip', () => {
