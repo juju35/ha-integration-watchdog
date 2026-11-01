@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.5 - 2026-11-01
+
+### Fixes
+- Card: on a narrow card (6 columns of a Sections view, a narrow masonry column), the title is visible again and the status no longer runs out of the card. The status shortens, then keeps only its coloured dot (full text on hover); *Integration Watchdog is not set up* becomes *Not set up*, since the title already names the integration.
+- Card: the outcome of a row (*Reloaded*, *Grace period*…) gives way to the integration's name on a narrow card.
+- Card: rows only open the integration's page in **Settings** for administrators; for other users, who can't open Settings, they are no longer clickable.
+- Card: if **Check now** fails (connection lost, button removed), a message says so instead of nothing happening.
+- Card: correct Serbian plurals (*2 недоступне*, *5 недоступних*, *21 недоступна*) and Polish plurals (*2 niedostępne*, *5 niedostępnych*); an integration given up is *Напуштена* / *Napuštena* in Serbian everywhere, like in the status.
+- Card: Polish uses *ponowne wczytanie* for a reload everywhere (*Ponowne wczytania*, *Wczytana ponownie*), like the rest of the card and the integration.
+
 ## 0.6.4 - 2026-11-01
 
 ### What's new
