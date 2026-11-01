@@ -140,7 +140,7 @@ const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1
 
 test('every language has the English keys, arrays and placeholders', () => {
   const keys = Object.keys(IW_I18N.en).sort();
-  for (const lang of ['fr', 'de', 'es', 'sr', 'sr-Latn']) assert.ok(IW_I18N[lang], lang);
+  for (const lang of ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sr', 'sr-Latn']) assert.ok(IW_I18N[lang], lang);
   for (const [lang, strings] of Object.entries(IW_I18N)) {
     assert.deepEqual(Object.keys(strings).sort(), keys, lang);
     for (const key of keys) {
@@ -170,9 +170,29 @@ test('language follows Home Assistant, then the config, with English as fallback
   assert.equal(iwLang({ language: 'ja' }, {}), 'en');
   assert.equal(iwLang({ language: 'sr-Latn' }, {}), 'sr-Latn');
   assert.equal(iwLang({ language: 'sr' }, {}), 'sr');
-  assert.equal(iwLang({ language: 'pt-BR' }, {}), 'en');
   assert.equal(iwLang({ locale: { language: 'sr-Latn' }, language: 'sr' }, {}), 'sr-Latn');
   assert.equal(iwLang({ language: 'sr-Latn' }, { language: 'sr' }), 'sr');
+});
+
+test('Italian, Dutch, Portuguese and Polish: full tag, then the part before the dash, then English', () => {
+  assert.equal(iwLang({ language: 'it-IT' }, {}), 'it');
+  assert.equal(iwLang({ language: 'nl-BE' }, {}), 'nl');
+  assert.equal(iwLang({ language: 'pt' }, {}), 'pt');
+  // Brazilian Portuguese falls back to European Portuguese.
+  assert.equal(iwLang({ language: 'pt-BR' }, {}), 'pt');
+  assert.equal(iwLang({ language: 'pl-PL' }, {}), 'pl');
+  assert.equal(iwLang({ language: 'sr-Latn' }, {}), 'sr-Latn');
+  assert.equal(iwLang({ language: 'ja' }, {}), 'en');
+  assert.equal(iwLang({ language: 'en' }, { language: 'pl' }), 'pl');
+});
+
+test('the editor offers every language of the card', () => {
+  const editor = new IntegrationWatchdogCardEditor();
+  editor.appendChild = () => {};
+  editor.setConfig({});
+  editor.hass = makeHass();
+  const field = editor._form.schema.find((f) => f.name === 'language');
+  assert.equal(JSON.stringify(field.selector.select.options.map((o) => o.value).sort()), JSON.stringify(Object.keys(IW_I18N).sort()));
 });
 
 test('Serbian: Cyrillic and Latin, relative times included', () => {

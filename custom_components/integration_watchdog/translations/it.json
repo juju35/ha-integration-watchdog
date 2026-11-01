@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Ricarica le integrazioni le cui entità sono tutte non disponibili.",
+        "data": {
+          "scan_interval": "Intervallo di controllo",
+          "grace_period": "Periodo di tolleranza",
+          "max_reloads": "Ricaricamenti consecutivi",
+          "ignored_integrations": "Integrazioni ignorate",
+          "notify_services": "Azioni di notifica"
+        },
+        "data_description": {
+          "scan_interval": "Minuti tra due controlli.",
+          "grace_period": "Minuti durante i quali tutte le entità di un'integrazione devono essere non disponibili prima che venga ricaricata. Durante questo periodo, dopo l'avvio di Home Assistant, non viene ricaricato nulla.",
+          "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
+          "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
+          "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog è già configurato.",
+      "single_instance_allowed": "Integration Watchdog è già configurato."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni di Integration Watchdog",
+        "data": {
+          "scan_interval": "Intervallo di controllo",
+          "grace_period": "Periodo di tolleranza",
+          "max_reloads": "Ricaricamenti consecutivi",
+          "ignored_integrations": "Integrazioni ignorate",
+          "notify_services": "Azioni di notifica"
+        },
+        "data_description": {
+          "scan_interval": "Minuti tra due controlli.",
+          "grace_period": "Minuti durante i quali tutte le entità di un'integrazione devono essere non disponibili prima che venga ricaricata. Durante questo periodo, dopo l'avvio di Home Assistant, non viene ricaricato nulla.",
+          "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
+          "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
+          "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Controlla ora"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Integrazioni non disponibili",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrazioni"
+          },
+          "ignored": {
+            "name": "Ignorate"
+          },
+          "max_reloads": {
+            "name": "Ricaricamenti massimi"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Ultimo ricaricamento",
+        "state_attributes": {
+          "domain": {
+            "name": "Dominio"
+          },
+          "title": {
+            "name": "Titolo"
+          },
+          "entry_id": {
+            "name": "ID della voce"
+          },
+          "success": {
+            "name": "Riuscito"
+          },
+          "reloads": {
+            "name": "Ricaricamenti"
+          },
+          "history": {
+            "name": "Cronologia"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Ultimo controllo"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Controlla le integrazioni",
+      "description": "Cerca le integrazioni le cui entità sono tutte non disponibili e ricarica quelle il cui periodo di tolleranza è trascorso."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integrazione ricaricata",
+    "reloaded": "{title} ({domain}) è stata ricaricata: tutte le sue entità erano non disponibili da {since}. Ricaricamento {attempt}/{max}.",
+    "reload_failed_title": "Ricaricamento di un'integrazione non riuscito",
+    "reload_failed": "{title} ({domain}) non è stata ricaricata: tutte le sue entità erano non disponibili da {since}. Ricaricamento {attempt}/{max}, vedi i log.",
+    "gave_up_title": "Integrazione ancora non disponibile",
+    "gave_up": "{title} ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti. Non verrà più ricaricata finché una delle sue entità non sarà disponibile."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog non è caricato." }
+  }
+}

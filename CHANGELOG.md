@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.4 - 2026-11-01
+
+### What's new
+- Added Italian, Dutch, European Portuguese and Polish translations: configuration, options, entities, action, notifications and the card (`it`, `nl`, `pt`, `pl`). Home Assistant set to Brazilian Portuguese gets the European Portuguese card, and the card editor offers the four languages.
+
 ## 0.6.3 - 2026-11-01
 
 ### What's new
