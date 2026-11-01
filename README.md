@@ -157,7 +157,7 @@ type: custom:integration-watchdog-card
 | ![Card](screenshots/card.png) | ![Card, all available](screenshots/card-ok.png) |
 | ![Card, dark theme](screenshots/card-dark.png) | ![Card, all available, dark theme](screenshots/card-ok-dark.png) |
 
-- **Header**: status (all available, *n* unavailable, *n* given up, checking…), time of the last check and the **Check now** button. On a narrow card the status shortens, then keeps only its coloured dot, with the text on hover. In a Sections view the card takes at least 8 columns
+- **Header**: status (all available, *n* unavailable, *n* given up, checking…), time of the last check and the **Check now** button. On a narrow card the status takes a second line, shortens, then keeps only its coloured dot, with the text on hover. In a Sections view the card takes at least 8 columns
 - **Summary**: unavailable integrations, reloads since Home Assistant started, ignored integrations (listed on hover)
 - **Unavailable integrations**: for each one, how long it has been down and its reloads (*1/3 reloads*), *Grace period* before the first one, *Given up* once the limit is reached
 - **Recent reloads**: reloaded, failed and given up, newest first, with the attempt and how long ago. The history is saved, so it survives a restart

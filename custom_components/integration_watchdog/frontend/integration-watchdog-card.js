@@ -881,7 +881,11 @@ class IntegrationWatchdogCard extends HTMLElement {
 
   static get styles() {
     return `
+      /* min-width: 0 lets the card shrink with a 1fr grid column or a flex item (layout-card, horizontal-stack):
+         the intrinsic size of the header would otherwise become a floor and the card would run out of its column */
       :host {
+        display: block;
+        min-width: 0;
         --iw-ok: var(--success-color, #43a047);
         --iw-warn: var(--warning-color, #ffa600);
         --iw-alert: var(--error-color, #db4437);
@@ -911,15 +915,21 @@ class IntegrationWatchdogCard extends HTMLElement {
                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .pill { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; box-sizing: border-box;
               white-space: nowrap; overflow: hidden;
-              font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 999px;
+              font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 9px;
               color: color-mix(in srgb, var(--c) 40%, var(--primary-text-color));
               background: color-mix(in srgb, var(--c) 14%, transparent); }
-      .pill .ptxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+      /* Short of room the status takes a second line before it is cut */
+      .pill .ptxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: normal; line-height: 1.25;
+                    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
       .pill .dot { display: none; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
       @container (max-width: 200px) {
         .head .pill { padding: 5px; }
         .head .pill .dot { display: block; }
         .head .pill .ptxt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      }
+      /* A very narrow header (a 1fr 1fr grid on a phone): the badge gives way, the pill's dot still tells the status */
+      @container (max-width: 140px) {
+        .head .badge { display: none; }
       }
       .check { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
                display: grid; place-items: center; color: var(--secondary-text-color); }
