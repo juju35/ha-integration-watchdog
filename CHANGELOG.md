@@ -3,7 +3,11 @@
 ## 0.6.5 - 2026-11-01
 
 ### Fixes
-- Card: on a narrow card (6 columns of a Sections view, a narrow masonry column), the title is visible again and the status no longer runs out of the card. The status shortens, then keeps only its coloured dot (full text on hover); *Integration Watchdog is not set up* becomes *Not set up*, since the title already names the integration.
+- Card: on a narrow card (a phone, a narrow masonry column), the title is visible again and the status no longer runs out of the card. The status shortens, then keeps only its coloured dot (full text on hover); *Integration Watchdog is not set up* becomes *Not set up*, since the title already names the integration.
+- Card: in a Sections view the card is now at least 8 columns wide: at 6 columns a phone leaves it about 156 px, too little for the header.
+- Card: the status shows its full text whenever it fits (*2 unavailable* on a 245 px card); the title no longer takes its room.
+- Card: inside layout-card, button-card or another container sized by its content, the card no longer shrinks to a sliver.
+- Card: giving the keyboard focus back after an update no longer scrolls the page.
 - Card: the outcome of a row (*Reloaded*, *Grace period*…) gives way to the integration's name on a narrow card.
 - Card: rows only open the integration's page in **Settings** for administrators; for other users, who can't open Settings, they are no longer clickable.
 - Card: if **Check now** fails (connection lost, button removed), a message says so instead of nothing happening.
