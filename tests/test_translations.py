@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
+import re
 import string
 from pathlib import Path
 
 import pytest
 
 TRANSLATIONS = Path(__file__).parent.parent / "custom_components" / "integration_watchdog" / "translations"
-LANGUAGES = ["de", "es", "fr"]
+LANGUAGES = ["de", "es", "fr", "it", "nl", "pl", "pt", "pt-BR", "sr", "sr-Latn"]
 
 
 def _flatten(data: dict, prefix: str = "") -> dict[str, str]:
@@ -44,3 +45,17 @@ def test_translation_parity(language: str):
     for key, text in english.items():
         assert other[key].strip(), key
         assert _placeholders(other[key]) == _placeholders(text), key
+
+
+# Serbian: brands, placeholders and identifiers stay in Latin script in the Cyrillic translation.
+_SR_LATIN_ALLOWED = re.compile(r"Integration Watchdog|Home Assistant|notify\.mobile_app_|\{\w+\}")
+
+
+@pytest.mark.parametrize(
+    ("language", "forbidden"),
+    [("sr", r"[A-Za-z\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u024f]"), ("sr-Latn", r"[\u0400-\u04ff]")],
+)
+def test_serbian_script(language: str, forbidden: str):
+    """No Latin letter in sr (but brands and placeholders), no Cyrillic letter in sr-Latn."""
+    for key, text in _load(language).items():
+        assert not re.search(forbidden, _SR_LATIN_ALLOWED.sub("", text)), key

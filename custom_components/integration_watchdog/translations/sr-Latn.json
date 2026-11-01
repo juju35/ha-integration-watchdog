@@ -1,0 +1,117 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Ponovo učitava integracije čiji su svi entiteti nedostupni.",
+        "data": {
+          "scan_interval": "Interval provere",
+          "grace_period": "Period čekanja",
+          "max_reloads": "Uzastopna ponovna učitavanja",
+          "ignored_integrations": "Ignorisane integracije",
+          "notify_services": "Akcije obaveštenja"
+        },
+        "data_description": {
+          "scan_interval": "Minuti između dve provere.",
+          "grace_period": "Koliko minuta svi entiteti integracije moraju biti nedostupni pre nego što se ona ponovo učita. Tokom tog perioda nakon pokretanja Home Assistant-a ništa se ne učitava ponovo.",
+          "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
+          "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
+          "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog je već podešen.",
+      "single_instance_allowed": "Integration Watchdog je već podešen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcije za Integration Watchdog",
+        "data": {
+          "scan_interval": "Interval provere",
+          "grace_period": "Period čekanja",
+          "max_reloads": "Uzastopna ponovna učitavanja",
+          "ignored_integrations": "Ignorisane integracije",
+          "notify_services": "Akcije obaveštenja"
+        },
+        "data_description": {
+          "scan_interval": "Minuti između dve provere.",
+          "grace_period": "Koliko minuta svi entiteti integracije moraju biti nedostupni pre nego što se ona ponovo učita. Tokom tog perioda nakon pokretanja Home Assistant-a ništa se ne učitava ponovo.",
+          "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
+          "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
+          "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Proveri sada"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Nedostupne integracije",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integracije"
+          },
+          "ignored": {
+            "name": "Ignorisane"
+          },
+          "max_reloads": {
+            "name": "Maks. ponovnih učitavanja"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Poslednje ponovno učitavanje",
+        "state_attributes": {
+          "domain": {
+            "name": "Domen"
+          },
+          "title": {
+            "name": "Naslov"
+          },
+          "entry_id": {
+            "name": "ID unosa"
+          },
+          "success": {
+            "name": "Uspešno"
+          },
+          "reloads": {
+            "name": "Ponovna učitavanja"
+          },
+          "history": {
+            "name": "Istorija"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Poslednja provera"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Proveri integracije",
+      "description": "Traži integracije čiji su svi entiteti nedostupni i ponovo učitava one kojima je istekao period čekanja."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integracija ponovo učitana",
+    "reloaded": "{title} ({domain}) je ponovo učitana: svi njeni entiteti su bili nedostupni od {since}. Ponovno učitavanje {attempt}/{max}.",
+    "reload_failed_title": "Ponovno učitavanje integracije nije uspelo",
+    "reload_failed": "{title} ({domain}) nije mogla ponovo da se učita: svi njeni entiteti su bili nedostupni od {since}. Ponovno učitavanje {attempt}/{max}, pogledajte zapise.",
+    "gave_up_title": "Integracija je i dalje nedostupna",
+    "gave_up": "{title} ({domain}) je i dalje nedostupna posle {attempt} ponovnih učitavanja. Neće se ponovo učitavati dok neki od njenih entiteta ne postane dostupan."
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Integration Watchdog nije učitan."
+    }
+  }
+}
