@@ -10,6 +10,9 @@ const source = readFileSync(
   'utf8',
 );
 
+// Keys of the elements focused by the card.
+const focused = [];
+
 // Elements found in the rendered HTML by a selector: enough to click the check button.
 const fakeNode = () => ({
   innerHTML: '',
@@ -32,7 +35,17 @@ const fakeNode = () => ({
         elements[sel] ||= fakeNode();
         return elements[sel];
       },
-      querySelectorAll: () => [],
+      // The focusable elements of the rendered HTML, by their data-focus key.
+      querySelectorAll: (sel) =>
+        sel === '[data-focus]'
+          ? [...this.shadowRoot.innerHTML.matchAll(/data-focus="([^"]*)"/g)].map(([, key]) => ({
+              dataset: { focus: key.replace(/&amp;/g, '&').replace(/&quot;/g, '"') },
+              focus() {
+                focused.push(key);
+              },
+            }))
+          : [],
+      activeElement: null,
       elements,
     };
     return this.shadowRoot;
@@ -380,4 +393,30 @@ test('state colours stay on the badge, pill and icons', () => {
   assert.match(css['.ic'].color, /^var\(--t\)$/);
   // The state text keeps its hue, darkened (light theme) or lightened (dark theme) towards the text colour.
   for (const sel of ['.pill', '.tag', '.when .lbl', '.stat.warn .val']) assert.match(css[sel].color, /color-mix\(in srgb, var\(--[ct]\) \d+%, var\(--primary-text-color\)\)/, sel);
+});
+
+test('a re-render keeps the keyboard focus on the same row or button', () => {
+  const zha = { domain: 'zha', title: 'Zigbee', entry_id: 'e1', since: minutesAgo(5), reloads: 1 };
+  const hue = { domain: 'hue', title: 'Hue', entry_id: 'e2', since: minutesAgo(9), reloads: 0 };
+  const history = [event('reload_failed', 'Zha', 1, minutesAgo(2))];
+  const card = render({}, makeHass({ integrations: [zha, hue], history }));
+  const keys = card.shadowRoot.querySelectorAll('[data-focus]').map((el) => el.dataset.focus);
+  assert.equal(new Set(keys).size, keys.length, 'one key per element');
+  assert.ok(keys.includes('check'));
+  for (const key of keys) {
+    focused.length = 0;
+    card.shadowRoot.activeElement = { dataset: { focus: key } };
+    // A state change re-renders the card (innerHTML): the same element gets the focus back.
+    card.hass = makeHass({ integrations: [hue, { ...zha, reloads: 2 }], history: [event('reloaded', 'Hue', 1, minutesAgo(1)), ...history] });
+    assert.deepEqual(focused, [key], key);
+  }
+  // Nothing focused in the card: nothing is focused.
+  focused.length = 0;
+  card.shadowRoot.activeElement = null;
+  card.hass = makeHass({ integrations: [hue], history });
+  assert.deepEqual(focused, []);
+  // The focused row gone: no error, no focus.
+  card.shadowRoot.activeElement = { dataset: { focus: keys.find((k) => k.includes('e1')) } };
+  card.hass = makeHass({ integrations: [], history: [] });
+  assert.deepEqual(focused, []);
 });
