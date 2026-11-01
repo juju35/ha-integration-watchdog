@@ -572,7 +572,7 @@ test('narrow header: the pill keeps its full text while there is room, the title
 
 test('the card is at least 8 columns wide: 6 columns of a phone section (~156 px) cannot hold the header', () => {
   const card = new IntegrationWatchdogCard();
-  assert.deepEqual(card.getGridOptions(), { columns: 12, min_columns: 8, rows: 'auto' });
+  assert.deepEqual({ ...card.getGridOptions() }, { columns: 12, min_columns: 8, rows: 'auto' });
 });
 
 test('in a container sized by its content (inline-block, grid auto column) the header keeps a usable width', () => {

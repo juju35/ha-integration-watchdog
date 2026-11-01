@@ -614,7 +614,7 @@ class IntegrationWatchdogCard extends HTMLElement {
   }
 
   getGridOptions() {
-    return { columns: 12, min_columns: 6, rows: 'auto' };
+    return { columns: 12, min_columns: 8, rows: 'auto' };
   }
 
   _t(key, vars) {
@@ -758,7 +758,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     for (const img of this.shadowRoot.querySelectorAll('img.brand')) {
       img.addEventListener('error', () => img.parentElement?.classList.add('nobrand'), { once: true });
     }
-    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus();
+    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus({ preventScroll: true });
   }
 
   _status(st, items, givenUp, checking) {
@@ -895,25 +895,28 @@ class IntegrationWatchdogCard extends HTMLElement {
       ha-card.lvl-alert { --c: var(--iw-alert); }
       ha-card.lvl-na    { --c: var(--iw-na); }
 
-      /* The header is a size container: the pill keeps only its dot when it is narrow */
-      .head { display: flex; align-items: center; gap: 10px; container-type: inline-size; }
+      /* The header is a size container: the pill keeps only its dot when it is narrow. A size container adds nothing
+         to its parent's intrinsic width: the intrinsic size keeps the card usable in a container sized by its content
+         (layout-card, button-card, an auto grid column) instead of falling to its padding */
+      .head { display: flex; align-items: center; gap: 8px; container-type: inline-size; contain-intrinsic-inline-size: 184px; }
       .badge { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
       .badge ha-icon { --mdc-icon-size: 24px; }
-      /* The title keeps a few characters; the pill and the buttons never push it out */
-      .heading { flex: 1 1 auto; min-width: 5ch; display: flex; flex-direction: column; }
+      /* The title takes what the pill leaves (basis 0) and keeps a few characters; the pill keeps its full text
+         while there is room and only truncates when there is not */
+      .heading { flex: 1 1 0; min-width: 5ch; display: flex; flex-direction: column; }
       .title { font-size: 16px; font-weight: 500; line-height: 1.25; color: var(--primary-text-color);
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .subtitle { font-size: 12px; line-height: 1.3; color: var(--secondary-text-color);
                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .pill { flex: 0 1 auto; min-width: 0; max-width: 50%; display: flex; align-items: center; box-sizing: border-box;
+      .pill { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; box-sizing: border-box;
               white-space: nowrap; overflow: hidden;
-              font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+              font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 999px;
               color: color-mix(in srgb, var(--c) 40%, var(--primary-text-color));
               background: color-mix(in srgb, var(--c) 14%, transparent); }
       .pill .ptxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
       .pill .dot { display: none; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
-      @container (max-width: 300px) {
+      @container (max-width: 200px) {
         .head .pill { padding: 5px; }
         .head .pill .dot { display: block; }
         .head .pill .ptxt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
