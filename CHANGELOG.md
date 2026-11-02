@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 - 2026-11-02
+
+### What's new
+- **Mini card** (`custom:integration-watchdog-mini-card`), served with the full card: the status on two lines, a chip per unavailable integration (or the last reload while everything is available) and the time of the last check. Its **detail** button, top right, switches it to the full card and back, as does a click anywhere else on the page (`zoom: false` removes it). Every option of the full card is in its visual editor.
+
 ## 1.0.1 - 2026-11-02
 
 ### What's new

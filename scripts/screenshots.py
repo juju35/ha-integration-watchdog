@@ -57,6 +57,9 @@ ICONS = {
     "puzzle-remove-outline": "M13.2 22V21.7C13.2 20.21 12 19 10.5 19C9 19 7.8 20.21 7.8 21.7V22H4C2.9 22 2 21.11 2 20V16.2H2.3C3.79 16.2 5 15 5 13.5S3.79 10.8 2.3 10.8H2V7C2 5.9 2.9 5 4 5H7.04C7.28 3.3 8.74 2 10.5 2S13.72 3.3 13.96 5H17C18.11 5 19 5.9 19 7V10.04C20.7 10.28 22 11.74 22 13.5C22 13.6 22 13.7 21.97 13.79C21.35 13.44 20.67 13.2 19.93 13.08C19.75 12.46 19.18 12 18.5 12H17V7H12V5.5C12 4.67 11.33 4 10.5 4S9 4.67 9 5.5V7H4V9.12C5.76 9.8 7 11.5 7 13.5S5.75 17.2 4 17.88V20H6.12C6.8 18.25 8.5 17 10.5 17C11.47 17 12.37 17.3 13.12 17.81C13.04 18.19 13 18.59 13 19C13 20.1 13.3 21.12 13.81 22H13.2M21.12 15.46L19 17.59L16.88 15.46L15.47 16.88L17.59 19L15.47 21.12L16.88 22.54L19 20.41L21.12 22.54L22.54 21.12L20.41 19L22.54 16.88L21.12 15.46Z",
     "check-circle": "M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z",
     "alert-circle": "M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
+    "arrow-expand": "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z",
+    "arrow-collapse": "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z",
+    "clock-check-outline": "M23.5 17L18.5 22L15 18.5L16.5 17L18.5 19L22 15.5L23.5 17M13.1 19.9C12.7 20 12.4 20 12 20C7.6 20 4 16.4 4 12S7.6 4 12 4 20 7.6 20 12C20 12.4 20 12.7 19.9 13.1C20.6 13.2 21.2 13.4 21.8 13.7C21.9 13.1 22 12.6 22 12C22 6.5 17.5 2 12 2S2 6.5 2 12C2 17.5 6.5 22 12 22C12.6 22 13.1 21.9 13.7 21.8C13.4 21.3 13.2 20.6 13.1 19.9M15.6 14.1L12.5 12.3V7H11V13L14.5 15.1C14.8 14.7 15.2 14.4 15.6 14.1Z",
     "cancel": "M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22 2 17.5 2 12 6.5 2 12 2M12 4C10.1 4 8.4 4.6 7.1 5.7L18.3 16.9C19.3 15.5 20 13.8 20 12C20 7.6 16.4 4 12 4M16.9 18.3L5.7 7.1C4.6 8.4 4 10.1 4 12C4 16.4 7.6 20 12 20C13.9 20 15.6 19.4 16.9 18.3Z",
 }
 
@@ -159,28 +162,49 @@ def mock_hass(integrations, history, reloads):
     }
 
 
+MINI = "integration-watchdog-mini-card"
+MINI_WIDTH = 400
+
 SHOTS = [
     {"file": "card", "theme": "light", "hass": (INTEGRATIONS, HISTORY, 4)},
     {"file": "card-dark", "theme": "dark", "hass": (INTEGRATIONS, HISTORY, 4)},
     {"file": "card-ok", "theme": "light", "hass": ([], HISTORY[1:], 3)},
     {"file": "card-ok-dark", "theme": "dark", "hass": ([], HISTORY[1:], 3)},
+    # Mini card: compact, everything available, and zoomed in on the full card with its detail button.
+    *(
+        {
+            "file": f"mini{suffix}{'-dark' if theme == 'dark' else ''}",
+            "theme": theme,
+            "card": MINI,
+            "width": MINI_WIDTH,
+            **extra,
+        }
+        for theme in ("light", "dark")
+        for suffix, extra in (
+            ("", {"hass": (INTEGRATIONS, HISTORY, 4)}),
+            ("-ok", {"hass": ([], HISTORY[1:], 3)}),
+            ("-zoom", {"hass": (INTEGRATIONS, HISTORY, 4), "zoom": True}),
+        )
+    ),
 ]
 
 
-def page_html(theme):
+def page_html(theme, width):
     variables = "".join(f"{k}:{v};" for k, v in {**THEMES[theme], **COMMON}.items())
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 :root {{ {variables} }}
 body {{ margin: 0; padding: 16px; background: var(--primary-background-color);
-       font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif; width: {WIDTH}px; }}
+       font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif; width: {width}px; }}
 </style></head><body><div id="root"></div></body></html>"""
 
 
-MOUNT = """([hass, dark]) => {
-    const el = document.createElement("integration-watchdog-card");
-    el.setConfig({ type: "custom:integration-watchdog-card" });
+MOUNT = """([hass, dark, card, zoom]) => {
+    const el = document.createElement(card);
+    el.setConfig({ type: `custom:${card}` });
     el.hass = { ...hass, themes: { darkMode: dark }, callService: async () => {} };
     document.getElementById("root").appendChild(el);
+    // The mini card zoomed in: its detail button clicked with the mouse (no focus ring), the full card shown.
+    if (zoom) el.shadowRoot.querySelector(".zoom").dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true, detail: 1 }));
 }"""
 
 
@@ -223,13 +247,15 @@ def main():
             # No integration logo: the generic icon, the same on every machine.
             page.route("https://brands.home-assistant.io/**", lambda route: route.abort())
             page.clock.set_fixed_time(NOW.isoformat())
-            page.set_content(page_html(shot["theme"]))
+            width = shot.get("width", WIDTH)
+            page.set_content(page_html(shot["theme"], width))
             page.add_script_tag(content=HA_ELEMENTS)
             page.add_script_tag(content=CARD_JS)
-            page.evaluate(MOUNT, [mock_hass(*shot["hass"]), shot["theme"] == "dark"])
+            card = shot.get("card", "integration-watchdog-card")
+            page.evaluate(MOUNT, [mock_hass(*shot["hass"]), shot["theme"] == "dark", card, shot.get("zoom", False)])
             page.wait_for_timeout(400)
             box = page.locator("#root").bounding_box()
-            clip = {"x": 0, "y": 0, "width": WIDTH + 32, "height": int(box["height"] + 0.999) + 32}
+            clip = {"x": 0, "y": 0, "width": width + 32, "height": int(box["height"] + 0.999) + 32}
             path = ROOT / "screenshots" / f"{shot['file']}.png"
             path.parent.mkdir(exist_ok=True)
             png = page.screenshot(clip=clip, animations="disabled")

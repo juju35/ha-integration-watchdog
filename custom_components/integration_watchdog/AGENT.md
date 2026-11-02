@@ -13,7 +13,7 @@ custom_components/integration_watchdog/
 ├── button.py        # button.*_check_now (unavailable while a check runs)
 ├── sensor.py        # unavailable (count + integrations/ignored/max_reloads), last_reload (+ domain/title/success/reloads/history), last_check
 ├── entity.py        # Shared service device, listener on IntegrationWatchdog
-├── frontend/integration-watchdog-card.js   # custom:integration-watchdog-card, reads the sensors' attributes and presses the button
+├── frontend/integration-watchdog-card.js   # custom:integration-watchdog-card + custom:integration-watchdog-mini-card (subclass: compact view, detail button toggling the full view), read the sensors' attributes and press the button
 ├── const.py / icons.json / services.yaml / translations/{en,fr,de,es,it,nl,pt,pl,sr,sr-Latn}.json / brand/
 ```
 
