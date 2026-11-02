@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 - 2026-11-02
+
+### What's new
+- Card: **Recent reloads** shows only the last attempt of each integration (its last reload, failed reload or give-up), instead of every attempt. **Reloads shown** now counts integrations. The saved history is unchanged.
+
 ## 1.0.0 - 2026-11-02
 
 First stable release. No change since 0.6.5.

@@ -160,7 +160,7 @@ type: custom:integration-watchdog-card
 - **Header**: status (all available, *n* unavailable, *n* given up, checking…), time of the last check and the **Check now** button. On a narrow card the status takes a second line, shortens, then keeps only its coloured dot, with the text on hover. In a Sections view the card takes at least 8 columns
 - **Summary**: unavailable integrations, reloads since Home Assistant started, ignored integrations (listed on hover)
 - **Unavailable integrations**: for each one, how long it has been down and its reloads (*1/3 reloads*), *Grace period* before the first one, *Given up* once the limit is reached
-- **Recent reloads**: reloaded, failed and given up, newest first, with the attempt and how long ago. The history is saved, so it survives a restart
+- **Recent reloads**: the last attempt of each integration (reloaded, failed or given up), newest first, with the attempt and how long ago. The history is saved, so it survives a restart
 - For an administrator, a row opens the integration's page in **Settings**, to reload it by hand or read its logs (other users can't open Settings, so their rows are not clickable). Integration logos come from the Home Assistant brands
 
 Every option is in the visual editor:
@@ -172,7 +172,7 @@ Every option is in the visual editor:
 | `show_stats` | `true` | Summary tiles |
 | `show_unavailable` | `true` | Unavailable integrations |
 | `show_history` | `true` | Recent reloads |
-| `history_count` | `5` | Recent reloads shown, from 1 to 20 |
+| `history_count` | `5` | Recent reloads shown (one per integration), from 1 to 20 |
 | `check_button` | `true` | **Check now** button in the header. It presses the button entity, so any user who sees the card can run a check (only the `integration_watchdog.check` action is limited to administrators) |
 | `hide_when_ok` | `false` | Hide the card while every integration is available |
 | `language` | Home Assistant's | `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `pl`, `sr` or `sr-Latn` |
