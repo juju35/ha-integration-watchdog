@@ -888,6 +888,17 @@ test('mini card: at least 6 columns, badge gives way on a narrow card', () => {
   assert.equal(css['.zoom'].flex, 'none');
 });
 
+test('mini card: the badge keeps the full card size (40 px, 24 px icon)', () => {
+  const css = rules(IntegrationWatchdogMiniCard.styles);
+  assert.equal(css['.badge'].width, '40px');
+  assert.equal(css['.badge ha-icon']['--mdc-icon-size'], '24px');
+  // Only the narrow-card container query touches the mini badge (it hides it), never its size.
+  for (const sel of ['.mini > .badge', '.mini > .badge ha-icon', '.mini .badge']) {
+    for (const prop of ['width', 'height', '--mdc-icon-size']) assert.equal(css[sel]?.[prop], undefined, `${sel} ${prop}`);
+  }
+  assert.equal(css['.mini .head']['min-height'], '40px');
+});
+
 test('mini card editor: the detail button is offered, its default left out of the YAML', () => {
   const editor = new IntegrationWatchdogMiniCardEditor();
   editor.appendChild = () => {};

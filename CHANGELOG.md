@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+- Mini card: the badge keeps its full size (40 px) in the compact view, like the full card.
+
 ## 1.1.0 - 2026-11-02
 
 ### What's new

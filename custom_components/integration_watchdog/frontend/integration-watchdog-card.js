@@ -1206,12 +1206,10 @@ class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
   static get styles() {
     return `${IntegrationWatchdogCard.styles}
       :host { --iw-natural-width: 300px; }
-      /* Badge, then the two lines; the badge is 32 px like the other mini cards, top-aligned */
+      /* Badge, then the two lines; the badge keeps the full card's size (40 px), top-aligned */
       .mini { display: flex; align-items: flex-start; gap: 10px; container-type: inline-size; }
-      .mini > .badge { width: 32px; height: 32px; }
-      .mini > .badge ha-icon { --mdc-icon-size: 20px; }
       .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-      .mini .head { min-height: 32px; }
+      .mini .head { min-height: 40px; }
       .rs { display: flex; flex-wrap: wrap; gap: 2px 4px; margin-left: -4px; }
       .rs:empty { display: none; }
       /* A chip never gets wider than the card: its text ends in an ellipsis (full text in the tooltip) */
