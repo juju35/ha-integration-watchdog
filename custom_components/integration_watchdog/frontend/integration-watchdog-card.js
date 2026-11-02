@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '0.6.4';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '0.6.5';
 
 const IW_I18N = {
   en: {
@@ -15,10 +15,11 @@ const IW_I18N = {
     gave_up_one: '{n} given up',
     gave_up_many: '{n} given up',
     checking: 'Checking…',
-    not_loaded: 'Integration Watchdog is not set up',
+    not_loaded: 'Not set up',
     never_checked: 'Not checked yet',
     checked: 'Checked {d}',
     check_now: 'Check now',
+    check_failed: 'Check failed: {error}',
     stat_unavailable: 'Unavailable',
     stat_reloads: 'Reloads',
     stat_reloads_hint: 'Since Home Assistant started',
@@ -64,10 +65,11 @@ const IW_I18N = {
     gave_up_one: '{n} abandonnée',
     gave_up_many: '{n} abandonnées',
     checking: 'Vérification…',
-    not_loaded: 'Integration Watchdog n’est pas configuré',
+    not_loaded: 'Non configuré',
     never_checked: 'Pas encore vérifié',
     checked: 'Vérifié {d}',
     check_now: 'Vérifier maintenant',
+    check_failed: 'Échec de la vérification : {error}',
     stat_unavailable: 'Indisponibles',
     stat_reloads: 'Rechargements',
     stat_reloads_hint: 'Depuis le démarrage de Home Assistant',
@@ -113,10 +115,11 @@ const IW_I18N = {
     gave_up_one: '{n} aufgegeben',
     gave_up_many: '{n} aufgegeben',
     checking: 'Prüfung läuft…',
-    not_loaded: 'Integration Watchdog ist nicht eingerichtet',
+    not_loaded: 'Nicht eingerichtet',
     never_checked: 'Noch nicht geprüft',
     checked: 'Geprüft {d}',
     check_now: 'Jetzt prüfen',
+    check_failed: 'Prüfung fehlgeschlagen: {error}',
     stat_unavailable: 'Nicht verfügbar',
     stat_reloads: 'Neuladungen',
     stat_reloads_hint: 'Seit dem Start von Home Assistant',
@@ -162,10 +165,11 @@ const IW_I18N = {
     gave_up_one: '{n} abandonada',
     gave_up_many: '{n} abandonadas',
     checking: 'Comprobando…',
-    not_loaded: 'Integration Watchdog no está configurado',
+    not_loaded: 'No configurado',
     never_checked: 'Aún sin comprobar',
     checked: 'Comprobado {d}',
     check_now: 'Comprobar ahora',
+    check_failed: 'La comprobación ha fallado: {error}',
     stat_unavailable: 'No disponibles',
     stat_reloads: 'Recargas',
     stat_reloads_hint: 'Desde que se inició Home Assistant',
@@ -211,10 +215,11 @@ const IW_I18N = {
     gave_up_one: '{n} abbandonata',
     gave_up_many: '{n} abbandonate',
     checking: 'Controllo in corso…',
-    not_loaded: 'Integration Watchdog non è configurato',
+    not_loaded: 'Non configurato',
     never_checked: 'Non ancora controllato',
     checked: 'Controllato {d}',
     check_now: 'Controlla ora',
+    check_failed: 'Controllo non riuscito: {error}',
     stat_unavailable: 'Non disponibili',
     stat_reloads: 'Ricaricamenti',
     stat_reloads_hint: 'Dall’avvio di Home Assistant',
@@ -260,10 +265,11 @@ const IW_I18N = {
     gave_up_one: '{n} opgegeven',
     gave_up_many: '{n} opgegeven',
     checking: 'Controleren…',
-    not_loaded: 'Integration Watchdog is niet ingesteld',
+    not_loaded: 'Niet ingesteld',
     never_checked: 'Nog niet gecontroleerd',
     checked: 'Gecontroleerd {d}',
     check_now: 'Nu controleren',
+    check_failed: 'Controle mislukt: {error}',
     stat_unavailable: 'Niet beschikbaar',
     stat_reloads: 'Herladen',
     stat_reloads_hint: 'Sinds Home Assistant is gestart',
@@ -313,6 +319,7 @@ const IW_I18N = {
     never_checked: 'Ainda não verificado',
     checked: 'Verificado {d}',
     check_now: 'Verificar agora',
+    check_failed: 'A verificação falhou: {error}',
     stat_unavailable: 'Indisponíveis',
     stat_reloads: 'Recarregamentos',
     stat_reloads_hint: 'Desde o arranque do Home Assistant',
@@ -354,16 +361,19 @@ const IW_I18N = {
     title: 'Integration Watchdog',
     all_ok: 'Wszystko dostępne',
     unavailable_one: '{n} niedostępna',
-    unavailable_many: 'Niedostępne: {n}',
+    unavailable_few: '{n} niedostępne',
+    unavailable_many: '{n} niedostępnych',
     gave_up_one: '{n} porzucona',
-    gave_up_many: 'Porzucone: {n}',
+    gave_up_few: '{n} porzucone',
+    gave_up_many: '{n} porzuconych',
     checking: 'Sprawdzanie…',
     not_loaded: 'Nie skonfigurowano',
     never_checked: 'Jeszcze nie sprawdzono',
     checked: 'Sprawdzono {d}',
     check_now: 'Sprawdź teraz',
+    check_failed: 'Sprawdzanie nie powiodło się: {error}',
     stat_unavailable: 'Niedostępne',
-    stat_reloads: 'Przeładowania',
+    stat_reloads: 'Ponowne wczytania',
     stat_reloads_hint: 'Od uruchomienia Home Assistant',
     stat_ignored: 'Ignorowane',
     unavailable_title: 'Niedostępne integracje',
@@ -374,7 +384,7 @@ const IW_I18N = {
     attempt: 'ponowne wczytanie {n}/{max}',
     waiting: 'Okres karencji',
     gave_up: 'Porzucona',
-    reloaded: 'Przeładowana',
+    reloaded: 'Wczytana ponownie',
     reload_failed: 'Błąd',
     gave_up_event: 'Porzucenie',
     gave_up_after: 'ponowne wczytania: {n}',
@@ -403,14 +413,17 @@ const IW_I18N = {
     title: 'Integration Watchdog',
     all_ok: 'Све је доступно',
     unavailable_one: '{n} недоступна',
-    unavailable_many: '{n} недоступно',
+    unavailable_few: '{n} недоступне',
+    unavailable_many: '{n} недоступних',
     gave_up_one: '{n} напуштена',
-    gave_up_many: '{n} напуштено',
+    gave_up_few: '{n} напуштене',
+    gave_up_many: '{n} напуштених',
     checking: 'Проверавање…',
-    not_loaded: 'Integration Watchdog није подешен',
+    not_loaded: 'Није подешено',
     never_checked: 'Још није проверено',
     checked: 'Проверено {d}',
     check_now: 'Провери сада',
+    check_failed: 'Провера није успела: {error}',
     stat_unavailable: 'Недоступне',
     stat_reloads: 'Поновна учитавања',
     stat_reloads_hint: 'Од покретања Home Assistant-а',
@@ -422,10 +435,10 @@ const IW_I18N = {
     attempts: '{n}/{max} поновних учитавања',
     attempt: 'поновно учитавање {n}/{max}',
     waiting: 'Период чекања',
-    gave_up: 'Одустао',
+    gave_up: 'Напуштена',
     reloaded: 'Поново учитана',
     reload_failed: 'Неуспело',
-    gave_up_event: 'Одустао',
+    gave_up_event: 'Напуштена',
     gave_up_after: 'после {n} поновних учитавања',
     minutes: '{n} min',
     hours: '{n} h',
@@ -452,14 +465,17 @@ const IW_I18N = {
     title: 'Integration Watchdog',
     all_ok: 'Sve je dostupno',
     unavailable_one: '{n} nedostupna',
-    unavailable_many: '{n} nedostupno',
+    unavailable_few: '{n} nedostupne',
+    unavailable_many: '{n} nedostupnih',
     gave_up_one: '{n} napuštena',
-    gave_up_many: '{n} napušteno',
+    gave_up_few: '{n} napuštene',
+    gave_up_many: '{n} napuštenih',
     checking: 'Proveravanje…',
-    not_loaded: 'Integration Watchdog nije podešen',
+    not_loaded: 'Nije podešeno',
     never_checked: 'Još nije provereno',
     checked: 'Provereno {d}',
     check_now: 'Proveri sada',
+    check_failed: 'Provera nije uspela: {error}',
     stat_unavailable: 'Nedostupne',
     stat_reloads: 'Ponovna učitavanja',
     stat_reloads_hint: 'Od pokretanja Home Assistant-a',
@@ -471,10 +487,10 @@ const IW_I18N = {
     attempts: '{n}/{max} ponovnih učitavanja',
     attempt: 'ponovno učitavanje {n}/{max}',
     waiting: 'Period čekanja',
-    gave_up: 'Odustao',
+    gave_up: 'Napuštena',
     reloaded: 'Ponovo učitana',
     reload_failed: 'Neuspelo',
-    gave_up_event: 'Odustao',
+    gave_up_event: 'Napuštena',
     gave_up_after: 'posle {n} ponovnih učitavanja',
     minutes: '{n} min',
     hours: '{n} h',
@@ -583,6 +599,7 @@ class IntegrationWatchdogCard extends HTMLElement {
       // No sensor found yet (watchdog not loaded): its return must be seen at once, not at the next minute.
       ids.unavailable &&
       hass.entities === old.entities &&
+      hass.user === old.user &&
       Object.values(ids).every((id) => !id || hass.states[id] === old.states[id]) &&
       iwLang(hass, this._config) === iwLang(old, this._config) &&
       Math.floor(Date.now() / 60000) === this._sigMinute
@@ -597,11 +614,24 @@ class IntegrationWatchdogCard extends HTMLElement {
   }
 
   getGridOptions() {
-    return { columns: 12, min_columns: 6, rows: 'auto' };
+    return { columns: 12, min_columns: 8, rows: 'auto' };
   }
 
   _t(key, vars) {
     return iwT(iwLang(this._hass, this._config), key, vars);
+  }
+
+  // "{n} unavailable" with the plural form of the card's language: `key_one`, `key_few` (2-4 in Serbian and Polish,
+  // when the language has it) or `key_many`.
+  _count(key, n) {
+    let cat = n === 1 ? 'one' : 'other';
+    try {
+      cat = new Intl.PluralRules(iwLocale(this._hass, this._config)).select(n);
+    } catch {
+      // Unknown locale: the simple rule above.
+    }
+    const form = cat === 'one' ? 'one' : cat === 'few' && IW_I18N[iwLang(this._hass, this._config)]?.[`${key}_few`] ? 'few' : 'many';
+    return this._t(`${key}_${form}`, { n });
   }
 
   // "12 min", "3 h", "2 d".
@@ -666,7 +696,9 @@ class IntegrationWatchdogCard extends HTMLElement {
 
     const minute = Math.floor(Date.now() / 60000);
     this._sigMinute = minute;
-    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, sensorSt, reloadSt, checkSt, buttonSt?.state, minute]);
+    // Only administrators can open Settings: the rows are links for them only.
+    this._admin = this._hass.user?.is_admin === true;
+    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, sensorSt, reloadSt, checkSt, buttonSt?.state, minute, this._admin]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -704,7 +736,7 @@ class IntegrationWatchdogCard extends HTMLElement {
             ${subtitle ? `<div class="subtitle" title="${iwEsc(checkedAt ? this._absolute(checkedAt) : '')}">${iwEsc(subtitle)}</div>` : ''}
           </div>
           ${this._checkButton(checking)}
-          <div class="pill">${iwEsc(this._status(st, items, givenUp, checking))}</div>
+          ${this._pill(this._status(st, items, givenUp, checking))}
         </div>
         ${c.show_stats && st ? this._stats(items.length, reloads, ignored) : ''}
         ${c.show_unavailable && items.length ? this._section('unavailable_title', items.map((i) => this._unavailableRow(i, max)).join('')) : ''}
@@ -726,7 +758,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     for (const img of this.shadowRoot.querySelectorAll('img.brand')) {
       img.addEventListener('error', () => img.parentElement?.classList.add('nobrand'), { once: true });
     }
-    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus();
+    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus({ preventScroll: true });
   }
 
   _status(st, items, givenUp, checking) {
@@ -734,9 +766,24 @@ class IntegrationWatchdogCard extends HTMLElement {
     if (checking) return this._t('checking');
     const parts = [];
     const available = items.length - givenUp.length;
-    if (available) parts.push(this._t(available > 1 ? 'unavailable_many' : 'unavailable_one', { n: available }));
-    if (givenUp.length) parts.push(this._t(givenUp.length > 1 ? 'gave_up_many' : 'gave_up_one', { n: givenUp.length }));
+    if (available) parts.push(this._count('unavailable', available));
+    if (givenUp.length) parts.push(this._count('gave_up', givenUp.length));
     return parts.length ? parts.join(' · ') : this._t('all_ok');
+  }
+
+  // The status pill: its text, or only its coloured dot when the header is narrow (the text stays in the tooltip
+  // and for screen readers).
+  _pill(text) {
+    const t = iwEsc(text);
+    return `<div class="pill" title="${t}"><span class="dot"></span><span class="ptxt">${t}</span></div>`;
+  }
+
+  // A row: a button opening the integration's page for an administrator, plain text for the other users.
+  _row(cls, domain, focus, title, body) {
+    const t = iwEsc(title);
+    return this._admin
+      ? `<button class="${cls}" data-domain="${iwEsc(domain)}" data-focus="${iwEsc(focus)}" title="${t}">${body}</button>`
+      : `<div class="${cls}" title="${t}">${body}</div>`;
   }
 
   _checkButton(checking) {
@@ -745,8 +792,15 @@ class IntegrationWatchdogCard extends HTMLElement {
     return `<button class="check" data-focus="check" title="${label}" aria-label="${label}"${checking ? ' disabled' : ''}><ha-icon icon="mdi:refresh"></ha-icon></button>`;
   }
 
-  _check() {
-    if (this._ids.button) this._hass.callService('button', 'press', { entity_id: this._ids.button });
+  // A failure (connection lost, button removed) is shown as a Home Assistant toast.
+  async _check() {
+    if (!this._ids.button) return;
+    try {
+      await this._hass.callService('button', 'press', { entity_id: this._ids.button });
+    } catch (err) {
+      const message = this._t('check_failed', { error: err?.message || err?.code || String(err) });
+      this.dispatchEvent(new CustomEvent('hass-notification', { detail: { message }, bubbles: true, composed: true }));
+    }
   }
 
   _stats(unavailable, reloads, ignored) {
@@ -774,15 +828,19 @@ class IntegrationWatchdogCard extends HTMLElement {
     const kind = i.gave_up ? 'alert' : 'warn';
     const sub = [i.domain, i.since ? this._t('since', { d: this._duration(iwMinutes(i.since)) }) : ''].filter(Boolean).join(' · ');
     const value = i.gave_up ? this._t('gave_up') : i.reloads && max ? this._t('attempts', { n: i.reloads, max }) : this._t('waiting');
-    return `
-          <button class="row ${kind}" data-domain="${iwEsc(i.domain)}" data-focus="${iwEsc(`u:${i.entry_id || i.domain}`)}" title="${iwEsc(i.title)} (${iwEsc(i.domain)})">
+    return this._row(
+      `row ${kind}`,
+      i.domain,
+      `u:${i.entry_id || i.domain}`,
+      `${i.title} (${i.domain})`,
+      `
             ${this._brand(i.domain, 'mdi:puzzle-remove-outline')}
             <span class="txt">
               <span class="name">${iwEsc(i.title)}</span>
               <span class="sub">${iwEsc(sub)}</span>
             </span>
-            <span class="tag">${iwEsc(value)}</span>
-          </button>`;
+            <span class="tag">${iwEsc(value)}</span>`,
+    );
   }
 
   _historyRow(h) {
@@ -796,8 +854,12 @@ class IntegrationWatchdogCard extends HTMLElement {
           ? this._t('attempt', { n: h.attempt, max: h.max_reloads })
           : '';
     const sub = [h.domain, detail].filter(Boolean).join(' · ');
-    return `
-          <button class="row hist ${kind}" data-domain="${iwEsc(h.domain)}" data-focus="${iwEsc(`h:${h.at}:${h.entry_id || h.domain}`)}" title="${iwEsc(label)} — ${iwEsc(this._absolute(h.at))}">
+    return this._row(
+      `row hist ${kind}`,
+      h.domain,
+      `h:${h.at}:${h.entry_id || h.domain}`,
+      `${label} — ${this._absolute(h.at)}`,
+      `
             <span class="ic ev"><ha-icon icon="${icon}"></ha-icon></span>
             <span class="txt">
               <span class="name">${iwEsc(h.title)}</span>
@@ -806,8 +868,8 @@ class IntegrationWatchdogCard extends HTMLElement {
             <span class="when">
               <span class="lbl">${iwEsc(label)}</span>
               <span class="ago">${iwEsc(this._ago(h.at))}</span>
-            </span>
-          </button>`;
+            </span>`,
+    );
   }
 
   // The integration's page in Settings, where its entries can be reloaded or their logs read.
@@ -820,6 +882,9 @@ class IntegrationWatchdogCard extends HTMLElement {
   static get styles() {
     return `
       :host {
+        display: block;
+        min-width: 0;
+        --iw-natural-width: 360px;
         --iw-ok: var(--success-color, #43a047);
         --iw-warn: var(--warning-color, #ffa600);
         --iw-alert: var(--error-color, #db4437);
@@ -827,24 +892,51 @@ class IntegrationWatchdogCard extends HTMLElement {
         /* Secondary text on the tinted tiles: nudged towards the primary text so it stays readable (WCAG AA) */
         --iw-muted: color-mix(in srgb, var(--secondary-text-color) 70%, var(--primary-text-color));
       }
-      ha-card { padding: 12px; overflow: hidden; }
+      /* Width without a minimum. The card contributes no width of its own (inline-size containment): its stats,
+         rows and pill would otherwise set a min-content width of 210-354 px, a floor that a 1fr grid column or a
+         flex row cannot go below once the card is wrapped in a div (min-width: 0 on the host does not reach the
+         wrapper), so the card would run out of its column. The empty, zero-height grid below gives it a natural
+         (max-content) width with a min-content width of 0: in a parent sized by its content (layout-card,
+         button-card, an inline-block, a grid "auto" column) the card gets that width instead of falling to its
+         padding, and in a 1fr 1fr grid or a flex row, wrapped or not, it shrinks to its track. No
+         contain-intrinsic-* and no min-width in px: both would be a minimum. */
+      :host::before { content: ""; display: grid; grid-template-columns: minmax(0, var(--iw-natural-width)); height: 0; }
+      ha-card { padding: 12px; overflow: hidden; contain: inline-size; }
       ha-card.lvl-ok    { --c: var(--iw-ok); }
       ha-card.lvl-warn  { --c: var(--iw-warn); }
       ha-card.lvl-alert { --c: var(--iw-alert); }
       ha-card.lvl-na    { --c: var(--iw-na); }
 
-      .head { display: flex; align-items: center; gap: 10px; }
+      /* The header is a size container: the pill keeps only its dot when it is narrow */
+      .head { display: flex; align-items: center; gap: 8px; container-type: inline-size; }
       .badge { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
                background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
       .badge ha-icon { --mdc-icon-size: 24px; }
-      .heading { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+      /* The title takes what the pill leaves (basis 0) and keeps a few characters; the pill keeps its full text
+         while there is room and only truncates when there is not */
+      .heading { flex: 1 1 0; min-width: 5ch; display: flex; flex-direction: column; }
       .title { font-size: 16px; font-weight: 500; line-height: 1.25; color: var(--primary-text-color);
                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .subtitle { font-size: 12px; line-height: 1.3; color: var(--secondary-text-color);
                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .pill { flex: none; font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+      .pill { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; box-sizing: border-box;
+              white-space: nowrap; overflow: hidden;
+              font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 9px;
               color: color-mix(in srgb, var(--c) 40%, var(--primary-text-color));
               background: color-mix(in srgb, var(--c) 14%, transparent); }
+      /* Short of room the status takes a second line before it is cut */
+      .pill .ptxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: normal; line-height: 1.25;
+                    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+      .pill .dot { display: none; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+      @container (max-width: 200px) {
+        .head .pill { padding: 5px; }
+        .head .pill .dot { display: block; }
+        .head .pill .ptxt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      }
+      /* A very narrow header (a 1fr 1fr grid on a phone): the badge gives way, the pill's dot still tells the status */
+      @container (max-width: 140px) {
+        .head .badge { display: none; }
+      }
       .check { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
                display: grid; place-items: center; color: var(--secondary-text-color); }
       .check:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
@@ -868,15 +960,17 @@ class IntegrationWatchdogCard extends HTMLElement {
       .list { display: flex; flex-direction: column; gap: 6px; }
       .empty { font-size: 13px; color: var(--iw-muted); padding: 8px 10px; border-radius: 10px;
                background: var(--secondary-background-color, rgba(127,127,127,.08)); }
-      .row { --t: var(--iw-ok); all: unset; box-sizing: border-box; cursor: pointer; min-width: 0;
+      .row { --t: var(--iw-ok); all: unset; box-sizing: border-box; min-width: 0;
              display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 5px; border-radius: 10px;
              background: var(--secondary-background-color, rgba(127,127,127,.08)); }
       .row.warn  { --t: var(--iw-warn); }
       .row.alert { --t: var(--iw-alert); }
       /* Unavailable integrations are tinted; the history keeps the neutral tile, its colour on the icon */
       .row:not(.hist) { background: color-mix(in srgb, var(--t) 12%, var(--secondary-background-color, transparent)); }
-      .row:hover { background: color-mix(in srgb, var(--t) 18%, var(--secondary-background-color, transparent)); }
-      .row.hist:hover { background: color-mix(in srgb, var(--secondary-text-color) 10%, var(--secondary-background-color, transparent)); }
+      /* Only administrators get clickable rows (buttons): they can open Settings */
+      button.row { cursor: pointer; }
+      button.row:hover { background: color-mix(in srgb, var(--t) 18%, var(--secondary-background-color, transparent)); }
+      button.row.hist:hover { background: color-mix(in srgb, var(--secondary-text-color) 10%, var(--secondary-background-color, transparent)); }
       .row:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .ic { position: relative; flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
             color: var(--t); background: color-mix(in srgb, var(--t) 18%, transparent); overflow: hidden; }
@@ -889,8 +983,10 @@ class IntegrationWatchdogCard extends HTMLElement {
               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .sub { font-size: 11px; line-height: 1.2; color: var(--iw-muted);
              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .tag { flex: none; font-size: 12px; font-weight: 500; color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); font-variant-numeric: tabular-nums; }
-      .when { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
+      /* The outcome on the right shrinks (up to half the row) before the name does */
+      .tag { flex: 0 1 auto; min-width: 0; max-width: 50%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 500; color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); font-variant-numeric: tabular-nums; }
+      .when { flex: 0 1 auto; min-width: 0; max-width: 50%; display: flex; flex-direction: column; align-items: flex-end; }
+      .when > span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .when .lbl { font-size: 12px; font-weight: 500; line-height: 1.2; color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); }
       .when .ago { font-size: 11px; line-height: 1.2; color: var(--iw-muted); }
     `;

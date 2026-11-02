@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.6.5 - 2026-11-01
+
+### Fixes
+- Card: on a narrow card (a phone, a narrow masonry column), the title is visible again and the status no longer runs out of the card. The status shortens, then keeps only its coloured dot (full text on hover); *Integration Watchdog is not set up* becomes *Not set up*, since the title already names the integration.
+- Card: in a Sections view the card is now at least 8 columns wide: at 6 columns a phone leaves it about 156 px, too little for the header.
+- Card: the status shows its full text whenever it fits (*2 unavailable* on a 245 px card); the title no longer takes its room. Short of room, it goes onto a second line before it is cut (*Sve je / dostupno*).
+- Card: inside layout-card, button-card or another container sized by its content, the card no longer shrinks to a sliver; in two columns side by side (a `1fr 1fr` grid, a horizontal stack, with or without a wrapper around the card) it shrinks with its column instead of running out of it, whatever its state, and on a very narrow header the round icon gives way to the status.
+- Card: giving the keyboard focus back after an update no longer scrolls the page.
+- Card: the outcome of a row (*Reloaded*, *Grace period*…) gives way to the integration's name on a narrow card.
+- Card: rows only open the integration's page in **Settings** for administrators; for other users, who can't open Settings, they are no longer clickable.
+- Card: if **Check now** fails (connection lost, button removed), a message says so instead of nothing happening.
+- Card: correct Serbian plurals (*2 недоступне*, *5 недоступних*, *21 недоступна*) and Polish plurals (*2 niedostępne*, *5 niedostępnych*); an integration given up is *Напуштена* / *Napuštena* in Serbian everywhere, like in the status.
+- Card: Polish uses *ponowne wczytanie* for a reload everywhere (*Ponowne wczytania*, *Wczytana ponownie*), like the rest of the card and the integration.
+
+### Maintenance
+- Biome 2.6.4 in the pre-commit hook and the lint job.
+
 ## 0.6.4 - 2026-11-01
 
 ### What's new

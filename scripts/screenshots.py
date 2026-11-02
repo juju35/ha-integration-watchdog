@@ -4,8 +4,11 @@ Usage: python scripts/screenshots.py  (needs `pip install playwright` and `playw
 CHROMIUM_PATH=/path/to/chrome to use another browser. The clock is frozen so the durations and "x min ago" stay the same.
 Integration logos are not fetched (the generic icon is shown), so the captures don't depend on the network.
 Every capture keeps a 16 px frame of the theme background around the card.
+A capture is only rewritten when its decoded pixels differ from the file already there (a re-encoded but identical
+image is not a change), so an unchanged card never produces a screenshot commit.
 """
 
+import base64
 import json
 import os
 from datetime import datetime, timedelta
@@ -151,6 +154,8 @@ def mock_hass(integrations, history, reloads):
         },
         "language": "en",
         "locale": {"language": "en"},
+        # An administrator: the rows open the integration's page.
+        "user": {"is_admin": True},
     }
 
 
@@ -179,6 +184,36 @@ MOUNT = """([hass, dark]) => {
 }"""
 
 
+# Decodes two PNGs (base64) in the browser and tells whether their pixels are the same: no image library needed.
+SAME_PIXELS = """async ([a, b]) => {
+    const decode = async (data) => {
+        const img = new Image();
+        img.src = "data:image/png;base64," + data;
+        await img.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0);
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    };
+    const [x, y] = [await decode(a), await decode(b)];
+    if (x.width !== y.width || x.height !== y.height) return false;
+    for (let i = 0; i < x.data.length; i++) if (x.data[i] !== y.data[i]) return false;
+    return true;
+}"""
+
+
+def same_pixels(page, new: bytes, path: Path) -> bool:
+    """True when `path` exists and holds exactly the pixels of the `new` PNG."""
+    if not path.exists():
+        return False
+    old = path.read_bytes()
+    if old == new:
+        return True
+    return page.evaluate(SAME_PIXELS, [base64.b64encode(new).decode(), base64.b64encode(old).decode()])
+
+
 def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or None)
@@ -197,8 +232,12 @@ def main():
             clip = {"x": 0, "y": 0, "width": WIDTH + 32, "height": int(box["height"] + 0.999) + 32}
             path = ROOT / "screenshots" / f"{shot['file']}.png"
             path.parent.mkdir(exist_ok=True)
-            page.screenshot(path=str(path), clip=clip, animations="disabled")
-            print(path.relative_to(ROOT))
+            png = page.screenshot(clip=clip, animations="disabled")
+            if same_pixels(page, png, path):
+                print(f"{path.relative_to(ROOT)} (unchanged)")
+            else:
+                path.write_bytes(png)
+                print(path.relative_to(ROOT))
             page.close()
         browser.close()
 

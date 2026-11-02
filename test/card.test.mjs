@@ -10,8 +10,9 @@ const source = readFileSync(
   'utf8',
 );
 
-// Keys of the elements focused by the card.
+// Keys of the elements focused by the card, and the options of each focus() call.
 const focused = [];
+const focusOptions = [];
 
 // Elements found in the rendered HTML by a selector: enough to click the check button.
 const fakeNode = () => ({
@@ -40,8 +41,9 @@ const fakeNode = () => ({
         sel === '[data-focus]'
           ? [...this.shadowRoot.innerHTML.matchAll(/data-focus="([^"]*)"/g)].map(([, key]) => ({
               dataset: { focus: key.replace(/&amp;/g, '&').replace(/&quot;/g, '"') },
-              focus() {
+              focus(options) {
                 focused.push(key);
+                focusOptions.push(options);
               },
             }))
           : [],
@@ -74,10 +76,10 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.iw = { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS };`,
+  `${source}\nthis.iw = { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS, iwT };`,
   context,
 );
-const { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS } = context.iw;
+const { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS, iwT } = context.iw;
 
 const UNAVAILABLE = 'sensor.integration_watchdog_unavailable_integrations';
 const LAST_RELOAD = 'sensor.integration_watchdog_last_reload';
@@ -109,6 +111,7 @@ function makeHass({ integrations = [], history = [], reloads = 0, button = 'unkn
   return {
     calls,
     language,
+    user: { is_admin: true },
     entities,
     states: {
       [UNAVAILABLE]: {
@@ -142,7 +145,11 @@ test('every language has the English keys, arrays and placeholders', () => {
   const keys = Object.keys(IW_I18N.en).sort();
   for (const lang of ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sr', 'sr-Latn']) assert.ok(IW_I18N[lang], lang);
   for (const [lang, strings] of Object.entries(IW_I18N)) {
-    assert.deepEqual(Object.keys(strings).sort(), keys, lang);
+    // A "_few" form (2-4 in Serbian and Polish) is optional, next to the "_one"/"_many" forms of English.
+    const few = Object.keys(strings).filter((k) => k.endsWith('_few'));
+    for (const k of few) assert.ok(IW_I18N.en[k.replace(/_few$/, '_many')], `${lang}.${k}`);
+    for (const k of few) assert.deepEqual(placeholders(strings[k]), placeholders(IW_I18N.en[k.replace(/_few$/, '_many')]), `${lang}.${k}`);
+    assert.deepEqual(Object.keys(strings).filter((k) => !k.endsWith('_few')).sort(), keys, lang);
     for (const key of keys) {
       const en = IW_I18N.en[key];
       const other = strings[key];
@@ -336,7 +343,7 @@ test('check button presses the button, disabled while a check runs', () => {
 test('not set up: tells so', () => {
   const out = html(render({}, { ...makeHass(), entities: {}, states: {} }));
   assert.match(out, /lvl-na/);
-  assert.match(out, /Integration Watchdog is not set up/);
+  assert.match(out, /Not set up/);
 });
 
 test('titles and names are escaped', () => {
@@ -393,7 +400,7 @@ test('chosen sensor unavailable: not set up, never "All available", never hidden
     const card = render(config, notLoaded(makeHass()));
     const out = html(card);
     assert.match(out, /lvl-na/, JSON.stringify(config));
-    assert.match(out, /Integration Watchdog is not set up/, JSON.stringify(config));
+    assert.match(out, /Not set up/, JSON.stringify(config));
     assert.doesNotMatch(out, /All available/, JSON.stringify(config));
     assert.equal(card.style.display, '', JSON.stringify(config));
   }
@@ -403,7 +410,7 @@ test('sensor back after being unavailable: shown at once, same registry and minu
   for (const config of [{}, { entity: UNAVAILABLE }]) {
     const hass = makeHass();
     const card = render(config, notLoaded(hass));
-    assert.match(html(card), /not set up/);
+    assert.match(html(card), /Not set up/);
     card.hass = makeHass({ integrations: [{ domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(1), reloads: 0 }] });
     assert.match(html(card), /1 unavailable/, JSON.stringify(config));
   }
@@ -414,7 +421,7 @@ test('sensor going unavailable after being loaded: the card follows', () => {
   const card = render({}, hass);
   assert.match(html(card), /All available/);
   card.hass = notLoaded(hass);
-  assert.match(html(card), /not set up/);
+  assert.match(html(card), /Not set up/);
 });
 
 // Home Assistant's default light and dark themes (the colours of the screenshots).
@@ -446,11 +453,11 @@ test('text is readable on its tile in light and dark themes (WCAG AA, 4.5:1)', (
   const cases = [];
   for (const k of ['ok', 'warn', 'alert', 'na']) cases.push([`status pill ${k}`, { '--c': level[k] }, ['.pill'], [['.pill']]]);
   for (const k of ['warn', 'alert']) {
-    const tile = [['.row:not(.hist)'], ['.row:hover']];
+    const tile = [['.row:not(.hist)'], ['button.row:hover']];
     for (const text of ['.tag', '.name', '.sub']) cases.push([`unavailable ${k} ${text}`, { '--t': level[k] }, [text], tile]);
   }
   for (const k of ['ok', 'warn', 'alert']) {
-    for (const text of ['.when .lbl', '.when .ago']) cases.push([`history ${k} ${text}`, { '--t': level[k] }, [text], [['.row'], ['.row.hist:hover']]]);
+    for (const text of ['.when .lbl', '.when .ago']) cases.push([`history ${k} ${text}`, { '--t': level[k] }, [text], [['.row'], ['button.row.hist:hover']]]);
   }
   cases.push(['stat warn value', { '--t': 'var(--iw-warn)' }, ['.stat .val', '.stat.warn .val'], [['.stat.warn']]]);
   cases.push(['stat warn label', { '--t': 'var(--iw-warn)' }, ['.stat .lbl'], [['.stat.warn']]]);
@@ -504,4 +511,240 @@ test('a re-render keeps the keyboard focus on the same row or button', () => {
   card.shadowRoot.activeElement = { dataset: { focus: keys.find((k) => k.includes('e1')) } };
   card.hass = makeHass({ integrations: [], history: [] });
   assert.deepEqual(focused, []);
+});
+
+test('giving the focus back after a re-render never scrolls the page', () => {
+  const hue = { domain: 'hue', title: 'Hue', entry_id: 'e2', since: minutesAgo(9), reloads: 0 };
+  const card = render({}, makeHass({ integrations: [hue] }));
+  focusOptions.length = 0;
+  card.shadowRoot.activeElement = { dataset: { focus: 'check' } };
+  card.hass = makeHass({ integrations: [hue], reloads: 7 });
+  assert.equal(focusOptions.length, 1);
+  assert.equal(focusOptions[0]?.preventScroll, true);
+  // The source has no other focus() call that could scroll.
+  for (const m of source.matchAll(/\.focus\(([^)]*)\)/g)) assert.match(m[1], /preventScroll: true/, m[0]);
+});
+
+// ── Review pass 9 ────────────────────────────────────────────────────────────
+
+// The @container blocks of the stylesheet: { query: { selector: { property: value } } }.
+const containerRules = (css) => {
+  const out = {};
+  for (const m of css.matchAll(/@container\s*([^{]+)\{((?:[^{}]*\{[^{}]*\})*)\s*\}/g)) out[m[1].trim()] = rules(m[2]);
+  return out;
+};
+
+test('narrow header: the pill keeps its full text while there is room, the title keeps a few characters, the button never shrinks', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  // The pill takes the room it needs and only shrinks (then truncates) when there is not enough of it.
+  assert.equal(css['.pill'].flex, '0 1 auto');
+  assert.equal(css['.pill']['min-width'], '0');
+  assert.equal(css['.pill']['max-width'], undefined, 'no cap on the pill: it truncates only when the room runs out');
+  assert.equal(css['.pill'].overflow, 'hidden');
+  // Short of room, the status goes onto a second line (« Sve je / dostupno » on a 245 px card) before it is cut.
+  assert.equal(css['.pill .ptxt']['white-space'], 'normal');
+  assert.equal(css['.pill .ptxt']['-webkit-line-clamp'], '2');
+  assert.equal(css['.pill .ptxt'].display, '-webkit-box');
+  assert.equal(css['.pill .ptxt']['text-overflow'], 'ellipsis');
+  // The title takes what is left (basis 0, so it does not take the pill's room) and keeps ~4 characters.
+  assert.equal(css['.heading'].flex, '1 1 0');
+  assert.match(css['.heading']['min-width'], /^[4-9](\.\d+)?ch$/);
+  assert.equal(css['.check'].flex, 'none');
+  assert.equal(css['.badge'].flex, 'none');
+  // The header is a size container: below the threshold the pill keeps only its coloured dot.
+  assert.equal(css['.head']['container-type'], 'inline-size');
+  const queries = containerRules(IntegrationWatchdogCard.styles);
+  const [query, compact] = Object.entries(queries).find(([, r]) => r['.head .pill .dot']) ?? [];
+  assert.ok(query, 'a container query turns the pill into its dot');
+  // Only where even a short status cannot fit: a 245 px card (header 221 px) still shows the text.
+  const threshold = Number(query.match(/max-width:\s*(\d+)px/)?.[1]);
+  assert.ok(threshold >= 150 && threshold < 221, query);
+  assert.equal(compact['.head .pill .dot'].display, 'block');
+  // The text is hidden visually only: screen readers still read it.
+  assert.match(compact['.head .pill .ptxt'].clip || compact['.head .pill .ptxt']['clip-path'], /rect|inset/);
+  assert.equal(css['.pill .dot'].display, 'none');
+  // In the rows, the outcome on the right gives way (up to half the row) instead of hiding the name.
+  for (const sel of ['.tag', '.when']) {
+    assert.equal(css[sel].flex, '0 1 auto', sel);
+    assert.equal(css[sel]['min-width'], '0', sel);
+    assert.equal(css[sel]['max-width'], '50%', sel);
+  }
+  assert.equal(css['.tag']['text-overflow'], 'ellipsis');
+  assert.equal(css['.when > span']['text-overflow'], 'ellipsis');
+});
+
+test('the card is at least 8 columns wide: 6 columns of a phone section (~156 px) cannot hold the header', () => {
+  const card = new IntegrationWatchdogCard();
+  assert.deepEqual({ ...card.getGridOptions() }, { columns: 12, min_columns: 8, rows: 'auto' });
+});
+
+test('in a container sized by its content (inline-block, grid auto column) the card keeps a natural width', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  // The card contributes no width of its own (inline-size containment): an empty, zero-height grid on the host
+  // gives it a natural (max-content) width, so it does not fall to its padding in layout-card, button-card or a
+  // grid `auto` column...
+  const before = css[':host::before'];
+  assert.ok(before, ':host::before gives the card its natural width');
+  assert.equal(before.content, '""');
+  assert.equal(before.display, 'grid');
+  assert.equal(before.height, '0');
+  // ...without a minimum: its min-content width is 0 (minmax(0, …)).
+  const track = before['grid-template-columns'].match(/^minmax\(0,\s*(.+)\)$/);
+  assert.ok(track, before['grid-template-columns']);
+  const natural = Number.parseFloat(track[1].startsWith('var(') ? css[':host'][track[1].match(/var\((--[\w-]+)\)/)[1]] : track[1]);
+  assert.ok(natural >= 300 && natural <= 400, String(natural));
+});
+
+test('wrapped in a div in a 1fr 1fr grid or a flex row, the card shrinks with its column instead of overflowing it', () => {
+  const css = rules(IntegrationWatchdogCard.styles);
+  // min-width: 0 on the host lets the card shrink when it is the grid or flex item itself...
+  assert.equal(css[':host']['min-width'], '0');
+  assert.equal(css[':host'].display, 'block');
+  // ...but a wrapper div keeps min-width: auto: the card must have no min-content width at all. Its content
+  // (stats, rows, pill: 210-354 px) adds nothing to it (inline-size containment on ha-card)...
+  assert.match(css['ha-card'].contain ?? css['ha-card']['container-type'] ?? '', /inline-size/);
+  // ...and nothing sets a minimum: no intrinsic size (it is a min-content width) and no min-width in px.
+  for (const [sel, decls] of Object.entries(css)) {
+    for (const prop of Object.keys(decls)) assert.doesNotMatch(prop, /^contain-intrinsic/, `${sel} ${prop}`);
+    if (!sel.startsWith(':host')) continue;
+    for (const prop of ['min-width', 'min-inline-size']) assert.doesNotMatch(decls[prop] ?? '', /px/, `${sel} ${prop}`);
+  }
+});
+
+test('in a 156 px column (1fr 1fr on a 320 px phone) the header still fits: the badge gives way', () => {
+  const queries = containerRules(IntegrationWatchdogCard.styles);
+  const [query, rule] = Object.entries(queries).find(([, r]) => r['.head .badge']) ?? [];
+  assert.ok(query, 'a container query hides the badge on a very narrow header');
+  const threshold = Number(query.match(/max-width:\s*(\d+)px/)?.[1]);
+  // A 156 px card has a 132 px header: badge (40) + title (5ch) + dot + button + gaps do not fit in it...
+  assert.ok(threshold >= 132, query);
+  // ...a 180 px card (156 px header) holds everything, badge included.
+  assert.ok(threshold < 156, query);
+  assert.equal(rule['.head .badge'].display, 'none');
+});
+
+test('the pill carries its full text in a tooltip', () => {
+  const hass = makeHass({
+    integrations: [
+      { domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(600), reloads: 3, gave_up: true },
+      { domain: 'hue', title: 'Hue', entry_id: 'b', since: minutesAgo(20), reloads: 1, gave_up: false },
+    ],
+  });
+  assert.match(html(render({}, hass)), /class="pill" title="1 unavailable · 1 given up"/);
+  assert.match(html(render({}, { ...makeHass(), entities: {}, states: {} })), /class="pill" title="Not set up"/);
+});
+
+test('"not set up" does not repeat the title in any language', () => {
+  for (const [lang, strings] of Object.entries(IW_I18N)) assert.doesNotMatch(strings.not_loaded, /Integration Watchdog/, lang);
+});
+
+// The pill for `n` unavailable integrations and `g` given up, in `language`.
+const pill = (language, n, g = 0) => {
+  const integrations = Array.from({ length: n + g }, (_, i) => ({
+    domain: `d${i}`,
+    title: `I${i}`,
+    entry_id: `e${i}`,
+    since: minutesAgo(5),
+    reloads: 1,
+    gave_up: i >= n,
+  }));
+  return html(render({}, makeHass({ language, integrations }))).match(/<span class="ptxt">([^<]*)</)[1];
+};
+
+test('plurals: 1, 2, 5, 21 and 22 in every language with plural forms', () => {
+  const expected = {
+    en: ['1 unavailable', '2 unavailable', '5 unavailable', '21 unavailable', '22 unavailable'],
+    fr: ['1 indisponible', '2 indisponibles', '5 indisponibles', '21 indisponibles', '22 indisponibles'],
+    sr: ['1 недоступна', '2 недоступне', '5 недоступних', '21 недоступна', '22 недоступне'],
+    'sr-Latn': ['1 nedostupna', '2 nedostupne', '5 nedostupnih', '21 nedostupna', '22 nedostupne'],
+    pl: ['1 niedostępna', '2 niedostępne', '5 niedostępnych', '21 niedostępnych', '22 niedostępne'],
+  };
+  for (const [lang, forms] of Object.entries(expected)) {
+    assert.deepEqual([1, 2, 5, 21, 22].map((n) => pill(lang, n)), forms, lang);
+  }
+  const gaveUp = {
+    sr: ['1 напуштена', '2 напуштене', '5 напуштених', '21 напуштена', '22 напуштене'],
+    'sr-Latn': ['1 napuštena', '2 napuštene', '5 napuštenih', '21 napuštena', '22 napuštene'],
+    pl: ['1 porzucona', '2 porzucone', '5 porzuconych', '21 porzuconych', '22 porzucone'],
+  };
+  for (const [lang, forms] of Object.entries(gaveUp)) {
+    assert.deepEqual([1, 2, 5, 21, 22].map((g) => pill(lang, 0, g)), forms, lang);
+  }
+});
+
+test('plurals follow the card\'s language option, not Home Assistant\'s', () => {
+  const integrations = (n) =>
+    Array.from({ length: n }, (_, i) => ({ domain: `d${i}`, title: `I${i}`, entry_id: `e${i}`, since: minutesAgo(5), reloads: 1, gave_up: false }));
+  const out = (language, n) => html(render({ language }, makeHass({ language: 'en', integrations: integrations(n) })));
+  assert.match(out('sr', 3), /3 недоступне/);
+  assert.match(out('pl', 22), /22 niedostępne/);
+  // English has no "few" form: 3 stays "3 unavailable" even with Serbian Home Assistant.
+  assert.match(html(render({ language: 'en' }, makeHass({ language: 'sr', integrations: integrations(3) }))), /3 unavailable/);
+});
+
+test('Serbian: an integration given up is "abandoned" (feminine) everywhere, like the pill', () => {
+  for (const key of ['gave_up', 'gave_up_event']) {
+    assert.equal(IW_I18N.sr[key], 'Напуштена', key);
+    assert.equal(IW_I18N['sr-Latn'][key], 'Napuštena', key);
+  }
+});
+
+test('Polish: one word for a reload, like the rest of the card and the integration', () => {
+  assert.equal(IW_I18N.pl.stat_reloads, 'Ponowne wczytania');
+  assert.equal(IW_I18N.pl.reloaded, 'Wczytana ponownie');
+});
+
+test('rows open Settings for administrators only', () => {
+  const data = {
+    integrations: [{ domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(30), reloads: 1, gave_up: false }],
+    history: [event('reloaded', 'Hue', 1, minutesAgo(10))],
+  };
+  const admin = html(render({}, { ...makeHass(data), user: { is_admin: true } }));
+  assert.equal((admin.match(/<button class="row/g) || []).length, 2);
+  for (const user of [{ is_admin: false }, undefined]) {
+    const card = render({}, { ...makeHass(data), user });
+    const out = html(card);
+    assert.doesNotMatch(out, /<button class="row/, JSON.stringify(user));
+    assert.equal((out.match(/<div class="row/g) || []).length, 2, JSON.stringify(user));
+    // Not clickable, not focusable: no domain to open, no focus key.
+    assert.doesNotMatch(out, /class="row[^"]*" data-domain/);
+    assert.doesNotMatch(out, /data-focus="[uh]:/);
+    // The check button is still there.
+    assert.match(out, /class="check"/);
+  }
+  // Same states, the user becomes an administrator: the rows become buttons at once.
+  const hass = { ...makeHass(data), user: { is_admin: false } };
+  const card = render({}, hass);
+  card.hass = { ...hass, user: { is_admin: true } };
+  assert.equal((html(card).match(/<button class="row/g) || []).length, 2);
+  // Only the clickable rows get the pointer and the hover tint.
+  const css = rules(IntegrationWatchdogCard.styles);
+  assert.equal(css['.row'].cursor, undefined);
+  assert.equal(css['button.row'].cursor, 'pointer');
+  assert.ok(!css['.row:hover'] && css['button.row:hover']);
+});
+
+test('a failed "Check now" is reported, not left as an unhandled rejection', async () => {
+  const hass = makeHass();
+  hass.callService = () => Promise.reject(new Error('Connection lost'));
+  const card = render({}, hass);
+  const events = [];
+  card.dispatchEvent = (ev) => events.push(ev);
+  await card.shadowRoot.querySelector('.check').handlers.click();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(events.length, 1);
+  assert.equal(events[0].type, 'hass-notification');
+  assert.match(events[0].detail.message, /Connection lost/);
+  // In the card's language.
+  const fr = makeHass({ language: 'fr' });
+  fr.callService = () => {
+    throw new Error('boom');
+  };
+  const frCard = render({}, fr);
+  const frEvents = [];
+  frCard.dispatchEvent = (ev) => frEvents.push(ev);
+  await frCard.shadowRoot.querySelector('.check').handlers.click();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.match(frEvents[0]?.detail?.message || '', /boom/);
+  assert.equal(frEvents[0].detail.message, iwT('fr', 'check_failed', { error: 'boom' }));
 });
