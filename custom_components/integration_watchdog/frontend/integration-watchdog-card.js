@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '1.0.1';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '1.1.0';
 
 const IW_I18N = {
   en: {
@@ -54,6 +54,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Runs a check from the header, for every user who sees the card',
     ed_hide_when_ok: 'Hide the card when everything is available',
     ed_hide_when_ok_helper: 'The card only appears when an integration is unavailable',
+    zoom_in: 'Show details',
+    zoom_out: 'Back to the compact view',
+    ed_zoom: 'Detail button',
+    ed_zoom_helper: 'Switches to the full card and back',
     ed_language: 'Language',
     ed_language_helper: 'Leave empty to follow Home Assistant',
   },
@@ -104,6 +108,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Lance une vérification depuis l’en-tête, pour tout utilisateur qui voit la carte',
     ed_hide_when_ok: 'Masquer la carte quand tout est disponible',
     ed_hide_when_ok_helper: 'La carte n’apparaît que si une intégration est indisponible',
+    zoom_in: 'Afficher le détail',
+    zoom_out: 'Revenir à la vue compacte',
+    ed_zoom: 'Bouton détail',
+    ed_zoom_helper: 'Bascule vers la carte complète et retour',
     ed_language: 'Langue',
     ed_language_helper: 'Laisser vide pour suivre Home Assistant',
   },
@@ -154,6 +162,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Startet eine Prüfung aus der Kopfzeile, für alle Benutzer, die die Karte sehen',
     ed_hide_when_ok: 'Karte ausblenden, wenn alles verfügbar ist',
     ed_hide_when_ok_helper: 'Die Karte erscheint nur, wenn eine Integration nicht verfügbar ist',
+    zoom_in: 'Details anzeigen',
+    zoom_out: 'Zurück zur Kompaktansicht',
+    ed_zoom: 'Detail-Schaltfläche',
+    ed_zoom_helper: 'Wechselt zur vollständigen Karte und zurück',
     ed_language: 'Sprache',
     ed_language_helper: 'Leer lassen, um Home Assistant zu folgen',
   },
@@ -204,6 +216,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Lanza una comprobación desde la cabecera, para cualquier usuario que vea la tarjeta',
     ed_hide_when_ok: 'Ocultar la tarjeta cuando todo esté disponible',
     ed_hide_when_ok_helper: 'La tarjeta solo aparece cuando una integración no está disponible',
+    zoom_in: 'Mostrar detalles',
+    zoom_out: 'Volver a la vista compacta',
+    ed_zoom: 'Botón de detalle',
+    ed_zoom_helper: 'Cambia a la tarjeta completa y vuelve',
     ed_language: 'Idioma',
     ed_language_helper: 'Déjalo vacío para seguir a Home Assistant',
   },
@@ -254,6 +270,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Avvia un controllo dall’intestazione, per ogni utente che vede la scheda',
     ed_hide_when_ok: 'Nascondi la scheda quando tutto è disponibile',
     ed_hide_when_ok_helper: 'La scheda appare solo quando un’integrazione non è disponibile',
+    zoom_in: 'Mostra dettagli',
+    zoom_out: 'Torna alla vista compatta',
+    ed_zoom: 'Pulsante dettagli',
+    ed_zoom_helper: 'Passa alla scheda completa e torna indietro',
     ed_language: 'Lingua',
     ed_language_helper: 'Lascia vuoto per seguire Home Assistant',
   },
@@ -304,6 +324,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Start een controle vanuit de koptekst, voor elke gebruiker die de kaart ziet',
     ed_hide_when_ok: 'Kaart verbergen als alles beschikbaar is',
     ed_hide_when_ok_helper: 'De kaart verschijnt alleen als een integratie niet beschikbaar is',
+    zoom_in: 'Details tonen',
+    zoom_out: 'Terug naar de compacte weergave',
+    ed_zoom: 'Detailknop',
+    ed_zoom_helper: 'Schakelt naar de volledige kaart en terug',
     ed_language: 'Taal',
     ed_language_helper: 'Laat leeg om Home Assistant te volgen',
   },
@@ -354,6 +378,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Inicia uma verificação a partir do cabeçalho, para qualquer utilizador que veja o cartão',
     ed_hide_when_ok: 'Ocultar o cartão quando tudo está disponível',
     ed_hide_when_ok_helper: 'O cartão só aparece quando uma integração está indisponível',
+    zoom_in: 'Mostrar detalhes',
+    zoom_out: 'Voltar à vista compacta',
+    ed_zoom: 'Botão de detalhe',
+    ed_zoom_helper: 'Muda para o cartão completo e volta',
     ed_language: 'Idioma',
     ed_language_helper: 'Deixe vazio para seguir o Home Assistant',
   },
@@ -406,6 +434,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Uruchamia sprawdzenie z nagłówka, dla każdego użytkownika, który widzi kartę',
     ed_hide_when_ok: 'Ukryj kartę, gdy wszystko jest dostępne',
     ed_hide_when_ok_helper: 'Karta pojawia się tylko wtedy, gdy jakaś integracja jest niedostępna',
+    zoom_in: 'Pokaż szczegóły',
+    zoom_out: 'Wróć do widoku kompaktowego',
+    ed_zoom: 'Przycisk szczegółów',
+    ed_zoom_helper: 'Przełącza na pełną kartę i z powrotem',
     ed_language: 'Język',
     ed_language_helper: 'Pozostaw puste, aby używać języka Home Assistant',
   },
@@ -458,6 +490,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Покреће проверу из заглавља, за сваког корисника који види картицу',
     ed_hide_when_ok: 'Сакриј картицу када је све доступно',
     ed_hide_when_ok_helper: 'Картица се појављује само када је нека интеграција недоступна',
+    zoom_in: 'Прикажи детаље',
+    zoom_out: 'Назад на сажети приказ',
+    ed_zoom: 'Дугме за детаље',
+    ed_zoom_helper: 'Пребацује на пуну картицу и назад',
     ed_language: 'Језик',
     ed_language_helper: 'Оставите празно да бисте пратили Home Assistant',
   },
@@ -510,6 +546,10 @@ const IW_I18N = {
     ed_check_button_helper: 'Pokreće proveru iz zaglavlja, za svakog korisnika koji vidi karticu',
     ed_hide_when_ok: 'Sakrij karticu kada je sve dostupno',
     ed_hide_when_ok_helper: 'Kartica se pojavljuje samo kada je neka integracija nedostupna',
+    zoom_in: 'Prikaži detalje',
+    zoom_out: 'Nazad na sažeti prikaz',
+    ed_zoom: 'Dugme za detalje',
+    ed_zoom_helper: 'Prebacuje na punu karticu i nazad',
     ed_language: 'Jezik',
     ed_language_helper: 'Ostavite prazno da biste pratili Home Assistant',
   },
@@ -693,7 +733,18 @@ class IntegrationWatchdogCard extends HTMLElement {
   }
 
   _render() {
-    if (!this._config || !this._hass || !this.shadowRoot) return;
+    const m = this._prepare();
+    if (!m) return;
+    // innerHTML replaces every element: the one that had the keyboard focus gets it back after the render.
+    const focusKey = this.shadowRoot.activeElement?.dataset?.focus;
+    this._draw(m);
+    this._bind();
+    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus({ preventScroll: true });
+  }
+
+  // What the card shows, read from the sensors; null when nothing changed since the last render, or the card is hidden.
+  _prepare() {
+    if (!this._config || !this._hass || !this.shadowRoot) return null;
     const c = this._config;
     const ids = this._lookup();
     this._ids = ids;
@@ -709,8 +760,9 @@ class IntegrationWatchdogCard extends HTMLElement {
     this._sigMinute = minute;
     // Only administrators can open Settings: the rows are links for them only.
     this._admin = this._hass.user?.is_admin === true;
-    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, sensorSt, reloadSt, checkSt, buttonSt?.state, minute, this._admin]);
-    if (sig === this._sig) return;
+    // `_zoomed`: the mini card's view (compact or full), undefined on the full card.
+    const sig = JSON.stringify([c, iwLang(this._hass, c), ids, sensorSt, reloadSt, checkSt, buttonSt?.state, minute, this._admin, this._zoomed]);
+    if (sig === this._sig) return null;
     this._sig = sig;
 
     const items = Array.isArray(st?.attributes?.integrations) ? st.attributes.integrations : [];
@@ -725,20 +777,22 @@ class IntegrationWatchdogCard extends HTMLElement {
 
     const hidden = c.hide_when_ok && st && !items.length;
     this.style.display = hidden ? 'none' : '';
-    if (hidden) return;
+    if (hidden) return null;
 
     const count = Math.min(IW_MAX_HISTORY, Math.max(1, Number(c.history_count) || IW_DEFAULTS.history_count));
     const shownHistory = c.show_history ? iwLatestPerIntegration(history).slice(0, count) : [];
     this._rows = (c.show_unavailable ? items.length : 0) + shownHistory.length + (c.show_stats && st ? 1 : 0);
 
     const checkedAt = checkSt && !['unknown', 'unavailable'].includes(checkSt.state) ? checkSt.state : null;
-    const subtitle = !st ? '' : checkedAt ? this._t('checked', { d: this._ago(checkedAt) }) : this._t('never_checked');
-    // innerHTML replaces every element: the one that had the keyboard focus gets it back after the render.
-    const focusKey = this.shadowRoot.activeElement?.dataset?.focus;
     const icon = { ok: 'mdi:shield-check-outline', warn: 'mdi:shield-alert-outline', alert: 'mdi:shield-off-outline', na: 'mdi:shield-outline' }[level];
+    return { st, items, ignored, max, history, reloads, givenUp, checking, level, shownHistory, checkedAt, icon };
+  }
 
+  _draw({ st, items, ignored, max, reloads, givenUp, checking, level, shownHistory, checkedAt, icon }) {
+    const c = this._config;
+    const subtitle = !st ? '' : checkedAt ? this._t('checked', { d: this._ago(checkedAt) }) : this._t('never_checked');
     this.shadowRoot.innerHTML = `
-      <style>${IntegrationWatchdogCard.styles}</style>
+      <style>${this.constructor.styles}</style>
       <ha-card class="lvl-${level}">
         <div class="head">
           <div class="badge"><ha-icon icon="${icon}"></ha-icon></div>
@@ -748,6 +802,7 @@ class IntegrationWatchdogCard extends HTMLElement {
           </div>
           ${this._checkButton(checking)}
           ${this._pill(this._status(st, items, givenUp, checking))}
+          ${this._headExtra()}
         </div>
         ${c.show_stats && st ? this._stats(items.length, reloads, ignored) : ''}
         ${c.show_unavailable && items.length ? this._section('unavailable_title', items.map((i) => this._unavailableRow(i, max)).join('')) : ''}
@@ -760,7 +815,9 @@ class IntegrationWatchdogCard extends HTMLElement {
             : ''
         }
       </ha-card>`;
+  }
 
+  _bind() {
     this.shadowRoot.querySelector('.check')?.addEventListener('click', () => this._check());
     for (const el of this.shadowRoot.querySelectorAll('.row[data-domain]')) {
       el.addEventListener('click', () => this._openIntegration(el.dataset.domain));
@@ -769,7 +826,6 @@ class IntegrationWatchdogCard extends HTMLElement {
     for (const img of this.shadowRoot.querySelectorAll('img.brand')) {
       img.addEventListener('error', () => img.parentElement?.classList.add('nobrand'), { once: true });
     }
-    if (focusKey) [...this.shadowRoot.querySelectorAll('[data-focus]')].find((el) => el.dataset.focus === focusKey)?.focus({ preventScroll: true });
   }
 
   _status(st, items, givenUp, checking) {
@@ -795,6 +851,11 @@ class IntegrationWatchdogCard extends HTMLElement {
     return this._admin
       ? `<button class="${cls}" data-domain="${iwEsc(domain)}" data-focus="${iwEsc(focus)}" title="${t}">${body}</button>`
       : `<div class="${cls}" title="${t}">${body}</div>`;
+  }
+
+  // Added at the end of the header by the mini card (its detail button).
+  _headExtra() {
+    return '';
   }
 
   _checkButton(checking) {
@@ -1004,10 +1065,199 @@ class IntegrationWatchdogCard extends HTMLElement {
   }
 }
 
+// ── Mini card ────────────────────────────────────────────────────────────────
+// integration-watchdog-mini-card: the status on two lines — the badge, title and status pill, then a chip per
+// unavailable integration (or the last reload while everything is available) and the time of the last check.
+// Its detail button (top right, `zoom: false` removes it) switches it to the full card and back; a click anywhere
+// else brings it back too, unless it lands in a dialog opened from the card (more-info).
+class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
+  static getConfigElement() {
+    return document.createElement('integration-watchdog-mini-card-editor');
+  }
+
+  constructor() {
+    super();
+    this._zoomed = false;
+    this._onUnzoom = (ev) => {
+      const path = ev.composedPath();
+      if (!this._zoomed || path.includes(this)) return;
+      if (path.some((n) => ['ha-more-info-dialog', 'ha-dialog', 'dialog'].includes(n.localName))) return;
+      this._zoomed = false;
+      this._render();
+    };
+  }
+
+  connectedCallback() {
+    document.addEventListener('click', this._onUnzoom, true);
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener('click', this._onUnzoom, true);
+  }
+
+  setConfig(config) {
+    if (config?.zoom != null && typeof config.zoom !== 'boolean') throw new Error('zoom must be true or false');
+    super.setConfig(config);
+  }
+
+  getCardSize() {
+    return this._zoomed ? super.getCardSize() : 2;
+  }
+
+  // 6 columns of a phone section (~156 px) still hold the header once the badge has given way.
+  getGridOptions() {
+    return { columns: 6, min_columns: 6, rows: 'auto' };
+  }
+
+  _headExtra() {
+    if (this._config.zoom === false) return '';
+    const label = iwEsc(this._t(this._zoomed ? 'zoom_out' : 'zoom_in'));
+    const icon = this._zoomed ? 'mdi:arrow-collapse' : 'mdi:arrow-expand';
+    return `<button class="zoom" data-focus="zoom" title="${label}" aria-label="${label}" aria-expanded="${this._zoomed}"><ha-icon icon="${icon}"></ha-icon></button>`;
+  }
+
+  _draw(m) {
+    if (this._zoomed) {
+      super._draw(m);
+      return;
+    }
+    const { st, items, givenUp, checking, level, icon } = m;
+    this.shadowRoot.innerHTML = `
+      <style>${this.constructor.styles}</style>
+      <ha-card class="lvl-${level}">
+        <div class="mini">
+          <div class="badge"><ha-icon icon="${icon}"></ha-icon></div>
+          <div class="body">
+            <div class="head">
+              <div class="heading"><div class="title">${iwEsc(this._config.title || this._t('title'))}</div></div>
+              ${this._checkButton(checking)}
+              ${this._pill(this._status(st, items, givenUp, checking))}
+              ${this._headExtra()}
+            </div>
+            <div class="rs">${this._chips(m)}</div>
+          </div>
+        </div>
+      </ha-card>`;
+  }
+
+  _bind() {
+    super._bind();
+    this.shadowRoot.querySelector('.zoom')?.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      this._zoomed = !this._zoomed;
+      this._render();
+      // The button was replaced: keyboard use (Enter / Space, no click count) keeps the focus on the new one.
+      if (ev.detail === 0) this.shadowRoot.querySelector('.zoom')?.focus({ preventScroll: true });
+    });
+    for (const el of this.shadowRoot.querySelectorAll('.r')) {
+      el.addEventListener('click', () => {
+        if (el.dataset.domain) this._openIntegration(el.dataset.domain);
+        else if (el.dataset.entity) {
+          this.dispatchEvent(new CustomEvent('hass-more-info', { detail: { entityId: el.dataset.entity }, bubbles: true, composed: true }));
+        }
+      });
+    }
+  }
+
+  // A chip: an administrator's opens the integration's page in Settings, the others open the sensor's more-info.
+  _chip(cls, icon, text, title, focus, domain, entity) {
+    const target = domain && this._admin ? ` data-domain="${iwEsc(domain)}"` : entity ? ` data-entity="${iwEsc(entity)}"` : '';
+    return `<button class="r ${cls}"${target} data-focus="${iwEsc(focus)}" title="${iwEsc(title)}"><ha-icon icon="${icon}"></ha-icon><span class="rt">${iwEsc(text)}</span></button>`;
+  }
+
+  _chips({ st, items, max, history, checkedAt }) {
+    if (!st) return '';
+    const ids = this._ids;
+    // The unavailable integrations, tinted: given up in red, the others in orange.
+    const chips = items.map((i) => {
+      const value = i.gave_up ? this._t('gave_up') : i.reloads && max ? this._t('attempts', { n: i.reloads, max }) : this._t('waiting');
+      return this._chip(
+        `${i.gave_up ? 'alert' : 'warn'} pill`,
+        i.gave_up ? 'mdi:cancel' : 'mdi:puzzle-remove-outline',
+        `${i.title} · ${value}`,
+        `${i.title} (${i.domain}) — ${value}`,
+        `m:u:${i.entry_id || i.domain}`,
+        i.domain,
+        ids.unavailable,
+      );
+    });
+    // Everything available: the last reload, failed reload or give-up, plain with its coloured icon.
+    const last = !items.length && history[0];
+    if (last) {
+      const kind = last.kind === 'reloaded' ? 'ok' : last.kind === 'reload_failed' ? 'warn' : 'alert';
+      const label = this._t(last.kind === 'gave_up' ? 'gave_up_event' : last.kind);
+      chips.push(
+        this._chip(
+          kind,
+          { ok: 'mdi:check-circle', warn: 'mdi:alert-circle', alert: 'mdi:cancel' }[kind],
+          `${label} · ${last.title}`,
+          `${label} — ${last.title} (${last.domain}) — ${this._absolute(last.at)}`,
+          'm:h',
+          last.domain,
+          ids.last_reload,
+        ),
+      );
+    }
+    const checked = checkedAt ? this._t('checked', { d: this._ago(checkedAt) }) : this._t('never_checked');
+    chips.push(this._chip('idle', 'mdi:clock-check-outline', checked, checkedAt ? this._absolute(checkedAt) : checked, 'm:c', null, ids.last_check));
+    return chips.join('');
+  }
+
+  static get styles() {
+    return `${IntegrationWatchdogCard.styles}
+      :host { --iw-natural-width: 300px; }
+      /* Badge, then the two lines; the badge is 32 px like the other mini cards, top-aligned */
+      .mini { display: flex; align-items: flex-start; gap: 10px; container-type: inline-size; }
+      .mini > .badge { width: 32px; height: 32px; }
+      .mini > .badge ha-icon { --mdc-icon-size: 20px; }
+      .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+      .mini .head { min-height: 32px; }
+      .rs { display: flex; flex-wrap: wrap; gap: 2px 4px; margin-left: -4px; }
+      .rs:empty { display: none; }
+      /* A chip never gets wider than the card: its text ends in an ellipsis (full text in the tooltip) */
+      .r { --t: var(--secondary-text-color); all: unset; box-sizing: border-box; cursor: pointer;
+           display: inline-flex; align-items: center; gap: 3px; max-width: 100%; min-width: 0;
+           padding: 0 6px 0 4px; border-radius: 999px; font-size: 12px; font-weight: 500; line-height: 18px;
+           white-space: nowrap; color: var(--primary-text-color); }
+      .r.ok    { --t: var(--iw-ok); }
+      .r.warn  { --t: var(--iw-warn); }
+      .r.alert { --t: var(--iw-alert); }
+      .r.idle  { color: var(--iw-muted); }
+      .r ha-icon { flex: none; display: inline-flex; --mdc-icon-size: 13px; color: var(--t); }
+      .r .rt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+      .r.pill { color: color-mix(in srgb, var(--t) 40%, var(--primary-text-color)); background: color-mix(in srgb, var(--t) 14%, transparent); }
+      .r:hover { background: color-mix(in srgb, var(--t) 16%, var(--secondary-background-color, transparent)); }
+      /* A pill keeps a light tint on hover, so its darkened text stays readable */
+      .r.pill:hover { background: color-mix(in srgb, var(--t) 22%, transparent); }
+      .r:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+      /* Detail button, top right in both views */
+      .zoom { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; border-radius: 50%;
+              display: grid; place-items: center; color: var(--secondary-text-color); }
+      .zoom:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
+      .zoom:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+      .zoom ha-icon { --mdc-icon-size: 16px; }
+      /* A narrow mini card (6 columns of a phone section): the badge gives way, the header tightens */
+      @container (max-width: 150px) {
+        .mini > .badge { display: none; }
+        .mini .head { gap: 4px; }
+      }
+    `;
+  }
+}
+
 // ── Editor ───────────────────────────────────────────────────────────────────
-const IW_HELPERS = ['entity', 'title', 'show_stats', 'show_unavailable', 'show_history', 'check_button', 'hide_when_ok', 'language'];
+const IW_HELPERS = ['entity', 'title', 'show_stats', 'show_unavailable', 'show_history', 'check_button', 'zoom', 'hide_when_ok', 'language'];
 
 class IntegrationWatchdogCardEditor extends HTMLElement {
+  static get DEFAULTS() {
+    return IW_DEFAULTS;
+  }
+
+  // Fields shown after the "Check now" button: the mini card adds its detail button there.
+  _extraFields() {
+    return [];
+  }
+
   setConfig(config) {
     this._config = config;
     this._update();
@@ -1029,7 +1279,7 @@ class IntegrationWatchdogCardEditor extends HTMLElement {
         const config = { ...ev.detail.value };
         // Options left at their default are not written to the YAML.
         for (const k of Object.keys(config)) {
-          if (config[k] === '' || config[k] == null || IW_DEFAULTS[k] === config[k]) delete config[k];
+          if (config[k] === '' || config[k] == null || this.constructor.DEFAULTS[k] === config[k]) delete config[k];
         }
         this.dispatchEvent(new CustomEvent('config-changed', { detail: { config }, bubbles: true, composed: true }));
       });
@@ -1041,7 +1291,7 @@ class IntegrationWatchdogCardEditor extends HTMLElement {
     // Reassigning the schema at every Home Assistant update would re-render ha-form while the user is typing.
     if (this._deps && this._deps.config === c && this._deps.lang === lang) return;
     this._deps = { config: c, lang };
-    this._form.data = { ...IW_DEFAULTS, ...c };
+    this._form.data = { ...this.constructor.DEFAULTS, ...c };
     this._form.schema = [
       { name: 'entity', selector: { entity: { filter: { integration: 'integration_watchdog', domain: 'sensor' } } } },
       { name: 'title', selector: { text: {} } },
@@ -1052,6 +1302,7 @@ class IntegrationWatchdogCardEditor extends HTMLElement {
         ? []
         : [{ name: 'history_count', selector: { number: { min: 1, max: IW_MAX_HISTORY, mode: 'box' } } }]),
       { name: 'check_button', selector: { boolean: {} } },
+      ...this._extraFields(),
       { name: 'hide_when_ok', selector: { boolean: {} } },
       {
         name: 'language',
@@ -1077,10 +1328,23 @@ class IntegrationWatchdogCardEditor extends HTMLElement {
   }
 }
 
+// The mini card's editor: the full card's options (its detail view), plus the detail button.
+class IntegrationWatchdogMiniCardEditor extends IntegrationWatchdogCardEditor {
+  static get DEFAULTS() {
+    return { ...IW_DEFAULTS, zoom: true };
+  }
+
+  _extraFields() {
+    return [{ name: 'zoom', selector: { boolean: {} } }];
+  }
+}
+
+// Each card is registered on its own: a page that already loaded an older copy of this file (a stale resource or a
+// cached version without the mini card) still gets the mini card from this one.
+window.customCards = window.customCards || [];
 if (!customElements.get('integration-watchdog-card')) {
   customElements.define('integration-watchdog-card', IntegrationWatchdogCard);
   customElements.define('integration-watchdog-card-editor', IntegrationWatchdogCardEditor);
-  window.customCards = window.customCards || [];
   window.customCards.push({
     type: 'integration-watchdog-card',
     name: 'Integration Watchdog Card',
@@ -1093,4 +1357,15 @@ if (!customElements.get('integration-watchdog-card')) {
     'background:#14b8a6;color:#fff;font-weight:700',
     '',
   );
+}
+if (!customElements.get('integration-watchdog-mini-card')) {
+  customElements.define('integration-watchdog-mini-card', IntegrationWatchdogMiniCard);
+  customElements.define('integration-watchdog-mini-card-editor', IntegrationWatchdogMiniCardEditor);
+  window.customCards.push({
+    type: 'integration-watchdog-mini-card',
+    name: 'Integration Watchdog Mini Card',
+    description: 'Integration Watchdog status and unavailable integrations on two lines, with a detail button showing the full card',
+    preview: true,
+    documentationURL: 'https://github.com/juju35/ha-integration-watchdog',
+  });
 }

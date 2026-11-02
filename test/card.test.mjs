@@ -32,7 +32,7 @@ const fakeNode = () => ({
     this.shadowRoot = {
       innerHTML: '',
       querySelector: (sel) => {
-        if (sel !== '.check' || !this.shadowRoot.innerHTML.includes('class="check"')) return null;
+        if (!['.check', '.zoom'].includes(sel) || !this.shadowRoot.innerHTML.includes(`class="${sel.slice(1)}"`)) return null;
         elements[sel] ||= fakeNode();
         return elements[sel];
       },
@@ -76,10 +76,22 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.iw = { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS, iwT };`,
+  `${source}\nthis.iw = { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IntegrationWatchdogMiniCard, IntegrationWatchdogMiniCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS, iwT };`,
   context,
 );
-const { IntegrationWatchdogCard, IntegrationWatchdogCardEditor, IW_I18N, iwEsc, iwLang, iwLocale, iwDevices, IW_DEFAULTS, iwT } = context.iw;
+const {
+  IntegrationWatchdogCard,
+  IntegrationWatchdogCardEditor,
+  IntegrationWatchdogMiniCard,
+  IntegrationWatchdogMiniCardEditor,
+  IW_I18N,
+  iwEsc,
+  iwLang,
+  iwLocale,
+  iwDevices,
+  IW_DEFAULTS,
+  iwT,
+} = context.iw;
 
 const UNAVAILABLE = 'sensor.integration_watchdog_unavailable_integrations';
 const LAST_RELOAD = 'sensor.integration_watchdog_last_reload';
@@ -126,8 +138,8 @@ function makeHass({ integrations = [], history = [], reloads = 0, button = 'unkn
   };
 }
 
-function render(config, hass) {
-  const card = new IntegrationWatchdogCard();
+function render(config, hass, Card = IntegrationWatchdogCard) {
+  const card = new Card();
   card.attachShadow = fakeNode().attachShadow;
   card.style = {};
   card.dispatchEvent = () => {};
@@ -766,4 +778,157 @@ test('a failed "Check now" is reported, not left as an unhandled rejection', asy
   await new Promise((r) => setTimeout(r, 0));
   assert.match(frEvents[0]?.detail?.message || '', /boom/);
   assert.equal(frEvents[0].detail.message, iwT('fr', 'check_failed', { error: 'boom' }));
+});
+
+// ── Mini card ────────────────────────────────────────────────────────────────
+
+const renderMini = (config, hass) => render(config, hass, IntegrationWatchdogMiniCard);
+const chips = (out) => [...out.matchAll(/<button class="r ([^"]*)"[^>]*>.*?<span class="rt">([^<]*)<\/span><\/button>/g)].map(([, cls, text]) => ({ cls, text }));
+const zha = { domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(300), reloads: 3, gave_up: true };
+const hue = { domain: 'hue', title: 'Hue', entry_id: 'b', since: minutesAgo(40), reloads: 1, gave_up: false };
+const sonos = { domain: 'sonos', title: 'Sonos', entry_id: 'c', since: minutesAgo(6), reloads: 0, gave_up: false };
+
+test('mini card: status pill, a tinted chip per unavailable integration, then the last check; no stats nor lists', () => {
+  const out = html(renderMini({}, makeHass({ integrations: [zha, hue, sonos], history: [event('reloaded', 'Hue', 1, minutesAgo(25))] })));
+  assert.match(out, /class="pill" title="2 unavailable · 1 given up"/);
+  assert.deepEqual(chips(out), [
+    { cls: 'alert pill', text: 'Zigbee · Given up' },
+    { cls: 'warn pill', text: 'Hue · 1/3 reloads' },
+    { cls: 'warn pill', text: 'Sonos · Grace period' },
+    { cls: 'idle', text: 'Checked 3 minutes ago' },
+  ]);
+  // While an integration is down, its chip says it all: no last-reload chip.
+  assert.doesNotMatch(out, /data-focus="m:h"/);
+  assert.doesNotMatch(out, /class="stats"|class="section"/);
+  assert.match(out, /class="check"/);
+  assert.match(out, /class="zoom"[^>]*aria-expanded="false"/);
+});
+
+test('mini card: everything available shows the last reload and the last check', () => {
+  const history = [event('reload_failed', 'Hue', 2, minutesAgo(25)), event('reloaded', 'Tuya', 1, minutesAgo(90))];
+  const out = html(renderMini({}, makeHass({ history })));
+  assert.match(out, /class="pill" title="All available"/);
+  assert.deepEqual(chips(out), [
+    { cls: 'warn', text: 'Failed · Hue' },
+    { cls: 'idle', text: 'Checked 3 minutes ago' },
+  ]);
+  // No history yet: only the check.
+  assert.deepEqual(chips(html(renderMini({}, makeHass()))), [{ cls: 'idle', text: 'Checked 3 minutes ago' }]);
+});
+
+test('mini card: not set up shows no chip', () => {
+  const out = html(renderMini({}, notLoaded(makeHass())));
+  assert.match(out, /class="pill" title="Not set up"/);
+  assert.deepEqual(chips(out), []);
+  assert.match(out, /<div class="rs"><\/div>/);
+});
+
+test('mini card: chips open Settings for administrators, the sensor otherwise', () => {
+  const data = { integrations: [hue] };
+  const admin = html(renderMini({}, makeHass(data)));
+  assert.match(admin, /class="r warn pill" data-domain="hue"/);
+  assert.match(admin, new RegExp(`class="r idle" data-entity="${LAST_CHECK}"`));
+  const user = html(renderMini({}, { ...makeHass(data), user: { is_admin: false } }));
+  assert.doesNotMatch(user, /data-domain/);
+  assert.match(user, new RegExp(`class="r warn pill" data-entity="${UNAVAILABLE}"`));
+});
+
+test('mini card: the detail button switches to the full card and back; a click elsewhere brings it back', () => {
+  const card = renderMini({}, makeHass({ integrations: [hue], reloads: 2 }));
+  card.shadowRoot.querySelector('.zoom').handlers.click({ stopPropagation() {}, detail: 1 });
+  let out = html(card);
+  assert.match(out, /class="stats"/);
+  assert.match(out, /class="section"/);
+  assert.match(out, /class="zoom"[^>]*aria-expanded="true"/);
+  assert.equal(card.getCardSize(), IntegrationWatchdogCard.prototype.getCardSize.call(card));
+  // A click inside the card or in a dialog opened from it keeps the full card...
+  card._onUnzoom({ composedPath: () => [card] });
+  card._onUnzoom({ composedPath: () => [{ localName: 'ha-more-info-dialog' }] });
+  assert.match(html(card), /class="stats"/);
+  // ...a click anywhere else goes back to the compact view.
+  card._onUnzoom({ composedPath: () => [{ localName: 'div' }] });
+  out = html(card);
+  assert.doesNotMatch(out, /class="stats"/);
+  assert.match(out, /class="mini"/);
+  assert.equal(card.getCardSize(), 2);
+});
+
+test('mini card: zoom false removes the detail button; anything but a boolean is refused', () => {
+  assert.doesNotMatch(html(renderMini({ zoom: false }, makeHass())), /class="zoom"/);
+  assert.throws(() => renderMini({ zoom: 'yes' }, makeHass()), /zoom/);
+});
+
+test('mini card: hide_when_ok, title and the check button behave as on the full card', () => {
+  assert.equal(renderMini({ hide_when_ok: true }, makeHass()).style.display, 'none');
+  assert.equal(renderMini({ hide_when_ok: true }, makeHass({ integrations: [hue] })).style.display, '');
+  assert.match(html(renderMini({ title: '<Watch>' }, makeHass())), /&lt;Watch&gt;/);
+  assert.doesNotMatch(html(renderMini({ check_button: false }, makeHass())), /class="check"/);
+  const hass = makeHass();
+  renderMini({}, hass).shadowRoot.querySelector('.check').handlers.click();
+  assert.deepEqual(JSON.parse(JSON.stringify(hass.calls[0])), ['button', 'press', { entity_id: BUTTON }]);
+});
+
+test('mini card: French', () => {
+  const out = html(renderMini({}, makeHass({ language: 'fr', integrations: [hue] })));
+  assert.match(out, /Hue · 1\/3 rechargements/);
+  assert.match(out, /title="Afficher le détail"/);
+});
+
+test('mini card: at least 6 columns, badge gives way on a narrow card', () => {
+  assert.deepEqual({ ...new IntegrationWatchdogMiniCard().getGridOptions() }, { columns: 6, min_columns: 6, rows: 'auto' });
+  const queries = containerRules(IntegrationWatchdogMiniCard.styles);
+  const [query, rule] = Object.entries(queries).find(([, r]) => r['.mini > .badge']) ?? [];
+  assert.ok(query);
+  // 6 columns of a phone section: ~156 px card, ~132 px inside the padding.
+  assert.ok(Number(query.match(/max-width:\s*(\d+)px/)?.[1]) >= 132, query);
+  assert.equal(rule['.mini > .badge'].display, 'none');
+  const css = rules(IntegrationWatchdogMiniCard.styles);
+  assert.equal(css['.r']['max-width'], '100%');
+  assert.equal(css['.r .rt']['text-overflow'], 'ellipsis');
+  assert.equal(css['.zoom'].flex, 'none');
+});
+
+test('mini card editor: the detail button is offered, its default left out of the YAML', () => {
+  const editor = new IntegrationWatchdogMiniCardEditor();
+  editor.appendChild = () => {};
+  const sent = [];
+  editor.dispatchEvent = (ev) => sent.push(ev.detail.config);
+  editor.setConfig({});
+  editor.hass = makeHass();
+  assert.ok(editor._form.schema.some((s) => s.name === 'zoom'));
+  assert.equal(editor._form.data.zoom, true);
+  editor._form.dispatch({ ...IW_DEFAULTS, zoom: true, show_stats: false });
+  assert.deepEqual(JSON.parse(JSON.stringify(sent.at(-1))), { show_stats: false });
+  editor._form.dispatch({ ...IW_DEFAULTS, zoom: false });
+  assert.deepEqual(JSON.parse(JSON.stringify(sent.at(-1))), { zoom: false });
+  // The full card's editor has no detail button.
+  const full = new IntegrationWatchdogCardEditor();
+  full.appendChild = () => {};
+  full.setConfig({});
+  full.hass = makeHass();
+  assert.ok(!full._form.schema.some((s) => s.name === 'zoom'));
+});
+
+test('mini card: chip text is readable in light and dark themes (WCAG AA, 4.5:1)', () => {
+  const css = rules(IntegrationWatchdogMiniCard.styles);
+  const last = (selectors, prop) => selectors.map((s) => css[s]?.[prop]).filter(Boolean).at(-1);
+  const level = { ok: 'var(--iw-ok)', warn: 'var(--iw-warn)', alert: 'var(--iw-alert)' };
+  const cases = [];
+  for (const k of ['warn', 'alert']) cases.push([`unavailable chip ${k}`, { '--t': level[k] }, ['.r', '.r.pill'], [['.r.pill'], ['.r.pill:hover']]]);
+  for (const k of ['ok', 'warn', 'alert']) cases.push([`last reload chip ${k}`, { '--t': level[k] }, ['.r'], [[], ['.r:hover']]]);
+  cases.push(['last check chip', {}, ['.r', '.r.idle'], [[], ['.r:hover']]]);
+  const failures = [];
+  for (const [what, own, text, backgrounds] of cases) {
+    for (const [theme, colours] of Object.entries(THEMES)) {
+      const vars = { '--t': 'var(--secondary-text-color)', ...colours, ...css[':host'], ...own };
+      const card = resolve(vars['--card-background-color'], vars);
+      const fg = resolve(last(text, 'color'), vars);
+      for (const bg of backgrounds) {
+        const back = bg.length ? over(resolve(last(bg, 'background'), vars), card) : card;
+        const ratio = contrast(fg, back);
+        if (ratio < 4.5) failures.push(`${what} (${theme}, on ${bg.at(-1) ?? 'card'}): ${ratio.toFixed(2)}:1`);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
 });

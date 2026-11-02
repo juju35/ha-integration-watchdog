@@ -31,6 +31,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
 - **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
+- **Mini card**: the status and the unavailable integrations on two lines, with a detail button showing the full card
 - One failing reload doesn't stop the others; two checks never run at the same time
 - English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish and Serbian (Cyrillic and Latin); pt-BR uses the European Portuguese texts
 
@@ -176,6 +177,29 @@ Every option is in the visual editor:
 | `check_button` | `true` | **Check now** button in the header. It presses the button entity, so any user who sees the card can run a check (only the `integration_watchdog.check` action is limited to administrators) |
 | `hide_when_ok` | `false` | Hide the card while every integration is available |
 | `language` | Home Assistant's | `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `pl`, `sr` or `sr-Latn` |
+
+### Mini card
+
+`custom:integration-watchdog-mini-card` shows the essentials on two lines, for a compact dashboard: the icon, title, **Check now** button and status, then a chip per unavailable integration (*Hue Bridge · 1/3 reloads*, *Zigbee · Given up*), or the last reload while everything is available, and the time of the last check. Search for **Integration Watchdog Mini Card** when adding a card, or in YAML:
+
+```yaml
+type: custom:integration-watchdog-mini-card
+```
+
+| Unavailable integrations | Everything available | Zoomed in |
+|---|---|---|
+| ![Mini card](screenshots/mini.png) | ![Mini card, all available](screenshots/mini-ok.png) | ![Mini card zoomed in](screenshots/mini-zoom.png) |
+| ![Mini card, dark theme](screenshots/mini-dark.png) | ![Mini card, all available, dark theme](screenshots/mini-ok-dark.png) | ![Mini card zoomed in, dark theme](screenshots/mini-zoom-dark.png) |
+
+- The **detail** button (top right) switches the card to the full [card](#card), with the same options, and back, as does a click anywhere else on the page
+- For an administrator, an integration's chip opens its page in **Settings**; for other users, a chip opens the sensor
+- In a Sections view the card takes 6 columns by default, its minimum; on a narrow card the icon gives way and the status keeps only its coloured dot
+
+It takes every option of the full card (they set its detail view, `hide_when_ok` and `check_button` apply to both views), plus:
+
+| Option | Default | Description |
+|---|---|---|
+| `zoom` | `true` | **Detail** button showing the full card. `false` removes it |
 
 The [System Monitor Card](https://github.com/juju35/ha-system-monitor-card) can also show the watchdog's sensors next to the rest of the system.
 
