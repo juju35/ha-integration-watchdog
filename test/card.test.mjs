@@ -290,18 +290,37 @@ test('an integration given up is an alert, counted apart', () => {
 test('recent reloads: newest first, limited by history_count, with their outcome', () => {
   const history = [
     event('gave_up', 'Zigbee', 3, minutesAgo(10)),
-    event('reload_failed', 'Zigbee', 3, minutesAgo(70)),
+    event('reload_failed', 'Matter', 2, minutesAgo(70)),
     event('reloaded', 'Hue', 1, minutesAgo(200)),
   ];
   const out = html(render({ history_count: 2 }, makeHass({ history, reloads: 4 })));
   assert.match(out, /Recent reloads/);
   assert.match(out, /after 3 reloads/);
-  assert.match(out, /reload 3\/3/);
+  assert.match(out, /reload 2\/3/);
   assert.match(out, /Failed/);
   assert.doesNotMatch(out, /Hue/);
   assert.ok(out.indexOf('after 3 reloads') < out.indexOf('Failed'));
   assert.match(out, /<span class="val">4<\/span><span class="lbl">Reloads/);
   assert.match(html(render({}, makeHass({ history }))), /Hue/);
+});
+
+test('recent reloads: only the last attempt of each integration', () => {
+  const history = [
+    event('gave_up', 'Zigbee', 3, minutesAgo(10)),
+    event('reloaded', 'Hue', 1, minutesAgo(30)),
+    event('reload_failed', 'Zigbee', 3, minutesAgo(70)),
+    event('reloaded', 'Zigbee', 2, minutesAgo(130)),
+    event('reloaded', 'Tuya', 1, minutesAgo(300)),
+  ];
+  const out = html(render({ history_count: 3 }, makeHass({ history })));
+  assert.equal((out.match(/class="row hist/g) || []).length, 3);
+  assert.equal((out.match(/>Zigbee</g) || []).length, 1);
+  assert.match(out, /after 3 reloads/);
+  assert.doesNotMatch(out, /reload 3\/3|reload 2\/3/);
+  assert.ok(out.indexOf('Hue') < out.indexOf('Tuya'));
+  // Two entries of the same integration are two integrations.
+  const twin = { ...event('reloaded', 'Zigbee', 1, minutesAgo(20)), entry_id: 'id_other' };
+  assert.equal((html(render({}, makeHass({ history: [twin, ...history] }))).match(/>Zigbee</g) || []).length, 2);
 });
 
 test('history_count is kept between 1 and 20', () => {

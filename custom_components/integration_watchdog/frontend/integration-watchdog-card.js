@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '1.0.0';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '1.0.1';
 
 const IW_I18N = {
   en: {
@@ -547,6 +547,17 @@ const IW_DEFAULTS = {
 };
 const IW_MAX_HISTORY = 20;
 
+// The history is newest first: keep only the last reload, failed reload or give-up of each integration (config entry).
+const iwLatestPerIntegration = (history) => {
+  const seen = new Set();
+  return history.filter((h) => {
+    const key = h?.entry_id || `${h?.domain}:${h?.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
 // Minutes elapsed since `iso` (0 for a date in the future or unreadable).
 const iwMinutes = (iso, now = Date.now()) => {
   const t = new Date(iso).getTime();
@@ -717,7 +728,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     if (hidden) return;
 
     const count = Math.min(IW_MAX_HISTORY, Math.max(1, Number(c.history_count) || IW_DEFAULTS.history_count));
-    const shownHistory = c.show_history ? history.slice(0, count) : [];
+    const shownHistory = c.show_history ? iwLatestPerIntegration(history).slice(0, count) : [];
     this._rows = (c.show_unavailable ? items.length : 0) + shownHistory.length + (c.show_stats && st ? 1 : 0);
 
     const checkedAt = checkSt && !['unknown', 'unavailable'].includes(checkSt.state) ? checkSt.state : null;
