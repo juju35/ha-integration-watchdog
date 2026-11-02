@@ -2,7 +2,9 @@
 
 ## 1.0.0 - 2026-11-02
 
-First stable release.
+First stable release. No change since 0.6.5.
+
+## 0.6.5 - 2026-11-01
 
 ### Fixes
 - Card: on a narrow card (a phone, a narrow masonry column), the title is visible again and the status no longer runs out of the card. The status shortens, then keeps only its coloured dot (full text on hover); *Integration Watchdog is not set up* becomes *Not set up*, since the title already names the integration.
