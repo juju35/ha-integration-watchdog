@@ -157,8 +157,8 @@ type: custom:integration-watchdog-card
 
 | Unavailable integrations | Everything available |
 |---|---|
-| ![Card](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card.png) | ![Card, all available](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-ok.png) |
-| ![Card, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-dark.png) | ![Card, all available, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-ok-dark.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card.png" alt="Card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-ok.png" alt="Card, all available" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-dark.png" alt="Card, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-ok-dark.png" alt="Card, all available, dark theme" width="400"> |
 
 - **Header**: status (all available, *n* unavailable, *n* given up, checking…), time of the last check and the **Check now** button. On a narrow card the status takes a second line, shortens, then keeps only its coloured dot, with the text on hover. In a Sections view the card takes at least 8 columns
 - **Summary**: unavailable integrations, reloads since Home Assistant started, ignored integrations (listed on hover)
@@ -190,8 +190,8 @@ type: custom:integration-watchdog-mini-card
 
 | Unavailable integrations | Everything available | Zoomed in |
 |---|---|---|
-| ![Mini card](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini.png) | ![Mini card, all available](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok.png) | ![Mini card zoomed in](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom.png) |
-| ![Mini card, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-dark.png) | ![Mini card, all available, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok-dark.png) | ![Mini card zoomed in, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom-dark.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini.png" alt="Mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok.png" alt="Mini card, all available" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom.png" alt="Mini card zoomed in" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-dark.png" alt="Mini card, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok-dark.png" alt="Mini card, all available, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom-dark.png" alt="Mini card zoomed in, dark theme" width="400"> |
 
 - The **detail** button (top right) switches the card to the full [card](#card), with the same options, and back, as does a click anywhere else on the page
 - For an administrator, an integration's chip opens its page in **Settings**; for other users, a chip opens the sensor
