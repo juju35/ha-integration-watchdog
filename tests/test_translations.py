@@ -10,7 +10,32 @@ from pathlib import Path
 import pytest
 
 TRANSLATIONS = Path(__file__).parent.parent / "custom_components" / "integration_watchdog" / "translations"
-LANGUAGES = ["de", "es", "fr", "it", "nl", "pl", "pt", "pt-BR", "sr", "sr-Latn"]
+LANGUAGES = [
+    "bg",
+    "cs",
+    "da",
+    "de",
+    "el",
+    "es",
+    "fr",
+    "ga",
+    "hu",
+    "it",
+    "lv",
+    "mt",
+    "nl",
+    "pl",
+    "pt",
+    "pt-BR",
+    "ro",
+    "ru",
+    "sk",
+    "sl",
+    "sr",
+    "sr-Latn",
+    "sv",
+    "uk",
+]
 
 
 def _flatten(data: dict, prefix: str = "") -> dict[str, str]:

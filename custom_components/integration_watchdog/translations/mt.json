@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Jerġa’ jgħabbi l-integrazzjonijiet li l-entitajiet kollha tagħhom mhumiex disponibbli.",
+        "data": {
+          "scan_interval": "Intervall taċ-ċekk",
+          "grace_period": "Perjodu ta’ grazzja",
+          "max_reloads": "Tagħbijiet mill-ġdid wara xulxin",
+          "ignored_integrations": "Integrazzjonijiet injorati",
+          "notify_services": "Azzjonijiet ta’ notifika"
+        },
+        "data_description": {
+          "scan_interval": "Minuti bejn żewġ ċekkijiet.",
+          "grace_period": "Minuti li l-entitajiet kollha ta’ integrazzjoni jridu jkunu ilhom mhux disponibbli qabel ma terġa’ titgħabba. Xejn ma jerġa’ jitgħabba matul dan iż-żmien wara li jibda Home Assistant.",
+          "max_reloads": "Tagħbijiet mill-ġdid ta’ integrazzjoni li tibqa’ mhux disponibbli qabel ma tiġi abbandunata sakemm tirkupra. Il-ħin bejn żewġ tagħbijiet mill-ġdid jirdoppja kull darba: perjodu ta’ grazzja, 2 × perjodu ta’ grazzja…",
+          "ignored_integrations": "Integrazzjonijiet li qatt ma jerġgħu jitgħabbew. Ikteb dominju biex iżżid waħda li għadha mhix konfigurata.",
+          "notify_services": "Ibgħat ukoll kull notifika b’dawn l-azzjonijiet (notify.mobile_app_…). Notifika persistenti tinħoloq dejjem."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog diġà kkonfigurat.",
+      "single_instance_allowed": "Integration Watchdog diġà kkonfigurat."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Għażliet ta’ Integration Watchdog",
+        "data": {
+          "scan_interval": "Intervall taċ-ċekk",
+          "grace_period": "Perjodu ta’ grazzja",
+          "max_reloads": "Tagħbijiet mill-ġdid wara xulxin",
+          "ignored_integrations": "Integrazzjonijiet injorati",
+          "notify_services": "Azzjonijiet ta’ notifika"
+        },
+        "data_description": {
+          "scan_interval": "Minuti bejn żewġ ċekkijiet.",
+          "grace_period": "Minuti li l-entitajiet kollha ta’ integrazzjoni jridu jkunu ilhom mhux disponibbli qabel ma terġa’ titgħabba. Xejn ma jerġa’ jitgħabba matul dan iż-żmien wara li jibda Home Assistant.",
+          "max_reloads": "Tagħbijiet mill-ġdid ta’ integrazzjoni li tibqa’ mhux disponibbli qabel ma tiġi abbandunata sakemm tirkupra. Il-ħin bejn żewġ tagħbijiet mill-ġdid jirdoppja kull darba: perjodu ta’ grazzja, 2 × perjodu ta’ grazzja…",
+          "ignored_integrations": "Integrazzjonijiet li qatt ma jerġgħu jitgħabbew. Ikteb dominju biex iżżid waħda li għadha mhix konfigurata.",
+          "notify_services": "Ibgħat ukoll kull notifika b’dawn l-azzjonijiet (notify.mobile_app_…). Notifika persistenti tinħoloq dejjem."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Iċċekkja issa"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Integrazzjonijiet mhux disponibbli",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrazzjonijiet"
+          },
+          "ignored": {
+            "name": "Injorati"
+          },
+          "max_reloads": {
+            "name": "Massimu ta’ tagħbijiet mill-ġdid"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "L-aħħar tagħbija mill-ġdid",
+        "state_attributes": {
+          "domain": {
+            "name": "Dominju"
+          },
+          "title": {
+            "name": "Titolu"
+          },
+          "entry_id": {
+            "name": "ID tad-daħla"
+          },
+          "success": {
+            "name": "Suċċess"
+          },
+          "reloads": {
+            "name": "Tagħbijiet mill-ġdid"
+          },
+          "history": {
+            "name": "Storja"
+          }
+        }
+      },
+      "last_check": {
+        "name": "L-aħħar ċekk"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Iċċekkja l-integrazzjonijiet",
+      "description": "Ifittex l-integrazzjonijiet li l-entitajiet kollha tagħhom mhumiex disponibbli u jerġa’ jgħabbi dawk li għaddielhom il-perjodu ta’ grazzja."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integrazzjoni mgħobbija mill-ġdid",
+    "reloaded": "{title} ({domain}) ġiet mgħobbija mill-ġdid: l-entitajiet kollha tagħha ma kinux disponibbli minn {since}. Tagħbija mill-ġdid {attempt}/{max}.",
+    "reload_failed_title": "It-tagħbija mill-ġdid tal-integrazzjoni falliet",
+    "reload_failed": "{title} ({domain}) ma setgħetx terġa’ titgħabba: l-entitajiet kollha tagħha ma kinux disponibbli minn {since}. Tagħbija mill-ġdid {attempt}/{max}, ara r-reġistri.",
+    "gave_up_title": "Integrazzjoni għadha mhux disponibbli",
+    "gave_up": "{title} ({domain}) għadha mhux disponibbli. Tagħbijiet mill-ġdid: {attempt}. Mhux se terġa’ titgħabba sakemm waħda mill-entitajiet tagħha ssir disponibbli."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog mhux mgħobbi." }
+  }
+}

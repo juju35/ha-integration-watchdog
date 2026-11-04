@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Znovu načte integrace, jejichž všechny entity jsou nedostupné.",
+        "data": {
+          "scan_interval": "Interval kontroly",
+          "grace_period": "Ochranná lhůta",
+          "max_reloads": "Opětovná načtení za sebou",
+          "ignored_integrations": "Ignorované integrace",
+          "notify_services": "Akce oznámení"
+        },
+        "data_description": {
+          "scan_interval": "Počet minut mezi dvěma kontrolami.",
+          "grace_period": "Počet minut, po které musí být všechny entity integrace nedostupné, než se znovu načte. Během této doby po spuštění Home Assistant se nic znovu nenačítá.",
+          "max_reloads": "Počet opětovných načtení integrace, která zůstává nedostupná, než se vzdá až do jejího obnovení. Odstup mezi dvěma opětovnými načteními se pokaždé zdvojnásobí: ochranná lhůta, 2 × ochranná lhůta…",
+          "ignored_integrations": "Integrace, které se nikdy znovu nenačtou. Zadejte doménu, chcete-li přidat integraci, která ještě není nastavená.",
+          "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog je již nakonfigurován.",
+      "single_instance_allowed": "Integration Watchdog je již nakonfigurován."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti Integration Watchdog",
+        "data": {
+          "scan_interval": "Interval kontroly",
+          "grace_period": "Ochranná lhůta",
+          "max_reloads": "Opětovná načtení za sebou",
+          "ignored_integrations": "Ignorované integrace",
+          "notify_services": "Akce oznámení"
+        },
+        "data_description": {
+          "scan_interval": "Počet minut mezi dvěma kontrolami.",
+          "grace_period": "Počet minut, po které musí být všechny entity integrace nedostupné, než se znovu načte. Během této doby po spuštění Home Assistant se nic znovu nenačítá.",
+          "max_reloads": "Počet opětovných načtení integrace, která zůstává nedostupná, než se vzdá až do jejího obnovení. Odstup mezi dvěma opětovnými načteními se pokaždé zdvojnásobí: ochranná lhůta, 2 × ochranná lhůta…",
+          "ignored_integrations": "Integrace, které se nikdy znovu nenačtou. Zadejte doménu, chcete-li přidat integraci, která ještě není nastavená.",
+          "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Zkontrolovat nyní"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Nedostupné integrace",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrace"
+          },
+          "ignored": {
+            "name": "Ignorované"
+          },
+          "max_reloads": {
+            "name": "Max. opětovných načtení"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Poslední opětovné načtení",
+        "state_attributes": {
+          "domain": {
+            "name": "Doména"
+          },
+          "title": {
+            "name": "Název"
+          },
+          "entry_id": {
+            "name": "ID záznamu"
+          },
+          "success": {
+            "name": "Úspěch"
+          },
+          "reloads": {
+            "name": "Opětovná načtení"
+          },
+          "history": {
+            "name": "Historie"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Poslední kontrola"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Zkontrolovat integrace",
+      "description": "Vyhledá integrace, jejichž všechny entity jsou nedostupné, a znovu načte ty, kterým uplynula ochranná lhůta."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integrace znovu načtena",
+    "reloaded": "{title} ({domain}) byla znovu načtena: všechny její entity byly nedostupné od {since}. Opětovné načtení {attempt}/{max}.",
+    "reload_failed_title": "Opětovné načtení integrace selhalo",
+    "reload_failed": "{title} ({domain}) se nepodařilo znovu načíst: všechny její entity byly nedostupné od {since}. Opětovné načtení {attempt}/{max}, viz protokoly.",
+    "gave_up_title": "Integrace je stále nedostupná",
+    "gave_up": "{title} ({domain}) je stále nedostupná. Počet opětovných načtení: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog není načten." }
+  }
+}

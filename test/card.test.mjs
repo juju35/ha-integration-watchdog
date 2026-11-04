@@ -155,7 +155,7 @@ const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1
 
 test('every language has the English keys, arrays and placeholders', () => {
   const keys = Object.keys(IW_I18N.en).sort();
-  for (const lang of ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sr', 'sr-Latn']) assert.ok(IW_I18N[lang], lang);
+  for (const lang of ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sr', 'sr-Latn', 'ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv', 'el']) assert.ok(IW_I18N[lang], lang);
   for (const [lang, strings] of Object.entries(IW_I18N)) {
     // A "_few" form (2-4 in Serbian and Polish) is optional, next to the "_one"/"_many" forms of English.
     const few = Object.keys(strings).filter((k) => k.endsWith('_few'));
@@ -203,6 +203,32 @@ test('Italian, Dutch, Portuguese and Polish: full tag, then the part before the 
   assert.equal(iwLang({ language: 'sr-Latn' }, {}), 'sr-Latn');
   assert.equal(iwLang({ language: 'ja' }, {}), 'en');
   assert.equal(iwLang({ language: 'en' }, { language: 'pl' }), 'pl');
+});
+
+test('Romanian to Greek: full tag, then the part before the dash, then English', () => {
+  for (const lang of ['ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv', 'el']) {
+    assert.equal(iwLang({ language: lang }, {}), lang);
+    assert.equal(iwLang({ language: `${lang}-XX` }, {}), lang);
+    assert.equal(iwLang({ language: 'en' }, { language: lang }), lang);
+    assert.equal(iwLocale({ language: lang }, {}), lang);
+  }
+  assert.equal(iwLang({ language: 'el-GR' }, {}), 'el');
+  assert.equal(iwLang({ language: 'ja' }, {}), 'en');
+});
+
+test('Russian and Greek: the card renders in their script', () => {
+  const hass = (language) =>
+    makeHass({
+      language,
+      integrations: [{ domain: 'zha', title: 'Zigbee', entry_id: 'a', since: minutesAgo(30), reloads: 1, gave_up: false }],
+      history: [event('reloaded', 'Zigbee', 1, minutesAgo(10))],
+    });
+  const ru = html(render({}, hass('ru')));
+  assert.match(ru, /Недоступно: 1/);
+  assert.match(ru, /Последние перезагрузки/);
+  const el = html(render({}, hass('el')));
+  assert.match(el, /1 μη διαθέσιμη/);
+  assert.match(el, /Πρόσφατες επαναφορτώσεις/);
 });
 
 test('the editor offers every language of the card', () => {

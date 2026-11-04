@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Genindlæser de integrationer, hvis enheder alle er utilgængelige.",
+        "data": {
+          "scan_interval": "Kontrolinterval",
+          "grace_period": "Respitperiode",
+          "max_reloads": "Genindlæsninger i træk",
+          "ignored_integrations": "Ignorerede integrationer",
+          "notify_services": "Notifikationshandlinger"
+        },
+        "data_description": {
+          "scan_interval": "Minutter mellem to kontroller.",
+          "grace_period": "Minutter, som alle enheder i en integration skal have været utilgængelige, før den genindlæses. Intet genindlæses i dette tidsrum, efter at Home Assistant er startet.",
+          "max_reloads": "Genindlæsninger af en integration, der forbliver utilgængelig, før den opgives, indtil den kommer sig. Tiden mellem to genindlæsninger fordobles hver gang: respitperiode, 2 × respitperiode…",
+          "ignored_integrations": "Integrationer, der aldrig genindlæses. Skriv et domæne for at tilføje en, der endnu ikke er konfigureret.",
+          "notify_services": "Send også hver notifikation med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog er allerede konfigureret.",
+      "single_instance_allowed": "Integration Watchdog er allerede konfigureret."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Indstillinger for Integration Watchdog",
+        "data": {
+          "scan_interval": "Kontrolinterval",
+          "grace_period": "Respitperiode",
+          "max_reloads": "Genindlæsninger i træk",
+          "ignored_integrations": "Ignorerede integrationer",
+          "notify_services": "Notifikationshandlinger"
+        },
+        "data_description": {
+          "scan_interval": "Minutter mellem to kontroller.",
+          "grace_period": "Minutter, som alle enheder i en integration skal have været utilgængelige, før den genindlæses. Intet genindlæses i dette tidsrum, efter at Home Assistant er startet.",
+          "max_reloads": "Genindlæsninger af en integration, der forbliver utilgængelig, før den opgives, indtil den kommer sig. Tiden mellem to genindlæsninger fordobles hver gang: respitperiode, 2 × respitperiode…",
+          "ignored_integrations": "Integrationer, der aldrig genindlæses. Skriv et domæne for at tilføje en, der endnu ikke er konfigureret.",
+          "notify_services": "Send også hver notifikation med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Kontrollér nu"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Utilgængelige integrationer",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrationer"
+          },
+          "ignored": {
+            "name": "Ignorerede"
+          },
+          "max_reloads": {
+            "name": "Maks. genindlæsninger"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Seneste genindlæsning",
+        "state_attributes": {
+          "domain": {
+            "name": "Domæne"
+          },
+          "title": {
+            "name": "Titel"
+          },
+          "entry_id": {
+            "name": "Post-ID"
+          },
+          "success": {
+            "name": "Lykkedes"
+          },
+          "reloads": {
+            "name": "Genindlæsninger"
+          },
+          "history": {
+            "name": "Historik"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Seneste kontrol"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Kontrollér integrationer",
+      "description": "Finder de integrationer, hvis enheder alle er utilgængelige, og genindlæser dem, hvis respitperiode er udløbet."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integration genindlæst",
+    "reloaded": "{title} ({domain}) blev genindlæst: alle dens enheder havde været utilgængelige siden {since}. Genindlæsning {attempt}/{max}.",
+    "reload_failed_title": "Genindlæsning af integration mislykkedes",
+    "reload_failed": "{title} ({domain}) kunne ikke genindlæses: alle dens enheder havde været utilgængelige siden {since}. Genindlæsning {attempt}/{max}, se loggene.",
+    "gave_up_title": "Integration stadig utilgængelig",
+    "gave_up": "{title} ({domain}) er stadig utilgængelig efter {attempt} genindlæsninger. Den genindlæses ikke igen, før en af dens enheder er tilgængelig."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog er ikke indlæst." }
+  }
+}

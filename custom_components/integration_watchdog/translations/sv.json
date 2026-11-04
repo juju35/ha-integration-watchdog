@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Laddar om de integrationer vars entiteter alla är otillgängliga.",
+        "data": {
+          "scan_interval": "Kontrollintervall",
+          "grace_period": "Respittid",
+          "max_reloads": "Omladdningar i rad",
+          "ignored_integrations": "Ignorerade integrationer",
+          "notify_services": "Aviseringsåtgärder"
+        },
+        "data_description": {
+          "scan_interval": "Minuter mellan två kontroller.",
+          "grace_period": "Minuter som alla entiteter i en integration måste ha varit otillgängliga innan den laddas om. Ingenting laddas om under denna tid efter att Home Assistant har startat.",
+          "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
+          "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
+          "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog är redan konfigurerad.",
+      "single_instance_allowed": "Integration Watchdog är redan konfigurerad."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Alternativ för Integration Watchdog",
+        "data": {
+          "scan_interval": "Kontrollintervall",
+          "grace_period": "Respittid",
+          "max_reloads": "Omladdningar i rad",
+          "ignored_integrations": "Ignorerade integrationer",
+          "notify_services": "Aviseringsåtgärder"
+        },
+        "data_description": {
+          "scan_interval": "Minuter mellan två kontroller.",
+          "grace_period": "Minuter som alla entiteter i en integration måste ha varit otillgängliga innan den laddas om. Ingenting laddas om under denna tid efter att Home Assistant har startat.",
+          "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
+          "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
+          "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Kontrollera nu"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Otillgängliga integrationer",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrationer"
+          },
+          "ignored": {
+            "name": "Ignorerade"
+          },
+          "max_reloads": {
+            "name": "Max antal omladdningar"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Senaste omladdning",
+        "state_attributes": {
+          "domain": {
+            "name": "Domän"
+          },
+          "title": {
+            "name": "Titel"
+          },
+          "entry_id": {
+            "name": "Post-ID"
+          },
+          "success": {
+            "name": "Lyckades"
+          },
+          "reloads": {
+            "name": "Omladdningar"
+          },
+          "history": {
+            "name": "Historik"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Senaste kontroll"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Kontrollera integrationer",
+      "description": "Söker efter integrationer vars entiteter alla är otillgängliga och laddar om dem vars respittid har löpt ut."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integration omladdad",
+    "reloaded": "{title} ({domain}) laddades om: alla dess entiteter hade varit otillgängliga sedan {since}. Omladdning {attempt}/{max}.",
+    "reload_failed_title": "Omladdning av integration misslyckades",
+    "reload_failed": "{title} ({domain}) kunde inte laddas om: alla dess entiteter hade varit otillgängliga sedan {since}. Omladdning {attempt}/{max}, se loggarna.",
+    "gave_up_title": "Integration fortfarande otillgänglig",
+    "gave_up": "{title} ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar. Den laddas inte om igen förrän någon av dess entiteter är tillgänglig."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog är inte inläst." }
+  }
+}

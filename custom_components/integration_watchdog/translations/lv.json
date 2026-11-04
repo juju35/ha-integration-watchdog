@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Pārlādē integrācijas, kuru visas vienības nav pieejamas.",
+        "data": {
+          "scan_interval": "Pārbaudes intervāls",
+          "grace_period": "Nogaidīšanas laiks",
+          "max_reloads": "Pārlādes pēc kārtas",
+          "ignored_integrations": "Ignorētās integrācijas",
+          "notify_services": "Paziņojumu darbības"
+        },
+        "data_description": {
+          "scan_interval": "Minūtes starp divām pārbaudēm.",
+          "grace_period": "Minūtes, cik ilgi visām integrācijas vienībām jābūt nepieejamām, pirms tā tiek pārlādēta. Šajā laikā pēc Home Assistant palaišanas nekas netiek pārlādēts.",
+          "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
+          "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
+          "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog jau ir konfigurēts.",
+      "single_instance_allowed": "Integration Watchdog jau ir konfigurēts."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Integration Watchdog opcijas",
+        "data": {
+          "scan_interval": "Pārbaudes intervāls",
+          "grace_period": "Nogaidīšanas laiks",
+          "max_reloads": "Pārlādes pēc kārtas",
+          "ignored_integrations": "Ignorētās integrācijas",
+          "notify_services": "Paziņojumu darbības"
+        },
+        "data_description": {
+          "scan_interval": "Minūtes starp divām pārbaudēm.",
+          "grace_period": "Minūtes, cik ilgi visām integrācijas vienībām jābūt nepieejamām, pirms tā tiek pārlādēta. Šajā laikā pēc Home Assistant palaišanas nekas netiek pārlādēts.",
+          "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
+          "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
+          "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Pārbaudīt tagad"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Nepieejamās integrācijas",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrācijas"
+          },
+          "ignored": {
+            "name": "Ignorētās"
+          },
+          "max_reloads": {
+            "name": "Maks. pārlādes"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Pēdējā pārlāde",
+        "state_attributes": {
+          "domain": {
+            "name": "Domēns"
+          },
+          "title": {
+            "name": "Nosaukums"
+          },
+          "entry_id": {
+            "name": "Ieraksta ID"
+          },
+          "success": {
+            "name": "Veiksmīgi"
+          },
+          "reloads": {
+            "name": "Pārlādes"
+          },
+          "history": {
+            "name": "Vēsture"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Pēdējā pārbaude"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Pārbaudīt integrācijas",
+      "description": "Meklē integrācijas, kuru visas vienības nav pieejamas, un pārlādē tās, kurām beidzies nogaidīšanas laiks."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integrācija pārlādēta",
+    "reloaded": "{title} ({domain}) tika pārlādēta: visas tās vienības nebija pieejamas kopš {since}. Pārlāde {attempt}/{max}.",
+    "reload_failed_title": "Integrācijas pārlāde neizdevās",
+    "reload_failed": "{title} ({domain}) neizdevās pārlādēt: visas tās vienības nebija pieejamas kopš {since}. Pārlāde {attempt}/{max}, skatiet žurnālus.",
+    "gave_up_title": "Integrācija joprojām nav pieejama",
+    "gave_up": "{title} ({domain}) joprojām nav pieejama. Veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog nav ielādēts." }
+  }
+}
