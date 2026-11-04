@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Újratölti azokat az integrációkat, amelyeknek minden entitása nem elérhető.",
+        "data": {
+          "scan_interval": "Ellenőrzési időköz",
+          "grace_period": "Türelmi idő",
+          "max_reloads": "Egymás utáni újratöltések",
+          "ignored_integrations": "Figyelmen kívül hagyott integrációk",
+          "notify_services": "Értesítési műveletek"
+        },
+        "data_description": {
+          "scan_interval": "Két ellenőrzés között eltelt percek.",
+          "grace_period": "Ennyi percig kell egy integráció minden entitásának elérhetetlennek lennie, mielőtt újratöltődik. A Home Assistant indulása után ennyi ideig semmi sem töltődik újra.",
+          "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
+          "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
+          "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Az Integration Watchdog már be van állítva.",
+      "single_instance_allowed": "Az Integration Watchdog már be van állítva."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Integration Watchdog beállítások",
+        "data": {
+          "scan_interval": "Ellenőrzési időköz",
+          "grace_period": "Türelmi idő",
+          "max_reloads": "Egymás utáni újratöltések",
+          "ignored_integrations": "Figyelmen kívül hagyott integrációk",
+          "notify_services": "Értesítési műveletek"
+        },
+        "data_description": {
+          "scan_interval": "Két ellenőrzés között eltelt percek.",
+          "grace_period": "Ennyi percig kell egy integráció minden entitásának elérhetetlennek lennie, mielőtt újratöltődik. A Home Assistant indulása után ennyi ideig semmi sem töltődik újra.",
+          "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
+          "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
+          "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Ellenőrzés most"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Nem elérhető integrációk",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrációk"
+          },
+          "ignored": {
+            "name": "Figyelmen kívül hagyva"
+          },
+          "max_reloads": {
+            "name": "Max. újratöltések"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Utolsó újratöltés",
+        "state_attributes": {
+          "domain": {
+            "name": "Tartomány"
+          },
+          "title": {
+            "name": "Cím"
+          },
+          "entry_id": {
+            "name": "Bejegyzésazonosító"
+          },
+          "success": {
+            "name": "Sikeres"
+          },
+          "reloads": {
+            "name": "Újratöltések"
+          },
+          "history": {
+            "name": "Előzmények"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Utolsó ellenőrzés"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Integrációk ellenőrzése",
+      "description": "Megkeresi azokat az integrációkat, amelyeknek minden entitása nem elérhető, és újratölti azokat, amelyeknek lejárt a türelmi ideje."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integráció újratöltve",
+    "reloaded": "{title} ({domain}) újratöltve: minden entitása nem volt elérhető {since} óta. Újratöltés: {attempt}/{max}.",
+    "reload_failed_title": "Az integráció újratöltése sikertelen",
+    "reload_failed": "{title} ({domain}) nem tölthető újra: minden entitása nem volt elérhető {since} óta. Újratöltés: {attempt}/{max}, lásd a naplókat.",
+    "gave_up_title": "Az integráció továbbra sem elérhető",
+    "gave_up": "{title} ({domain}) {attempt} újratöltés után továbbra sem elérhető. Addig nem töltődik újra, amíg valamelyik entitása elérhetővé nem válik."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Az Integration Watchdog nincs betöltve." }
+  }
+}

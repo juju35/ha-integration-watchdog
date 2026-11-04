@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Ponovno naloži integracije, katerih nobena entiteta ni na voljo.",
+        "data": {
+          "scan_interval": "Interval preverjanja",
+          "grace_period": "Čakalna doba",
+          "max_reloads": "Zaporedna ponovna nalaganja",
+          "ignored_integrations": "Prezrte integracije",
+          "notify_services": "Dejanja obvestil"
+        },
+        "data_description": {
+          "scan_interval": "Minute med dvema preverjanjema.",
+          "grace_period": "Minute, ko morajo biti vse entitete integracije nedosegljive, preden se ta ponovno naloži. V tem času po zagonu Home Assistanta se nič ne nalaga ponovno.",
+          "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
+          "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
+          "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog je že nastavljen.",
+      "single_instance_allowed": "Integration Watchdog je že nastavljen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Možnosti Integration Watchdog",
+        "data": {
+          "scan_interval": "Interval preverjanja",
+          "grace_period": "Čakalna doba",
+          "max_reloads": "Zaporedna ponovna nalaganja",
+          "ignored_integrations": "Prezrte integracije",
+          "notify_services": "Dejanja obvestil"
+        },
+        "data_description": {
+          "scan_interval": "Minute med dvema preverjanjema.",
+          "grace_period": "Minute, ko morajo biti vse entitete integracije nedosegljive, preden se ta ponovno naloži. V tem času po zagonu Home Assistanta se nič ne nalaga ponovno.",
+          "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
+          "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
+          "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Preveri zdaj"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Integracije, ki niso na voljo",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integracije"
+          },
+          "ignored": {
+            "name": "Prezrte"
+          },
+          "max_reloads": {
+            "name": "Največ ponovnih nalaganj"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Zadnje ponovno nalaganje",
+        "state_attributes": {
+          "domain": {
+            "name": "Domena"
+          },
+          "title": {
+            "name": "Naslov"
+          },
+          "entry_id": {
+            "name": "ID vnosa"
+          },
+          "success": {
+            "name": "Uspeh"
+          },
+          "reloads": {
+            "name": "Ponovna nalaganja"
+          },
+          "history": {
+            "name": "Zgodovina"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Zadnje preverjanje"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Preveri integracije",
+      "description": "Poišče integracije, katerih nobena entiteta ni na voljo, in ponovno naloži tiste, ki jim je potekla čakalna doba."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integracija ponovno naložena",
+    "reloaded": "{title} ({domain}) je bila ponovno naložena: nobena njena entiteta ni bila na voljo od {since}. Ponovno nalaganje {attempt}/{max}.",
+    "reload_failed_title": "Ponovno nalaganje integracije ni uspelo",
+    "reload_failed": "{title} ({domain}) ni bilo mogoče ponovno naložiti: nobena njena entiteta ni bila na voljo od {since}. Ponovno nalaganje {attempt}/{max}, glejte dnevnike.",
+    "gave_up_title": "Integracija še vedno ni na voljo",
+    "gave_up": "{title} ({domain}) še vedno ni na voljo. Število ponovnih nalaganj: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog ni naložen." }
+  }
+}

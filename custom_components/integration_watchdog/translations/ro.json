@@ -1,0 +1,115 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Integration Watchdog",
+        "description": "Reîncarcă integrările ale căror entități sunt toate indisponibile.",
+        "data": {
+          "scan_interval": "Interval de verificare",
+          "grace_period": "Perioadă de grație",
+          "max_reloads": "Reîncărcări consecutive",
+          "ignored_integrations": "Integrări ignorate",
+          "notify_services": "Acțiuni de notificare"
+        },
+        "data_description": {
+          "scan_interval": "Minute între două verificări.",
+          "grace_period": "Minute în care toate entitățile unei integrări trebuie să fi fost indisponibile înainte ca aceasta să fie reîncărcată. Nimic nu este reîncărcat în acest interval după pornirea Home Assistant.",
+          "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
+          "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
+          "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integration Watchdog este deja configurat.",
+      "single_instance_allowed": "Integration Watchdog este deja configurat."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opțiuni Integration Watchdog",
+        "data": {
+          "scan_interval": "Interval de verificare",
+          "grace_period": "Perioadă de grație",
+          "max_reloads": "Reîncărcări consecutive",
+          "ignored_integrations": "Integrări ignorate",
+          "notify_services": "Acțiuni de notificare"
+        },
+        "data_description": {
+          "scan_interval": "Minute între două verificări.",
+          "grace_period": "Minute în care toate entitățile unei integrări trebuie să fi fost indisponibile înainte ca aceasta să fie reîncărcată. Nimic nu este reîncărcat în acest interval după pornirea Home Assistant.",
+          "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
+          "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
+          "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "check": {
+        "name": "Verifică acum"
+      }
+    },
+    "sensor": {
+      "unavailable": {
+        "name": "Integrări indisponibile",
+        "state_attributes": {
+          "integrations": {
+            "name": "Integrări"
+          },
+          "ignored": {
+            "name": "Ignorate"
+          },
+          "max_reloads": {
+            "name": "Reîncărcări maxime"
+          }
+        }
+      },
+      "last_reload": {
+        "name": "Ultima reîncărcare",
+        "state_attributes": {
+          "domain": {
+            "name": "Domeniu"
+          },
+          "title": {
+            "name": "Titlu"
+          },
+          "entry_id": {
+            "name": "ID intrare"
+          },
+          "success": {
+            "name": "Reușită"
+          },
+          "reloads": {
+            "name": "Reîncărcări"
+          },
+          "history": {
+            "name": "Istoric"
+          }
+        }
+      },
+      "last_check": {
+        "name": "Ultima verificare"
+      }
+    }
+  },
+  "services": {
+    "check": {
+      "name": "Verifică integrările",
+      "description": "Caută integrările ale căror entități sunt toate indisponibile și le reîncarcă pe cele care au depășit perioada de grație."
+    }
+  },
+  "common": {
+    "reloaded_title": "Integrare reîncărcată",
+    "reloaded": "{title} ({domain}) a fost reîncărcată: toate entitățile sale erau indisponibile din {since}. Reîncărcarea {attempt}/{max}.",
+    "reload_failed_title": "Reîncărcarea integrării a eșuat",
+    "reload_failed": "{title} ({domain}) nu a putut fi reîncărcată: toate entitățile sale erau indisponibile din {since}. Reîncărcarea {attempt}/{max}, consultați jurnalele.",
+    "gave_up_title": "Integrare încă indisponibilă",
+    "gave_up": "{title} ({domain}) este încă indisponibilă. Reîncărcări efectuate: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă."
+  },
+  "exceptions": {
+    "not_loaded": { "message": "Integration Watchdog nu este încărcat." }
+  }
+}

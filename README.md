@@ -34,7 +34,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
 - **Mini card**: the status and the unavailable integrations on two lines, with a detail button showing the full card
 - One failing reload doesn't stop the others; two checks never run at the same time
-- English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish and Serbian (Cyrillic and Latin); pt-BR uses the European Portuguese texts
+- English, French, German, Spanish, Italian, Dutch, European Portuguese, Polish, Serbian (Cyrillic and Latin), Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek; pt-BR uses the European Portuguese texts
 
 ## Prerequisites
 
@@ -177,7 +177,7 @@ Every option is in the visual editor:
 | `history_count` | `5` | Recent reloads shown (one per integration), from 1 to 20 |
 | `check_button` | `true` | **Check now** button in the header. It presses the button entity, so any user who sees the card can run a check (only the `integration_watchdog.check` action is limited to administrators) |
 | `hide_when_ok` | `false` | Hide the card while every integration is available |
-| `language` | Home Assistant's | `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `pl`, `sr` or `sr-Latn` |
+| `language` | Home Assistant's | `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `pl`, `sr`, `sr-Latn`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` or `el` |
 
 ### Mini card
 
@@ -245,6 +245,18 @@ The integration and its card follow the language of Home Assistant. Currently su
 | Português (Portugal) | `pt` |
 | Português (Brasil) | `pt-BR` (pt-BR uses the European Portuguese texts) |
 | Polski | `pl` |
+| Română | `ro` |
+| Dansk | `da` |
+| Svenska | `sv` |
+| Български | `bg` |
+| Русский | `ru` |
+| Українська | `uk` |
+| Magyar | `hu` |
+| Slovenčina | `sk` |
+| Čeština | `cs` |
+| Slovenščina | `sl` |
+| Latviešu | `lv` |
+| Ελληνικά | `el` |
 | Српски | `sr` |
 | Srpski (latinica) | `sr-Latn` |
 
