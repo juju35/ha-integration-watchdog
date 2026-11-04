@@ -155,7 +155,7 @@ const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1
 
 test('every language has the English keys, arrays and placeholders', () => {
   const keys = Object.keys(IW_I18N.en).sort();
-  for (const lang of ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sr', 'sr-Latn', 'ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv', 'el']) assert.ok(IW_I18N[lang], lang);
+  for (const lang of ['fr', 'de', 'es', 'it', 'nl', 'pt', 'pl', 'sr', 'sr-Latn', 'ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'sk', 'cs', 'sl', 'lv', 'el']) assert.ok(IW_I18N[lang], lang);
   for (const [lang, strings] of Object.entries(IW_I18N)) {
     // A "_few" form (2-4 in Serbian and Polish) is optional, next to the "_one"/"_many" forms of English.
     const few = Object.keys(strings).filter((k) => k.endsWith('_few'));
@@ -206,7 +206,7 @@ test('Italian, Dutch, Portuguese and Polish: full tag, then the part before the 
 });
 
 test('Romanian to Greek: full tag, then the part before the dash, then English', () => {
-  for (const lang of ['ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'ga', 'sk', 'cs', 'sl', 'mt', 'lv', 'el']) {
+  for (const lang of ['ro', 'da', 'sv', 'bg', 'ru', 'uk', 'hu', 'sk', 'cs', 'sl', 'lv', 'el']) {
     assert.equal(iwLang({ language: lang }, {}), lang);
     assert.equal(iwLang({ language: `${lang}-XX` }, {}), lang);
     assert.equal(iwLang({ language: 'en' }, { language: lang }), lang);

@@ -3,7 +3,7 @@
 ## 1.1.2 - 2026-11-04
 
 ### What's new
-- Added Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Irish, Slovak, Czech, Slovenian, Maltese, Latvian and Greek translations: configuration, options, entities, action, notifications and the cards (`ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `ga`, `sk`, `cs`, `sl`, `mt`, `lv`, `el`). The card editor offers the fourteen languages.
+- Added Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek translations: configuration, options, entities, action, notifications and the cards (`ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv`, `el`). The card editor offers the twelve languages.
 
 ## 1.1.1 - 2026-11-02
 
