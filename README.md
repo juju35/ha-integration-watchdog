@@ -5,16 +5,16 @@
 [![Validate](https://github.com/juju35/ha-integration-watchdog/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-integration-watchdog/actions/workflows/validate.yml)
 [![Lint](https://github.com/juju35/ha-integration-watchdog/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-integration-watchdog/actions/workflows/lint.yml)
 [![Release](https://img.shields.io/github/v/release/juju35/ha-integration-watchdog)](https://github.com/juju35/ha-integration-watchdog/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/juju35/ha-integration-watchdog/blob/main/LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/julienstep9)
 
-<p align="center"><img src="custom_components/integration_watchdog/brand/icon.png" alt="Integration Watchdog" width="120"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/custom_components/integration_watchdog/brand/icon.png" alt="Integration Watchdog" width="120"></p>
 
 Home Assistant integration that watches your integrations and reloads the ones whose entities are all unavailable, except those you choose to ignore. It comes with a Lovelace card showing the overall status and the recent reloads.
 
 <p align="center">
-  <img src="screenshots/card.png" alt="Integration Watchdog card with unavailable integrations" width="420">
-  <img src="screenshots/card-dark.png" alt="Integration Watchdog card, dark theme" width="420">
+  <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card.png" alt="Integration Watchdog card with unavailable integrations" width="420">
+  <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-dark.png" alt="Integration Watchdog card, dark theme" width="420">
 </p>
 
 Some integrations lose their connection (cloud API, device reboot, expired session) and never recover until they are reloaded by hand. Integration Watchdog does that reload for you.
@@ -157,8 +157,8 @@ type: custom:integration-watchdog-card
 
 | Unavailable integrations | Everything available |
 |---|---|
-| ![Card](screenshots/card.png) | ![Card, all available](screenshots/card-ok.png) |
-| ![Card, dark theme](screenshots/card-dark.png) | ![Card, all available, dark theme](screenshots/card-ok-dark.png) |
+| ![Card](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card.png) | ![Card, all available](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-ok.png) |
+| ![Card, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-dark.png) | ![Card, all available, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/card-ok-dark.png) |
 
 - **Header**: status (all available, *n* unavailable, *n* given up, checking…), time of the last check and the **Check now** button. On a narrow card the status takes a second line, shortens, then keeps only its coloured dot, with the text on hover. In a Sections view the card takes at least 8 columns
 - **Summary**: unavailable integrations, reloads since Home Assistant started, ignored integrations (listed on hover)
@@ -190,8 +190,8 @@ type: custom:integration-watchdog-mini-card
 
 | Unavailable integrations | Everything available | Zoomed in |
 |---|---|---|
-| ![Mini card](screenshots/mini.png) | ![Mini card, all available](screenshots/mini-ok.png) | ![Mini card zoomed in](screenshots/mini-zoom.png) |
-| ![Mini card, dark theme](screenshots/mini-dark.png) | ![Mini card, all available, dark theme](screenshots/mini-ok-dark.png) | ![Mini card zoomed in, dark theme](screenshots/mini-zoom-dark.png) |
+| ![Mini card](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini.png) | ![Mini card, all available](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok.png) | ![Mini card zoomed in](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom.png) |
+| ![Mini card, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-dark.png) | ![Mini card, all available, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok-dark.png) | ![Mini card zoomed in, dark theme](https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom-dark.png) |
 
 - The **detail** button (top right) switches the card to the full [card](#card), with the same options, and back, as does a click anywhere else on the page
 - For an administrator, an integration's chip opens its page in **Settings**; for other users, a chip opens the sensor
@@ -228,7 +228,7 @@ python scripts/screenshots.py      # README screenshots (Playwright)
 ### Releasing
 
 1. Bump the version in `custom_components/integration_watchdog/manifest.json`, `const.py` (`VERSION`) and the card (`INTEGRATION_WATCHDOG_CARD_VERSION`)
-2. Add a `## <version>` section at the top of [CHANGELOG.md](CHANGELOG.md)
+2. Add a `## <version>` section at the top of [CHANGELOG.md](https://github.com/juju35/ha-integration-watchdog/blob/main/CHANGELOG.md)
 3. Push to `main`: the **Release** workflow creates the tag and the GitHub release with the changelog section as notes
 
 ## Translations
@@ -265,7 +265,7 @@ Contributions for additional languages are welcome!
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/juju35/ha-integration-watchdog/blob/main/LICENSE)
 
 ## Support
 
