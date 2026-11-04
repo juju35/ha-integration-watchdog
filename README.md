@@ -6,6 +6,7 @@
 [![Lint](https://github.com/juju35/ha-integration-watchdog/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-integration-watchdog/actions/workflows/lint.yml)
 [![Release](https://img.shields.io/github/v/release/juju35/ha-integration-watchdog)](https://github.com/juju35/ha-integration-watchdog/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/julienstep9)
 
 <p align="center"><img src="custom_components/integration_watchdog/brand/icon.png" alt="Integration Watchdog" width="120"></p>
 
