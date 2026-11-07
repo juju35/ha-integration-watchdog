@@ -114,6 +114,16 @@
     "check": {
       "name": "Sprawdź integracje",
       "description": "Wyszukuje integracje, których wszystkie encje są niedostępne, i ponownie wczytuje te, których okres karencji minął."
+    },
+    "reset": {
+      "name": "Zresetuj integrację",
+      "description": "Zapomina ponowne wczytania integracji (porzuconej lub nie) i od razu wczytuje ją ponownie.",
+      "fields": {
+        "entry_id": {
+          "name": "Wpis integracji",
+          "description": "Wpis integracji do zresetowania i ponownego wczytania."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog nie jest wczytany."
+    },
+    "unknown_entry": {
+      "message": "Brak wpisu integracji {entry_id}."
+    },
+    "reload_failed": {
+      "message": "Nie udało się ponownie wczytać {title}, sprawdź logi. Licznik ponownych wczytań został zresetowany: Integration Watchdog zaczyna od nowa."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} jest nadal niedostępna",
-      "description": "**{title}** ({domain}) jest nadal niedostępna. Liczba ponownych wczytań przez Integration Watchdog: {attempt}. Nie zostanie ponownie wczytana, dopóki jedna z jej encji nie będzie dostępna.\n\nSprawdź urządzenie lub usługę, z którą się łączy, oraz logi. Ten problem zniknie, gdy integracja zacznie znów działać."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) jest nadal niedostępna. Liczba ponownych wczytań przez Integration Watchdog: {attempt}. Nie zostanie ponownie wczytana, dopóki jedna z jej encji nie będzie dostępna.\n\nSprawdź urządzenie lub usługę, z którą się łączy, oraz logi. Ten problem zniknie, gdy integracja zacznie znów działać.\n\nZatwierdź, aby spróbować ponownie teraz: Integration Watchdog zapomina ponowne wczytania i wczytuje integrację ponownie."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog nie jest wczytany.",
+          "reload_failed": "Nie udało się ponownie wczytać integracji, sprawdź logi. Licznik ponownych wczytań został zresetowany: Integration Watchdog zaczyna od nowa."
+        }
+      }
     }
   }
 }

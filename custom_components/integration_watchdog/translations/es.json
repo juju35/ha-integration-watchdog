@@ -114,6 +114,16 @@
     "check": {
       "name": "Comprobar integraciones",
       "description": "Busca las integraciones en las que ninguna entidad está disponible y recarga aquellas cuyo periodo de gracia ha transcurrido."
+    },
+    "reset": {
+      "name": "Restablecer una integración",
+      "description": "Olvida las recargas hechas en una integración (abandonada o no) y la recarga ahora.",
+      "fields": {
+        "entry_id": {
+          "name": "Entrada de integración",
+          "description": "La entrada de integración que se restablece y recarga."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog no está cargado."
+    },
+    "unknown_entry": {
+      "message": "No existe la entrada de integración {entry_id}."
+    },
+    "reload_failed": {
+      "message": "No se ha podido recargar {title}, revisa los registros. Sus recargas se han restablecido: Integration Watchdog empieza de nuevo."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} sigue sin estar disponible",
-      "description": "**{title}** ({domain}) sigue sin estar disponible tras {attempt} recargas de Integration Watchdog, que no volverá a recargarla hasta que una de sus entidades esté disponible.\n\nRevisa el dispositivo o el servicio al que se conecta, y los registros. Este problema desaparece cuando la integración se recupera."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) sigue sin estar disponible tras {attempt} recargas de Integration Watchdog, que no volverá a recargarla hasta que una de sus entidades esté disponible.\n\nRevisa el dispositivo o el servicio al que se conecta, y los registros. Este problema desaparece cuando la integración se recupera.\n\nEnvía para volver a intentarlo ahora: Integration Watchdog olvida sus recargas y recarga la integración."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog no está cargado.",
+          "reload_failed": "No se ha podido recargar la integración, revisa los registros. Sus recargas se han restablecido: Integration Watchdog empieza de nuevo."
+        }
+      }
     }
   }
 }

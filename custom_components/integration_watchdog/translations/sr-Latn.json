@@ -114,6 +114,16 @@
     "check": {
       "name": "Proveri integracije",
       "description": "Traži integracije čiji su svi entiteti nedostupni i ponovo učitava one kojima je istekao period čekanja."
+    },
+    "reset": {
+      "name": "Resetuj integraciju",
+      "description": "Zaboravlja ponovna učitavanja integracije (napuštene ili ne) i odmah je ponovo učitava.",
+      "fields": {
+        "entry_id": {
+          "name": "Unos integracije",
+          "description": "Unos integracije koji se resetuje i ponovo učitava."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog nije učitan."
+    },
+    "unknown_entry": {
+      "message": "Nema unosa integracije {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} nije mogla da se ponovo učita, pogledajte zapise. Njena ponovna učitavanja su resetovana: Integration Watchdog počinje iznova."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} je i dalje nedostupna",
-      "description": "**{title}** ({domain}) je i dalje nedostupna posle {attempt} ponovnih učitavanja koje je izvršio Integration Watchdog. Neće je ponovo učitavati dok neki od njenih entiteta ne bude dostupan.\n\nProverite uređaj ili uslugu na koju se povezuje, kao i zapise. Ovaj problem nestaje kada se integracija oporavi."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) je i dalje nedostupna posle {attempt} ponovnih učitavanja koje je izvršio Integration Watchdog. Neće je ponovo učitavati dok neki od njenih entiteta ne bude dostupan.\n\nProverite uređaj ili uslugu na koju se povezuje, kao i zapise. Ovaj problem nestaje kada se integracija oporavi.\n\nPotvrdite da biste sada pokušali ponovo: Integration Watchdog zaboravlja njena ponovna učitavanja i ponovo učitava integraciju."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog nije učitan.",
+          "reload_failed": "Integracija nije mogla da se ponovo učita, pogledajte zapise. Njena ponovna učitavanja su resetovana: Integration Watchdog počinje iznova."
+        }
+      }
     }
   }
 }

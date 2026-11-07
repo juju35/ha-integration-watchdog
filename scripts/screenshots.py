@@ -60,6 +60,7 @@ ICONS = {
     "arrow-expand": "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z",
     "arrow-collapse": "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z",
     "clock-check-outline": "M23.5 17L18.5 22L15 18.5L16.5 17L18.5 19L22 15.5L23.5 17M13.1 19.9C12.7 20 12.4 20 12 20C7.6 20 4 16.4 4 12S7.6 4 12 4 20 7.6 20 12C20 12.4 20 12.7 19.9 13.1C20.6 13.2 21.2 13.4 21.8 13.7C21.9 13.1 22 12.6 22 12C22 6.5 17.5 2 12 2S2 6.5 2 12C2 17.5 6.5 22 12 22C12.6 22 13.1 21.9 13.7 21.8C13.4 21.3 13.2 20.6 13.1 19.9M15.6 14.1L12.5 12.3V7H11V13L14.5 15.1C14.8 14.7 15.2 14.4 15.6 14.1Z",
+    "restart": "M12,4C14.1,4 16.1,4.8 17.6,6.3C20.7,9.4 20.7,14.5 17.6,17.6C15.8,19.5 13.3,20.2 10.9,19.9L11.4,17.9C13.1,18.1 14.9,17.5 16.2,16.2C18.5,13.9 18.5,10.1 16.2,7.7C15.1,6.6 13.5,6 12,6V10.6L7,5.6L12,0.6V4M6.3,17.6C3.7,15 3.3,11 5.1,7.9L6.6,9.4C5.5,11.6 5.9,14.4 7.8,16.2C8.3,16.7 8.9,17.1 9.6,17.4L9,19.4C8,19 7.1,18.4 6.3,17.6Z",
     "cancel": "M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22 2 17.5 2 12 6.5 2 12 2M12 4C10.1 4 8.4 4.6 7.1 5.7L18.3 16.9C19.3 15.5 20 13.8 20 12C20 7.6 16.4 4 12 4M16.9 18.3L5.7 7.1C4.6 8.4 4 10.1 4 12C4 16.4 7.6 20 12 20C13.9 20 15.6 19.4 16.9 18.3Z",
 }
 
@@ -101,9 +102,30 @@ def ago(**delta) -> str:
 
 # Mock integrations: one given up, one reloaded once and still down, one within its grace period.
 INTEGRATIONS = [
-    {"domain": "zha", "title": "Zigbee coordinator", "since": ago(hours=5), "reloads": 3, "gave_up": True},
-    {"domain": "hue", "title": "Hue Bridge", "since": ago(minutes=40), "reloads": 1, "gave_up": False},
-    {"domain": "sonos", "title": "Sonos", "since": ago(minutes=6), "reloads": 0, "gave_up": False},
+    {
+        "domain": "zha",
+        "title": "Zigbee coordinator",
+        "entry_id": "e_zha",
+        "since": ago(hours=5),
+        "reloads": 3,
+        "gave_up": True,
+    },
+    {
+        "domain": "hue",
+        "title": "Hue Bridge",
+        "entry_id": "e_hue",
+        "since": ago(minutes=40),
+        "reloads": 1,
+        "gave_up": False,
+    },
+    {
+        "domain": "sonos",
+        "title": "Sonos",
+        "entry_id": "e_sonos",
+        "since": ago(minutes=6),
+        "reloads": 0,
+        "gave_up": False,
+    },
 ]
 
 

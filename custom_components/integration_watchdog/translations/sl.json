@@ -114,6 +114,16 @@
     "check": {
       "name": "Preveri integracije",
       "description": "Poišče integracije, katerih nobena entiteta ni na voljo, in ponovno naloži tiste, ki jim je potekla čakalna doba."
+    },
+    "reset": {
+      "name": "Ponastavi integracijo",
+      "description": "Pozabi ponovna nalaganja integracije (opuščene ali ne) in jo takoj ponovno naloži.",
+      "fields": {
+        "entry_id": {
+          "name": "Vnos integracije",
+          "description": "Vnos integracije, ki se ponastavi in ponovno naloži."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog ni naložen."
+    },
+    "unknown_entry": {
+      "message": "Ni vnosa integracije {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} ni bilo mogoče ponovno naložiti, glejte dnevnike. Njena ponovna nalaganja so ponastavljena: Integration Watchdog začne znova."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} še vedno ni na voljo",
-      "description": "**{title}** ({domain}) še vedno ni na voljo. Število ponovnih nalaganj z Integration Watchdog: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo.\n\nPreverite napravo ali storitev, s katero se povezuje, in dnevnike. Ta težava izgine, ko se integracija obnovi."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) še vedno ni na voljo. Število ponovnih nalaganj z Integration Watchdog: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo.\n\nPreverite napravo ali storitev, s katero se povezuje, in dnevnike. Ta težava izgine, ko se integracija obnovi.\n\nPotrdite za ponoven poskus zdaj: Integration Watchdog pozabi njena ponovna nalaganja in ponovno naloži integracijo."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog ni naložen.",
+          "reload_failed": "Integracije ni bilo mogoče ponovno naložiti, glejte dnevnike. Njena ponovna nalaganja so ponastavljena: Integration Watchdog začne znova."
+        }
+      }
     }
   }
 }

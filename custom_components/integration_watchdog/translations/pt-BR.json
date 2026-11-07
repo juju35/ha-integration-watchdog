@@ -114,6 +114,16 @@
     "check": {
       "name": "Verificar integrações",
       "description": "Procura as integrações cujas entidades estão todas indisponíveis e recarrega aquelas cujo período de tolerância terminou."
+    },
+    "reset": {
+      "name": "Repor uma integração",
+      "description": "Esquece os recarregamentos feitos numa integração (abandonada ou não) e recarrega-a agora.",
+      "fields": {
+        "entry_id": {
+          "name": "Entrada da integração",
+          "description": "A entrada da integração a repor e recarregar."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "O Integration Watchdog não está carregado."
+    },
+    "unknown_entry": {
+      "message": "Não existe a entrada de integração {entry_id}."
+    },
+    "reload_failed": {
+      "message": "Não foi possível recarregar {title}, veja os registos. Os seus recarregamentos foram repostos: o Integration Watchdog recomeça."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} continua indisponível",
-      "description": "**{title}** ({domain}) continua indisponível após {attempt} recarregamentos pelo Integration Watchdog, que não a voltará a recarregar até uma das suas entidades estar disponível.\n\nVerifique o dispositivo ou o serviço a que se liga, e os registos. Este problema desaparece quando a integração recuperar."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) continua indisponível após {attempt} recarregamentos pelo Integration Watchdog, que não a voltará a recarregar até uma das suas entidades estar disponível.\n\nVerifique o dispositivo ou o serviço a que se liga, e os registos. Este problema desaparece quando a integração recuperar.\n\nSubmeta para tentar novamente agora: o Integration Watchdog esquece os seus recarregamentos e recarrega a integração."
+          }
+        },
+        "abort": {
+          "not_loaded": "O Integration Watchdog não está carregado.",
+          "reload_failed": "Não foi possível recarregar a integração, veja os registos. Os seus recarregamentos foram repostos: o Integration Watchdog recomeça."
+        }
+      }
     }
   }
 }

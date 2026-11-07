@@ -781,6 +781,49 @@ test('rows open Settings for administrators only', () => {
   assert.ok(!css['.row:hover'] && css['button.row:hover']);
 });
 
+test('rows open the integration page on their entry', () => {
+  const data = {
+    integrations: [{ domain: 'zha', title: 'Zigbee', entry_id: 'a b', since: minutesAgo(30), reloads: 1, gave_up: false }],
+    history: [event('reloaded', 'Hue', 1, minutesAgo(10))],
+  };
+  const out = html(render({}, makeHass(data)));
+  assert.match(out, /<button class="row warn" data-domain="zha" data-entry="a b"/);
+  assert.match(out, /<button class="row hist ok" data-domain="hue" data-entry="id_Hue"/);
+  const card = render({}, makeHass(data));
+  pushed.length = 0;
+  card._openIntegration('zha', 'a b');
+  card._openIntegration('hue');
+  assert.deepEqual(pushed, ['/config/integrations/integration/zha#config_entry=a%20b', '/config/integrations/integration/hue']);
+  // Mini card chips too.
+  const mini = html(renderMini({}, makeHass({ integrations: [hue] })));
+  assert.match(mini, /class="r warn pill" data-domain="hue" data-entry="b"/);
+});
+
+test('"Try again" on a given-up row, for administrators only: calls the reset action', async () => {
+  const data = { integrations: [zha, hue] };
+  const hass = makeHass(data);
+  const card = render({}, hass);
+  const out = html(card);
+  // Only the given-up row gets it, next to the row (not inside its button).
+  assert.equal((out.match(/class="retry"/g) || []).length, 1);
+  assert.match(out, /<div class="line"><button class="row alert" data-domain="zha"[\s\S]*?<\/button><button class="retry" data-entry="a" data-focus="r:a" title="Try again — Zigbee"/);
+  await card._retry('a');
+  assert.equal(JSON.stringify(hass.calls), JSON.stringify([['integration_watchdog', 'reset', { entry_id: 'a' }]]));
+  assert.doesNotMatch(html(render({}, { ...makeHass(data), user: { is_admin: false } })), /class="retry"/);
+  // Outlined, not filled.
+  const css = rules(IntegrationWatchdogCard.styles);
+  assert.equal(css['.retry'].background, undefined);
+  // A failure is a toast in the card's language.
+  const fr = makeHass({ ...data, language: 'fr' });
+  fr.callService = () => Promise.reject(new Error('boom'));
+  const frCard = render({}, fr);
+  const events = [];
+  frCard.dispatchEvent = (ev) => events.push(ev);
+  await frCard._retry('a');
+  assert.equal(events[0].type, 'hass-notification');
+  assert.equal(events[0].detail.message, iwT('fr', 'retry_failed', { error: 'boom' }));
+});
+
 test('a failed "Check now" is reported, not left as an unhandled rejection', async () => {
   const hass = makeHass();
   hass.callService = () => Promise.reject(new Error('Connection lost'));

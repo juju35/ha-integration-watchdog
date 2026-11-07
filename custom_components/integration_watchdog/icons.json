@@ -11,6 +11,7 @@
     }
   },
   "services": {
-    "check": { "service": "mdi:shield-search" }
+    "check": { "service": "mdi:shield-search" },
+    "reset": { "service": "mdi:restart" }
   }
 }

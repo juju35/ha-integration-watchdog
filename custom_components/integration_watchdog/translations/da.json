@@ -114,6 +114,16 @@
     "check": {
       "name": "Kontrollér integrationer",
       "description": "Finder de integrationer, hvis enheder alle er utilgængelige, og genindlæser dem, hvis respitperiode er udløbet."
+    },
+    "reset": {
+      "name": "Nulstil en integration",
+      "description": "Glemmer genindlæsningerne af en integration (opgivet eller ej) og genindlæser den nu.",
+      "fields": {
+        "entry_id": {
+          "name": "Integrationspost",
+          "description": "Integrationsposten, der skal nulstilles og genindlæses."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog er ikke indlæst."
+    },
+    "unknown_entry": {
+      "message": "Ingen integrationspost {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} kunne ikke genindlæses, se logfilerne. Dens genindlæsninger blev nulstillet: Integration Watchdog starter forfra."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} er stadig utilgængelig",
-      "description": "**{title}** ({domain}) er stadig utilgængelig efter {attempt} genindlæsninger fra Integration Watchdog, som ikke genindlæser den igen, før en af dens enheder er tilgængelig.\n\nTjek den enhed eller tjeneste, den forbinder til, og logfilerne. Dette problem forsvinder, når integrationen virker igen."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) er stadig utilgængelig efter {attempt} genindlæsninger fra Integration Watchdog, som ikke genindlæser den igen, før en af dens enheder er tilgængelig.\n\nTjek den enhed eller tjeneste, den forbinder til, og logfilerne. Dette problem forsvinder, når integrationen virker igen.\n\nIndsend for at prøve igen nu: Integration Watchdog glemmer dens genindlæsninger og genindlæser integrationen."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog er ikke indlæst.",
+          "reload_failed": "Integrationen kunne ikke genindlæses, se logfilerne. Dens genindlæsninger blev nulstillet: Integration Watchdog starter forfra."
+        }
+      }
     }
   }
 }

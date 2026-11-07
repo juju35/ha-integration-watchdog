@@ -45,15 +45,7 @@ async def async_get_config_entry_diagnostics(
             "reloads": watchdog.reloads,
             "last_reload": {**asdict(last_reload), "at": last_reload.at.isoformat()} if last_reload else None,
             "unavailable": [watchdog.as_dict(item) for item in watchdog.unavailable],
-            "attempts": {
-                entry_id: {
-                    "count": attempts.count,
-                    "last": attempts.last.isoformat() if attempts.last else None,
-                    "gave_up": attempts.gave_up,
-                    "recovered_at": attempts.recovered_at.isoformat() if attempts.recovered_at else None,
-                }
-                for entry_id, attempts in watchdog.attempts.items()
-            },
+            "attempts": {entry_id: attempts.as_dict() for entry_id, attempts in watchdog.attempts.items()},
             "history": watchdog.history,
         },
     }

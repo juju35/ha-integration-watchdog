@@ -114,6 +114,16 @@
     "check": {
       "name": "Check integrations",
       "description": "Looks for the integrations whose entities are all unavailable and reloads those past the grace period."
+    },
+    "reset": {
+      "name": "Reset an integration",
+      "description": "Forgets the reloads done on an integration (given up on or not) and reloads it now.",
+      "fields": {
+        "entry_id": {
+          "name": "Integration entry",
+          "description": "The integration entry to reset and reload."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog is not loaded."
+    },
+    "unknown_entry": {
+      "message": "No integration entry {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} could not be reloaded, see the logs. Its reloads were reset: Integration Watchdog starts over."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} is still unavailable",
-      "description": "**{title}** ({domain}) is still unavailable after {attempt} reloads by Integration Watchdog, which won't reload it again until one of its entities is available.\n\nCheck the device or service it connects to, and the logs. This issue goes away once the integration has recovered."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) is still unavailable after {attempt} reloads by Integration Watchdog, which won't reload it again until one of its entities is available.\n\nCheck the device or service it connects to, and the logs. This issue goes away once the integration has recovered.\n\nSubmit to try again now: Integration Watchdog forgets its reloads and reloads the integration."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog is not loaded.",
+          "reload_failed": "The integration could not be reloaded, see the logs. Its reloads were reset: Integration Watchdog starts over."
+        }
+      }
     }
   }
 }

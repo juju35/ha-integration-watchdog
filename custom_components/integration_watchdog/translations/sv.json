@@ -114,6 +114,16 @@
     "check": {
       "name": "Kontrollera integrationer",
       "description": "Söker efter integrationer vars entiteter alla är otillgängliga och laddar om dem vars respittid har löpt ut."
+    },
+    "reset": {
+      "name": "Återställ en integration",
+      "description": "Glömmer omladdningarna av en integration (uppgiven eller inte) och laddar om den nu.",
+      "fields": {
+        "entry_id": {
+          "name": "Integrationspost",
+          "description": "Integrationsposten som ska återställas och laddas om."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog är inte inläst."
+    },
+    "unknown_entry": {
+      "message": "Ingen integrationspost {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} kunde inte laddas om, se loggarna. Dess omladdningar har återställts: Integration Watchdog börjar om."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} är fortfarande otillgänglig",
-      "description": "**{title}** ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar av Integration Watchdog, som inte laddar om den igen förrän en av dess entiteter är tillgänglig.\n\nKontrollera enheten eller tjänsten den ansluter till, och loggarna. Det här problemet försvinner när integrationen har återhämtat sig."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar av Integration Watchdog, som inte laddar om den igen förrän en av dess entiteter är tillgänglig.\n\nKontrollera enheten eller tjänsten den ansluter till, och loggarna. Det här problemet försvinner när integrationen har återhämtat sig.\n\nSkicka för att försöka igen nu: Integration Watchdog glömmer dess omladdningar och laddar om integrationen."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog är inte inläst.",
+          "reload_failed": "Integrationen kunde inte laddas om, se loggarna. Dess omladdningar har återställts: Integration Watchdog börjar om."
+        }
+      }
     }
   }
 }

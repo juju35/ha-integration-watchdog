@@ -114,6 +114,16 @@
     "check": {
       "name": "Zkontrolovat integrace",
       "description": "Vyhledá integrace, jejichž všechny entity jsou nedostupné, a znovu načte ty, kterým uplynula ochranná lhůta."
+    },
+    "reset": {
+      "name": "Resetovat integraci",
+      "description": "Zapomene opětovná načtení integrace (vzdané či ne) a hned ji znovu načte.",
+      "fields": {
+        "entry_id": {
+          "name": "Záznam integrace",
+          "description": "Záznam integrace, který se resetuje a znovu načte."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog není načten."
+    },
+    "unknown_entry": {
+      "message": "Žádný záznam integrace {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} se nepodařilo znovu načíst, viz protokoly. Její opětovná načtení byla resetována: Integration Watchdog začíná znovu."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} je stále nedostupná",
-      "description": "**{title}** ({domain}) je stále nedostupná. Počet opětovných načtení pomocí Integration Watchdog: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná.\n\nZkontrolujte zařízení nebo službu, ke které se připojuje, a protokoly. Tento problém zmizí, jakmile se integrace zotaví."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) je stále nedostupná. Počet opětovných načtení pomocí Integration Watchdog: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná.\n\nZkontrolujte zařízení nebo službu, ke které se připojuje, a protokoly. Tento problém zmizí, jakmile se integrace zotaví.\n\nPotvrďte a zkuste to znovu hned: Integration Watchdog zapomene její opětovná načtení a znovu načte integraci."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog není načten.",
+          "reload_failed": "Integraci se nepodařilo znovu načíst, viz protokoly. Její opětovná načtení byla resetována: Integration Watchdog začíná znovu."
+        }
+      }
     }
   }
 }

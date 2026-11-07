@@ -1,1 +1,8 @@
 check:
+reset:
+  fields:
+    entry_id:
+      required: true
+      example: 01JABCDEF0123456789ABCDEFG
+      selector:
+        config_entry:

@@ -12,11 +12,13 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
+from homeassistant.components.repairs import repairs_flow_manager
+from homeassistant.components.repairs.issue_handler import async_process_repairs_platforms
 from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState, OperationNotAllowed
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, EVENT_STATE_CHANGED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
@@ -1231,7 +1233,8 @@ async def test_give_up_raises_a_repairs_issue(hass: HomeAssistant, freezer: Froz
     assert issue is not None
     assert issue.translation_key == "gave_up"
     assert issue.severity == ir.IssueSeverity.WARNING
-    assert not issue.is_fixable
+    assert issue.is_fixable
+    assert issue.data == {"entry_id": dead.entry_id}
     assert not issue.is_persistent
     assert issue.translation_placeholders == {"title": "Dead", "domain": "dead", "attempt": "1"}
 
@@ -1290,3 +1293,133 @@ async def test_repairs_issues_deleted_with_the_watchdog(hass: HomeAssistant, fre
     await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}") is None
+
+
+async def _flush_store(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> None:
+    freezer.tick(timedelta(seconds=watchdog_module.HISTORY_SAVE_DELAY + 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+
+
+async def test_attempts_saved(hass: HomeAssistant, freezer: FrozenDateTimeFactory, hass_storage: dict):
+    """The reload counts are written with the history, so that a restart keeps them."""
+    dead = await _give_up(hass, freezer)
+    await _flush_store(hass, freezer)
+    saved = hass_storage[STORAGE_KEY]["data"]["attempts"]
+    assert list(saved) == [dead.entry_id]
+    assert saved[dead.entry_id]["count"] == 1
+    assert saved[dead.entry_id]["gave_up"] is True
+    assert dt_util.parse_datetime(saved[dead.entry_id]["last"]) is not None
+    # Recovered: forgotten, in the file too.
+    hass.states.async_set("sensor.dead_0", "1")
+    await _check(hass)
+    freezer.tick(timedelta(minutes=15))
+    await _check(hass)
+    await _flush_store(hass, freezer)
+    assert hass_storage[STORAGE_KEY]["data"]["attempts"] == {}
+
+
+async def test_attempts_restored_after_restart(hass: HomeAssistant, freezer: FrozenDateTimeFactory, hass_storage: dict):
+    """Counts saved by a previous run come back; removed entries and malformed items are dropped."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    flaky = add_integration(hass, "flaky", [STATE_UNAVAILABLE])
+    last = (dt_util.utcnow() - timedelta(hours=1)).isoformat()
+    hass_storage[STORAGE_KEY] = {
+        "version": 1,
+        "key": STORAGE_KEY,
+        "data": {
+            "history": [],
+            "attempts": {
+                dead.entry_id: {"count": 3, "last": last, "gave_up": True, "recovered_at": None},
+                flaky.entry_id: {"count": 1, "last": last, "gave_up": False, "recovered_at": None},
+                "removed_meanwhile": {"count": 2, "last": last, "gave_up": True, "recovered_at": None},
+                "broken": {"count": "x", "gave_up": True},
+            },
+        },
+    }
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    assert set(watchdog.attempts) == {dead.entry_id, flaky.entry_id}
+    assert watchdog.attempts[dead.entry_id].count == 3
+    assert watchdog.attempts[dead.entry_id].gave_up is True
+    assert watchdog.attempts[flaky.entry_id].last == dt_util.parse_datetime(last)
+    # The Repairs issue of the integration still given up is raised again.
+    registry = ir.async_get(hass)
+    issue = registry.async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}")
+    assert issue is not None
+    assert issue.translation_placeholders == {"title": "Dead", "domain": "dead", "attempt": "3"}
+    assert registry.async_get_issue(DOMAIN, "gave_up_removed_meanwhile") is None
+    # Shown as given up, and not reloaded again.
+    items = {i["domain"]: i for i in hass.states.get(UNAVAILABLE).attributes["integrations"]}
+    assert items["dead"]["gave_up"] is True
+    assert items["dead"]["reloads"] == 3
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+    assert [c.args[0] for c in reload.await_args_list] == [flaky.entry_id]
+    assert watchdog.attempts[flaky.entry_id].count == 2
+    # The dropped ones leave the file.
+    await _flush_store(hass, freezer)
+    assert set(hass_storage[STORAGE_KEY]["data"]["attempts"]) == {dead.entry_id, flaky.entry_id}
+
+
+async def test_repairs_try_again(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """The issue's "Try again" starts over and reloads the integration."""
+    assert await async_setup_component(hass, "repairs", {})
+    dead = await _give_up(hass, freezer)
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    issue_id = f"gave_up_{dead.entry_id}"
+    await async_process_repairs_platforms(hass)
+    manager = repairs_flow_manager(hass)
+    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "confirm"
+    assert result["description_placeholders"] == {"title": "Dead", "domain": "dead", "attempt": "1"}
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        result = await manager.async_configure(result["flow_id"], {})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    reload.assert_awaited_once_with(dead.entry_id)
+    assert dead.entry_id not in watchdog.attempts
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+    assert hass.states.get(UNAVAILABLE).attributes["integrations"][0]["gave_up"] is False
+
+    # Still unavailable: the watchdog starts over (reloads it again, up to the limit).
+    dead_again = await _give_up_again(hass, freezer, dead)
+    assert dead_again.gave_up is True
+    result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=False)):
+        result = await manager.async_configure(result["flow_id"], {})
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reload_failed"
+    assert dead.entry_id not in watchdog.attempts
+
+
+async def _give_up_again(hass: HomeAssistant, freezer: FrozenDateTimeFactory, entry: MockConfigEntry):
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        for _ in range(7):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+    return watchdog.attempts[entry.entry_id]
+
+
+async def test_reset_action(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = await _give_up(hass, freezer)
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await hass.services.async_call(DOMAIN, "reset", {"entry_id": dead.entry_id}, blocking=True)
+    reload.assert_awaited_once_with(dead.entry_id)
+    assert dead.entry_id not in watchdog.attempts
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}") is None
+    # A failed reload is reported (the counts are reset anyway).
+    with (
+        patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=RuntimeError("boom"))),
+        pytest.raises(HomeAssistantError) as err,
+    ):
+        await hass.services.async_call(DOMAIN, "reset", {"entry_id": dead.entry_id}, blocking=True)
+    assert err.value.translation_key == "reload_failed"
+    # Unknown entry, or the watchdog itself: refused.
+    for entry_id in ("nope", hass.config_entries.async_entries(DOMAIN)[0].entry_id):
+        with pytest.raises(ServiceValidationError) as err:
+            await hass.services.async_call(DOMAIN, "reset", {"entry_id": entry_id}, blocking=True)
+        assert err.value.translation_key == "unknown_entry"
