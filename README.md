@@ -177,7 +177,7 @@ Every option is in the visual editor:
 | `show_history` | `true` | Recent reloads |
 | `history_count` | `5` | Recent reloads shown (one per integration), from 1 to 20 |
 | `check_button` | `true` | **Check now** button in the header. It presses the button entity, so any user who sees the card can run a check (only the `integration_watchdog.check` action is limited to administrators) |
-| `hide_when_ok` | `false` | Hide the card while every integration is available |
+| `hide_when_ok` | `false` | Hide the card while every integration is available (always shown while editing the dashboard) |
 | `language` | Home Assistant's | `en`, `fr`, `de`, `es`, `it`, `nl`, `pt`, `pl`, `sr`, `sr-Latn`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` or `el` |
 
 ### Mini card

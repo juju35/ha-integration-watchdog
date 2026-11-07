@@ -969,3 +969,17 @@ test('mini card: chip text is readable in light and dark themes (WCAG AA, 4.5:1)
   }
   assert.deepEqual(failures, []);
 });
+
+test('hide_when_ok: the hidden card shows again in edit mode and in the editor preview', () => {
+  const card = render({ hide_when_ok: true }, makeHass());
+  const events = [];
+  card.dispatchEvent = (ev) => events.push(ev.type);
+  assert.equal(card.style.display, 'none');
+  card.editMode = true;
+  assert.equal(card.style.display, '');
+  card.editMode = false;
+  assert.equal(card.style.display, 'none');
+  card.preview = true;
+  assert.equal(card.style.display, '');
+  assert.deepEqual(events, ['card-visibility-changed', 'card-visibility-changed', 'card-visibility-changed']);
+});

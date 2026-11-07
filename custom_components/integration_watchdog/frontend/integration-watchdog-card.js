@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '1.1.3';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '1.1.4';
 
 const IW_I18N = {
   en: {
@@ -1308,6 +1308,28 @@ class IntegrationWatchdogCard extends HTMLElement {
     this._render();
   }
 
+  // Set by Lovelace while the dashboard is edited (editMode) and in the card editor's preview (preview): a card
+  // hidden by hide_when_ok shows again there, so that it can still be edited.
+  set editMode(value) {
+    this._editMode = value;
+    this._sig = null;
+    this._render();
+  }
+
+  set preview(value) {
+    this._preview = value;
+    this._sig = null;
+    this._render();
+  }
+
+  // Hides the host and tells Lovelace (card-visibility-changed), so that a sections view drops the card's slot too.
+  _setHidden(hidden) {
+    const changed = !!this._hidden !== hidden;
+    this._hidden = hidden;
+    this.style.display = hidden ? 'none' : '';
+    if (changed) this.dispatchEvent(new CustomEvent('card-visibility-changed', { bubbles: true, composed: true }));
+  }
+
   getCardSize() {
     return 2 + (this._rows || 0);
   }
@@ -1423,8 +1445,8 @@ class IntegrationWatchdogCard extends HTMLElement {
     const checking = buttonSt?.state === 'unavailable';
     const level = !st ? 'na' : givenUp.length ? 'alert' : items.length ? 'warn' : 'ok';
 
-    const hidden = c.hide_when_ok && st && !items.length;
-    this.style.display = hidden ? 'none' : '';
+    const hidden = c.hide_when_ok && st && !items.length && !this._editMode && !this._preview;
+    this._setHidden(hidden);
     if (hidden) return null;
 
     const count = Math.min(IW_MAX_HISTORY, Math.max(1, Number(c.history_count) || IW_DEFAULTS.history_count));
