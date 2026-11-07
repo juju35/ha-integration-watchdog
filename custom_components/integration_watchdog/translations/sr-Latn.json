@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog nije učitan."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} je i dalje nedostupna",
+      "description": "**{title}** ({domain}) je i dalje nedostupna posle {attempt} ponovnih učitavanja koje je izvršio Integration Watchdog. Neće je ponovo učitavati dok neki od njenih entiteta ne bude dostupan.\n\nProverite uređaj ili uslugu na koju se povezuje, kao i zapise. Ovaj problem nestaje kada se integracija oporavi."
+    }
   }
 }

@@ -18,6 +18,7 @@ from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
@@ -1209,3 +1210,83 @@ async def test_reloads_in_24_hours(hass: HomeAssistant, freezer: FrozenDateTimeF
     assert state.state == "3"
     assert state.attributes["failed"] == 1
     assert state.attributes["integrations"] == {"Zigbee": 2, "Tapo": 1}
+
+
+async def _give_up(hass: HomeAssistant, freezer: FrozenDateTimeFactory) -> MockConfigEntry:
+    """An unavailable integration, reloaded once and then given up (max_reloads 1, grace 15 min)."""
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    await _setup(hass, **{CONF_MAX_RELOADS: 1})
+    freezer.tick(timedelta(minutes=15))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        await _check(hass)
+        assert ir.async_get(hass).async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}") is None
+        freezer.tick(timedelta(minutes=15))
+        await _check(hass)
+    return dead
+
+
+async def test_give_up_raises_a_repairs_issue(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = await _give_up(hass, freezer)
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}")
+    assert issue is not None
+    assert issue.translation_key == "gave_up"
+    assert issue.severity == ir.IssueSeverity.WARNING
+    assert not issue.is_fixable
+    assert not issue.is_persistent
+    assert issue.translation_placeholders == {"title": "Dead", "domain": "dead", "attempt": "1"}
+
+
+async def test_repairs_issue_deleted_once_recovered(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = await _give_up(hass, freezer)
+    registry = ir.async_get(hass)
+    issue_id = f"gave_up_{dead.entry_id}"
+    # Back for a moment: still given up, the issue stays.
+    hass.states.async_set("sensor.dead_0", "1")
+    await _check(hass)
+    assert registry.async_get_issue(DOMAIN, issue_id) is not None
+    # Available for its delay: recovered, the issue goes.
+    freezer.tick(timedelta(minutes=15))
+    await _check(hass)
+    assert registry.async_get_issue(DOMAIN, issue_id) is None
+
+
+async def test_repairs_issue_deleted_when_disabled_or_removed(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = await _give_up(hass, freezer)
+    registry = ir.async_get(hass)
+    issue_id = f"gave_up_{dead.entry_id}"
+    # Disabled (the reload done by Home Assistant itself is mocked: set its result), no check in between.
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        assert await hass.config_entries.async_set_disabled_by(dead.entry_id, ConfigEntryDisabler.USER)
+    await hass.async_block_till_done()
+    dead.mock_state(hass, ConfigEntryState.NOT_LOADED)
+    assert registry.async_get_issue(DOMAIN, issue_id) is None
+
+    other = add_integration(hass, "other", [STATE_UNAVAILABLE])
+    watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        for _ in range(7):
+            freezer.tick(timedelta(minutes=5))
+            await _check(hass)
+    assert watchdog.attempts[other.entry_id].gave_up is True
+    assert registry.async_get_issue(DOMAIN, f"gave_up_{other.entry_id}") is not None
+    await hass.config_entries.async_remove(other.entry_id)
+    await _check(hass)
+    assert registry.async_get_issue(DOMAIN, f"gave_up_{other.entry_id}") is None
+
+
+async def test_repairs_issue_deleted_when_the_limit_is_raised(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = await _give_up(hass, freezer)
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    hass.config_entries.async_update_entry(entry, options={**entry.options, CONF_MAX_RELOADS: 3})
+    await hass.async_block_till_done()
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)):
+        await _check(hass)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}") is None
+
+
+async def test_repairs_issues_deleted_with_the_watchdog(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = await _give_up(hass, freezer)
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, f"gave_up_{dead.entry_id}") is None

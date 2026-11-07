@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog n'est pas chargé."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} est toujours indisponible",
+      "description": "**{title}** ({domain}) est toujours indisponible après {attempt} rechargements par Integration Watchdog, qui ne la rechargera plus tant qu'aucune de ses entités n'est disponible.\n\nVérifiez l'appareil ou le service auquel elle se connecte, ainsi que les journaux. Ce problème disparaît une fois l'intégration rétablie."
+    }
   }
 }

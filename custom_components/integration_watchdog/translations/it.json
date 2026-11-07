@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog non è caricato."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} è ancora non disponibile",
+      "description": "**{title}** ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti di Integration Watchdog, che non la ricaricherà più finché una delle sue entità non sarà disponibile.\n\nControlla il dispositivo o il servizio a cui si collega, e i log. Questo problema scompare quando l'integrazione si ripristina."
+    }
   }
 }

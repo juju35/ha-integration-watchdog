@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog er ikke indlæst."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} er stadig utilgængelig",
+      "description": "**{title}** ({domain}) er stadig utilgængelig efter {attempt} genindlæsninger fra Integration Watchdog, som ikke genindlæser den igen, før en af dens enheder er tilgængelig.\n\nTjek den enhed eller tjeneste, den forbinder til, og logfilerne. Dette problem forsvinder, når integrationen virker igen."
+    }
   }
 }

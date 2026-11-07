@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog är inte inläst."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} är fortfarande otillgänglig",
+      "description": "**{title}** ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar av Integration Watchdog, som inte laddar om den igen förrän en av dess entiteter är tillgänglig.\n\nKontrollera enheten eller tjänsten den ansluter till, och loggarna. Det här problemet försvinner när integrationen har återhämtat sig."
+    }
   }
 }

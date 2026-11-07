@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "O Integration Watchdog não está carregado."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} continua indisponível",
+      "description": "**{title}** ({domain}) continua indisponível após {attempt} recarregamentos pelo Integration Watchdog, que não a voltará a recarregar até uma das suas entidades estar disponível.\n\nVerifique o dispositivo ou o serviço a que se liga, e os registos. Este problema desaparece quando a integração recuperar."
+    }
   }
 }

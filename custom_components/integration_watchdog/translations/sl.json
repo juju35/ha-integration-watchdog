@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog ni naložen."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} še vedno ni na voljo",
+      "description": "**{title}** ({domain}) še vedno ni na voljo. Število ponovnih nalaganj z Integration Watchdog: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo.\n\nPreverite napravo ali storitev, s katero se povezuje, in dnevnike. Ta težava izgine, ko se integracija obnovi."
+    }
   }
 }

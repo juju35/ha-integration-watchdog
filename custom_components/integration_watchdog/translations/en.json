@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog is not loaded."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} is still unavailable",
+      "description": "**{title}** ({domain}) is still unavailable after {attempt} reloads by Integration Watchdog, which won't reload it again until one of its entities is available.\n\nCheck the device or service it connects to, and the logs. This issue goes away once the integration has recovered."
+    }
   }
 }

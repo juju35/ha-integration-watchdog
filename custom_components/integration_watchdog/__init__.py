@@ -14,6 +14,7 @@ from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
 from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.service import async_register_admin_service
@@ -159,10 +160,17 @@ async def async_unload_entry(hass: HomeAssistant, entry: IntegrationWatchdogConf
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry) -> None:
-    """Forget the reload counts and the history, and drop the card resource, once a check still running has ended."""
+    """Forget the reload counts, the history and the Repairs issues, and drop the card resource.
+
+    Done once a check still running has ended.
+    """
     shared = hass.data.get(DOMAIN)
     if shared is not None and not await _async_forget(hass, entry, shared):
         return
+    registry = ir.async_get(hass)
+    for domain, issue_id in list(registry.issues):
+        if domain == DOMAIN:
+            ir.async_delete_issue(hass, DOMAIN, issue_id)
     # A reinstall starts with an empty history. The shared store, if any, also drops a save still pending.
     store = shared.get("store") if shared else None
     await (store or Store(hass, STORAGE_VERSION, STORAGE_KEY)).async_remove()
