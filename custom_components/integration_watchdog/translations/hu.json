@@ -9,14 +9,16 @@
           "grace_period": "Türelmi idő",
           "max_reloads": "Egymás utáni újratöltések",
           "ignored_integrations": "Figyelmen kívül hagyott integrációk",
-          "notify_services": "Értesítési műveletek"
+          "notify_services": "Értesítési műveletek",
+          "ignored_entries": "Figyelmen kívül hagyott bejegyzések"
         },
         "data_description": {
           "scan_interval": "Két ellenőrzés között eltelt percek.",
           "grace_period": "Ennyi percig kell egy integráció minden entitásának elérhetetlennek lennie, mielőtt újratöltődik. A Home Assistant indulása után ennyi ideig semmi sem töltődik újra.",
           "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
           "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
-          "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön."
+          "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
+          "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Türelmi idő",
           "max_reloads": "Egymás utáni újratöltések",
           "ignored_integrations": "Figyelmen kívül hagyott integrációk",
-          "notify_services": "Értesítési műveletek"
+          "notify_services": "Értesítési műveletek",
+          "ignored_entries": "Figyelmen kívül hagyott bejegyzések"
         },
         "data_description": {
           "scan_interval": "Két ellenőrzés között eltelt percek.",
           "grace_period": "Ennyi percig kell egy integráció minden entitásának elérhetetlennek lennie, mielőtt újratöltődik. A Home Assistant indulása után ennyi ideig semmi sem töltődik újra.",
           "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
           "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
-          "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön."
+          "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
+          "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Utolsó ellenőrzés"
+      },
+      "reloads_24h": {
+        "name": "Újratöltések 24 óra alatt",
+        "state_attributes": {
+          "failed": {
+            "name": "Sikertelen"
+          },
+          "integrations": {
+            "name": "Integrációk"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) {attempt} újratöltés után továbbra sem elérhető. Addig nem töltődik újra, amíg valamelyik entitása elérhetővé nem válik."
   },
   "exceptions": {
-    "not_loaded": { "message": "Az Integration Watchdog nincs betöltve." }
+    "not_loaded": {
+      "message": "Az Integration Watchdog nincs betöltve."
+    }
   }
 }

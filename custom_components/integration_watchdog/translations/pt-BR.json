@@ -9,14 +9,16 @@
           "grace_period": "Período de tolerância",
           "max_reloads": "Recarregamentos seguidos",
           "ignored_integrations": "Integrações ignoradas",
-          "notify_services": "Ações de notificação"
+          "notify_services": "Ações de notificação",
+          "ignored_entries": "Entradas ignoradas"
         },
         "data_description": {
           "scan_interval": "Minutos entre duas verificações.",
           "grace_period": "Minutos durante os quais todas as entidades de uma integração têm de estar indisponíveis antes de esta ser recarregada. Nada é recarregado durante este período após o arranque do Home Assistant.",
           "max_reloads": "Recarregamentos de uma integração que continua indisponível antes de desistir dela até que recupere. O intervalo entre dois recarregamentos duplica de cada vez: período de tolerância, 2 × período de tolerância…",
           "ignored_integrations": "Integrações nunca recarregadas. Escreva um domínio para adicionar uma que ainda não esteja configurada.",
-          "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente."
+          "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente.",
+          "ignored_entries": "Entradas de integração nunca recarregadas; as outras entradas da sua integração continuam vigiadas (uma câmara entre várias, por exemplo)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Período de tolerância",
           "max_reloads": "Recarregamentos seguidos",
           "ignored_integrations": "Integrações ignoradas",
-          "notify_services": "Ações de notificação"
+          "notify_services": "Ações de notificação",
+          "ignored_entries": "Entradas ignoradas"
         },
         "data_description": {
           "scan_interval": "Minutos entre duas verificações.",
           "grace_period": "Minutos durante os quais todas as entidades de uma integração têm de estar indisponíveis antes de esta ser recarregada. Nada é recarregado durante este período após o arranque do Home Assistant.",
           "max_reloads": "Recarregamentos de uma integração que continua indisponível antes de desistir dela até que recupere. O intervalo entre dois recarregamentos duplica de cada vez: período de tolerância, 2 × período de tolerância…",
           "ignored_integrations": "Integrações nunca recarregadas. Escreva um domínio para adicionar uma que ainda não esteja configurada.",
-          "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente."
+          "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente.",
+          "ignored_entries": "Entradas de integração nunca recarregadas; as outras entradas da sua integração continuam vigiadas (uma câmara entre várias, por exemplo)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Última verificação"
+      },
+      "reloads_24h": {
+        "name": "Recarregamentos em 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Falhados"
+          },
+          "integrations": {
+            "name": "Integrações"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) continua indisponível após {attempt} recarregamentos. Não voltará a ser recarregada até que uma das suas entidades esteja disponível."
   },
   "exceptions": {
-    "not_loaded": { "message": "O Integration Watchdog não está carregado." }
+    "not_loaded": {
+      "message": "O Integration Watchdog não está carregado."
+    }
   }
 }

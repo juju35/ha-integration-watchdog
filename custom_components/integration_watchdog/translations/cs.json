@@ -9,14 +9,16 @@
           "grace_period": "Ochranná lhůta",
           "max_reloads": "Opětovná načtení za sebou",
           "ignored_integrations": "Ignorované integrace",
-          "notify_services": "Akce oznámení"
+          "notify_services": "Akce oznámení",
+          "ignored_entries": "Ignorované položky"
         },
         "data_description": {
           "scan_interval": "Počet minut mezi dvěma kontrolami.",
           "grace_period": "Počet minut, po které musí být všechny entity integrace nedostupné, než se znovu načte. Během této doby po spuštění Home Assistant se nic znovu nenačítá.",
           "max_reloads": "Počet opětovných načtení integrace, která zůstává nedostupná, než se vzdá až do jejího obnovení. Odstup mezi dvěma opětovnými načteními se pokaždé zdvojnásobí: ochranná lhůta, 2 × ochranná lhůta…",
           "ignored_integrations": "Integrace, které se nikdy znovu nenačtou. Zadejte doménu, chcete-li přidat integraci, která ještě není nastavená.",
-          "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy."
+          "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy.",
+          "ignored_entries": "Jednotlivé položky integrace, které se nikdy znovu nenačtou; ostatní položky jejich integrace zůstávají sledované (např. jedna z několika kamer)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Ochranná lhůta",
           "max_reloads": "Opětovná načtení za sebou",
           "ignored_integrations": "Ignorované integrace",
-          "notify_services": "Akce oznámení"
+          "notify_services": "Akce oznámení",
+          "ignored_entries": "Ignorované položky"
         },
         "data_description": {
           "scan_interval": "Počet minut mezi dvěma kontrolami.",
           "grace_period": "Počet minut, po které musí být všechny entity integrace nedostupné, než se znovu načte. Během této doby po spuštění Home Assistant se nic znovu nenačítá.",
           "max_reloads": "Počet opětovných načtení integrace, která zůstává nedostupná, než se vzdá až do jejího obnovení. Odstup mezi dvěma opětovnými načteními se pokaždé zdvojnásobí: ochranná lhůta, 2 × ochranná lhůta…",
           "ignored_integrations": "Integrace, které se nikdy znovu nenačtou. Zadejte doménu, chcete-li přidat integraci, která ještě není nastavená.",
-          "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy."
+          "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy.",
+          "ignored_entries": "Jednotlivé položky integrace, které se nikdy znovu nenačtou; ostatní položky jejich integrace zůstávají sledované (např. jedna z několika kamer)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Poslední kontrola"
+      },
+      "reloads_24h": {
+        "name": "Znovunačtení za 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Neúspěšná"
+          },
+          "integrations": {
+            "name": "Integrace"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) je stále nedostupná. Počet opětovných načtení: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog není načten." }
+    "not_loaded": {
+      "message": "Integration Watchdog není načten."
+    }
   }
 }

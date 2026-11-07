@@ -9,14 +9,16 @@
           "grace_period": "Periodo di tolleranza",
           "max_reloads": "Ricaricamenti consecutivi",
           "ignored_integrations": "Integrazioni ignorate",
-          "notify_services": "Azioni di notifica"
+          "notify_services": "Azioni di notifica",
+          "ignored_entries": "Voci ignorate"
         },
         "data_description": {
           "scan_interval": "Minuti tra due controlli.",
           "grace_period": "Minuti durante i quali tutte le entità di un'integrazione devono essere non disponibili prima che venga ricaricata. Durante questo periodo, dopo l'avvio di Home Assistant, non viene ricaricato nulla.",
           "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
           "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
-          "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente."
+          "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
+          "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Periodo di tolleranza",
           "max_reloads": "Ricaricamenti consecutivi",
           "ignored_integrations": "Integrazioni ignorate",
-          "notify_services": "Azioni di notifica"
+          "notify_services": "Azioni di notifica",
+          "ignored_entries": "Voci ignorate"
         },
         "data_description": {
           "scan_interval": "Minuti tra due controlli.",
           "grace_period": "Minuti durante i quali tutte le entità di un'integrazione devono essere non disponibili prima che venga ricaricata. Durante questo periodo, dopo l'avvio di Home Assistant, non viene ricaricato nulla.",
           "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
           "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
-          "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente."
+          "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
+          "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Ultimo controllo"
+      },
+      "reloads_24h": {
+        "name": "Ricaricamenti in 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Non riusciti"
+          },
+          "integrations": {
+            "name": "Integrazioni"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti. Non verrà più ricaricata finché una delle sue entità non sarà disponibile."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog non è caricato." }
+    "not_loaded": {
+      "message": "Integration Watchdog non è caricato."
+    }
   }
 }

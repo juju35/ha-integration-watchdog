@@ -6,11 +6,12 @@ from typing import Final
 
 DOMAIN: Final = "integration_watchdog"
 # Same as manifest.json and the card: the card URL carries it, so that browsers load a new release.
-VERSION: Final = "1.1.4"
+VERSION: Final = "1.2.0"
 
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 CONF_GRACE_PERIOD: Final = "grace_period"
 CONF_IGNORED: Final = "ignored_integrations"
+CONF_IGNORED_ENTRIES: Final = "ignored_entries"
 CONF_MAX_RELOADS: Final = "max_reloads"
 CONF_NOTIFY: Final = "notify_services"
 

@@ -9,14 +9,16 @@
           "grace_period": "Periodo de gracia",
           "max_reloads": "Recargas seguidas",
           "ignored_integrations": "Integraciones ignoradas",
-          "notify_services": "Acciones de notificación"
+          "notify_services": "Acciones de notificación",
+          "ignored_entries": "Entradas ignoradas"
         },
         "data_description": {
           "scan_interval": "Minutos entre dos comprobaciones.",
           "grace_period": "Minutos que todas las entidades de una integración deben haber estado no disponibles antes de recargarla. No se recarga nada durante este tiempo tras el inicio de Home Assistant.",
           "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
           "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
-          "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente."
+          "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
+          "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Periodo de gracia",
           "max_reloads": "Recargas seguidas",
           "ignored_integrations": "Integraciones ignoradas",
-          "notify_services": "Acciones de notificación"
+          "notify_services": "Acciones de notificación",
+          "ignored_entries": "Entradas ignoradas"
         },
         "data_description": {
           "scan_interval": "Minutos entre dos comprobaciones.",
           "grace_period": "Minutos que todas las entidades de una integración deben haber estado no disponibles antes de recargarla. No se recarga nada durante este tiempo tras el inicio de Home Assistant.",
           "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
           "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
-          "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente."
+          "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
+          "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Última comprobación"
+      },
+      "reloads_24h": {
+        "name": "Recargas en 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Fallidas"
+          },
+          "integrations": {
+            "name": "Integraciones"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) sigue sin estar disponible tras {attempt} recargas. No se volverá a recargar hasta que una de sus entidades esté disponible."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog no está cargado." }
+    "not_loaded": {
+      "message": "Integration Watchdog no está cargado."
+    }
   }
 }

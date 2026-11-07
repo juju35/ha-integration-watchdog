@@ -9,14 +9,16 @@
           "grace_period": "Wachttijd",
           "max_reloads": "Herlaadpogingen op rij",
           "ignored_integrations": "Genegeerde integraties",
-          "notify_services": "Meldingsacties"
+          "notify_services": "Meldingsacties",
+          "ignored_entries": "Genegeerde items"
         },
         "data_description": {
           "scan_interval": "Minuten tussen twee controles.",
           "grace_period": "Minuten dat alle entiteiten van een integratie niet beschikbaar moeten zijn voordat deze wordt herladen. Na het opstarten van Home Assistant wordt gedurende deze tijd niets herladen.",
           "max_reloads": "Herlaadpogingen van een integratie die niet beschikbaar blijft voordat ze wordt opgegeven tot ze herstelt. De tijd tussen twee herlaadpogingen verdubbelt telkens: wachttijd, 2 × wachttijd…",
           "ignored_integrations": "Integraties die nooit worden herladen. Typ een domein om er een toe te voegen die nog niet is ingesteld.",
-          "notify_services": "Stuur elke melding ook met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt."
+          "notify_services": "Stuur elke melding ook met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt.",
+          "ignored_entries": "Afzonderlijke integratie-items die nooit herladen worden; de andere items van hun integratie blijven bewaakt (bijvoorbeeld één camera van meerdere)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Wachttijd",
           "max_reloads": "Herlaadpogingen op rij",
           "ignored_integrations": "Genegeerde integraties",
-          "notify_services": "Meldingsacties"
+          "notify_services": "Meldingsacties",
+          "ignored_entries": "Genegeerde items"
         },
         "data_description": {
           "scan_interval": "Minuten tussen twee controles.",
           "grace_period": "Minuten dat alle entiteiten van een integratie niet beschikbaar moeten zijn voordat deze wordt herladen. Na het opstarten van Home Assistant wordt gedurende deze tijd niets herladen.",
           "max_reloads": "Herlaadpogingen van een integratie die niet beschikbaar blijft voordat ze wordt opgegeven tot ze herstelt. De tijd tussen twee herlaadpogingen verdubbelt telkens: wachttijd, 2 × wachttijd…",
           "ignored_integrations": "Integraties die nooit worden herladen. Typ een domein om er een toe te voegen die nog niet is ingesteld.",
-          "notify_services": "Stuur elke melding ook met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt."
+          "notify_services": "Stuur elke melding ook met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt.",
+          "ignored_entries": "Afzonderlijke integratie-items die nooit herladen worden; de andere items van hun integratie blijven bewaakt (bijvoorbeeld één camera van meerdere)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Laatste controle"
+      },
+      "reloads_24h": {
+        "name": "Herladen in 24 u",
+        "state_attributes": {
+          "failed": {
+            "name": "Mislukt"
+          },
+          "integrations": {
+            "name": "Integraties"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) is nog steeds niet beschikbaar na {attempt} herlaadpogingen. Deze wordt niet opnieuw herladen totdat een van zijn entiteiten beschikbaar is."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog is niet geladen." }
+    "not_loaded": {
+      "message": "Integration Watchdog is niet geladen."
+    }
   }
 }

@@ -9,14 +9,16 @@
           "grace_period": "Grace period",
           "max_reloads": "Reloads in a row",
           "ignored_integrations": "Ignored integrations",
-          "notify_services": "Notify actions"
+          "notify_services": "Notify actions",
+          "ignored_entries": "Ignored entries"
         },
         "data_description": {
           "scan_interval": "Minutes between two checks.",
           "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started.",
           "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
           "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
-          "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created."
+          "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created.",
+          "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Grace period",
           "max_reloads": "Reloads in a row",
           "ignored_integrations": "Ignored integrations",
-          "notify_services": "Notify actions"
+          "notify_services": "Notify actions",
+          "ignored_entries": "Ignored entries"
         },
         "data_description": {
           "scan_interval": "Minutes between two checks.",
           "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started.",
           "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
           "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
-          "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created."
+          "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created.",
+          "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Last check"
+      },
+      "reloads_24h": {
+        "name": "Reloads in 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Failed"
+          },
+          "integrations": {
+            "name": "Integrations"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) is still unavailable after {attempt} reloads. It won't be reloaded again until one of its entities is available."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog is not loaded." }
+    "not_loaded": {
+      "message": "Integration Watchdog is not loaded."
+    }
   }
 }

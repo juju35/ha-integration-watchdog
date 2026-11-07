@@ -9,14 +9,16 @@
           "grace_period": "Okres karencji",
           "max_reloads": "Ponowne wczytania z rzędu",
           "ignored_integrations": "Ignorowane integracje",
-          "notify_services": "Akcje powiadomień"
+          "notify_services": "Akcje powiadomień",
+          "ignored_entries": "Ignorowane wpisy"
         },
         "data_description": {
           "scan_interval": "Liczba minut między dwoma sprawdzeniami.",
           "grace_period": "Liczba minut, przez które wszystkie encje integracji muszą być niedostępne, zanim zostanie ona ponownie wczytana. Przez ten czas po uruchomieniu Home Assistant nic nie jest ponownie wczytywane.",
           "max_reloads": "Liczba ponownych wczytań integracji, która pozostaje niedostępna, zanim zostanie porzucona do czasu jej przywrócenia. Odstęp między dwoma ponownymi wczytaniami za każdym razem się podwaja: okres karencji, 2 × okres karencji…",
           "ignored_integrations": "Integracje, które nigdy nie są ponownie wczytywane. Wpisz domenę, aby dodać integrację, która nie jest jeszcze skonfigurowana.",
-          "notify_services": "Wysyłaj też każde powiadomienie za pomocą tych akcji (notify.mobile_app_…). Trwałe powiadomienie jest tworzone zawsze."
+          "notify_services": "Wysyłaj też każde powiadomienie za pomocą tych akcji (notify.mobile_app_…). Trwałe powiadomienie jest tworzone zawsze.",
+          "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Okres karencji",
           "max_reloads": "Ponowne wczytania z rzędu",
           "ignored_integrations": "Ignorowane integracje",
-          "notify_services": "Akcje powiadomień"
+          "notify_services": "Akcje powiadomień",
+          "ignored_entries": "Ignorowane wpisy"
         },
         "data_description": {
           "scan_interval": "Liczba minut między dwoma sprawdzeniami.",
           "grace_period": "Liczba minut, przez które wszystkie encje integracji muszą być niedostępne, zanim zostanie ona ponownie wczytana. Przez ten czas po uruchomieniu Home Assistant nic nie jest ponownie wczytywane.",
           "max_reloads": "Liczba ponownych wczytań integracji, która pozostaje niedostępna, zanim zostanie porzucona do czasu jej przywrócenia. Odstęp między dwoma ponownymi wczytaniami za każdym razem się podwaja: okres karencji, 2 × okres karencji…",
           "ignored_integrations": "Integracje, które nigdy nie są ponownie wczytywane. Wpisz domenę, aby dodać integrację, która nie jest jeszcze skonfigurowana.",
-          "notify_services": "Wysyłaj też każde powiadomienie za pomocą tych akcji (notify.mobile_app_…). Trwałe powiadomienie jest tworzone zawsze."
+          "notify_services": "Wysyłaj też każde powiadomienie za pomocą tych akcji (notify.mobile_app_…). Trwałe powiadomienie jest tworzone zawsze.",
+          "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Ostatnie sprawdzenie"
+      },
+      "reloads_24h": {
+        "name": "Przeładowania w 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Nieudane"
+          },
+          "integrations": {
+            "name": "Integracje"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) jest nadal niedostępna. Liczba ponownych wczytań: {attempt}. Nie zostanie ponownie wczytana, dopóki jedna z jej encji nie będzie dostępna."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog nie jest wczytany." }
+    "not_loaded": {
+      "message": "Integration Watchdog nie jest wczytany."
+    }
   }
 }

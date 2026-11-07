@@ -21,6 +21,7 @@ from homeassistant.loader import async_get_integrations
 from .const import (
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
+    CONF_IGNORED_ENTRIES,
     CONF_MAX_RELOADS,
     CONF_NOTIFY,
     CONF_SCAN_INTERVAL,
@@ -54,6 +55,19 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
         ),
         key=lambda o: o["label"].casefold(),
     )
+    # Single config entries: "Title (domain)", the ones already ignored kept even when removed since.
+    ignored_entries: list[str] = list(current.get(CONF_IGNORED_ENTRIES, []))
+    entries = {e.entry_id: e for e in hass.config_entries.async_entries() if e.domain != DOMAIN}
+    entry_options = sorted(
+        (
+            SelectOptionDict(
+                value=entry_id,
+                label=f"{entries[entry_id].title} ({entries[entry_id].domain})" if entry_id in entries else entry_id,
+            )
+            for entry_id in set(entries) | set(ignored_entries)
+        ),
+        key=lambda o: o["label"].casefold(),
+    )
     notify: list[str] = list(current.get(CONF_NOTIFY, []))
     notify_options = sorted(
         {f"notify.{name}" for name in hass.services.async_services_for_domain("notify")}
@@ -77,6 +91,9 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
                     mode=SelectSelectorMode.DROPDOWN,
                 )
             ),
+            vol.Optional(CONF_IGNORED_ENTRIES, default=ignored_entries): SelectSelector(
+                SelectSelectorConfig(options=entry_options, multiple=True, mode=SelectSelectorMode.DROPDOWN)
+            ),
             vol.Optional(CONF_NOTIFY, default=notify): SelectSelector(
                 SelectSelectorConfig(
                     options=notify_options,
@@ -90,7 +107,9 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
 
 
 def _options(user_input: dict[str, Any]) -> dict[str, Any]:
-    return {
+    # Ignored single entries only when some are chosen: existing entries keep the options they had.
+    entries = sorted(set(user_input.get(CONF_IGNORED_ENTRIES, [])))
+    return ({CONF_IGNORED_ENTRIES: entries} if entries else {}) | {
         CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
         CONF_GRACE_PERIOD: int(user_input[CONF_GRACE_PERIOD]),
         CONF_MAX_RELOADS: int(user_input[CONF_MAX_RELOADS]),
