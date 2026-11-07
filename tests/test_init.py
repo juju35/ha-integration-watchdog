@@ -13,7 +13,6 @@ import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.components import persistent_notification
 from homeassistant.components.repairs import repairs_flow_manager
-from homeassistant.components.repairs.issue_handler import async_process_repairs_platforms
 from homeassistant.config_entries import ConfigEntryDisabler, ConfigEntryState, OperationNotAllowed
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, EVENT_STATE_CHANGED, STATE_UNAVAILABLE
 from homeassistant.core import CoreState, HomeAssistant
@@ -1369,7 +1368,6 @@ async def test_repairs_try_again(hass: HomeAssistant, freezer: FrozenDateTimeFac
     dead = await _give_up(hass, freezer)
     watchdog = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
     issue_id = f"gave_up_{dead.entry_id}"
-    await async_process_repairs_platforms(hass)
     manager = repairs_flow_manager(hass)
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
     assert result["type"] is FlowResultType.FORM
