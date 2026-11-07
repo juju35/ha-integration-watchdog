@@ -9,14 +9,16 @@
           "grace_period": "Respittid",
           "max_reloads": "Omladdningar i rad",
           "ignored_integrations": "Ignorerade integrationer",
-          "notify_services": "Aviseringsåtgärder"
+          "notify_services": "Aviseringsåtgärder",
+          "ignored_entries": "Ignorerade poster"
         },
         "data_description": {
           "scan_interval": "Minuter mellan två kontroller.",
           "grace_period": "Minuter som alla entiteter i en integration måste ha varit otillgängliga innan den laddas om. Ingenting laddas om under denna tid efter att Home Assistant har startat.",
           "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
           "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
-          "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid."
+          "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid.",
+          "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Respittid",
           "max_reloads": "Omladdningar i rad",
           "ignored_integrations": "Ignorerade integrationer",
-          "notify_services": "Aviseringsåtgärder"
+          "notify_services": "Aviseringsåtgärder",
+          "ignored_entries": "Ignorerade poster"
         },
         "data_description": {
           "scan_interval": "Minuter mellan två kontroller.",
           "grace_period": "Minuter som alla entiteter i en integration måste ha varit otillgängliga innan den laddas om. Ingenting laddas om under denna tid efter att Home Assistant har startat.",
           "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
           "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
-          "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid."
+          "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid.",
+          "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Senaste kontroll"
+      },
+      "reloads_24h": {
+        "name": "Omladdningar på 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Misslyckade"
+          },
+          "integrations": {
+            "name": "Integrationer"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar. Den laddas inte om igen förrän någon av dess entiteter är tillgänglig."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog är inte inläst." }
+    "not_loaded": {
+      "message": "Integration Watchdog är inte inläst."
+    }
   }
 }

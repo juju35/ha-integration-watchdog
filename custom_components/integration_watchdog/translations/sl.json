@@ -9,14 +9,16 @@
           "grace_period": "Čakalna doba",
           "max_reloads": "Zaporedna ponovna nalaganja",
           "ignored_integrations": "Prezrte integracije",
-          "notify_services": "Dejanja obvestil"
+          "notify_services": "Dejanja obvestil",
+          "ignored_entries": "Prezrti vnosi"
         },
         "data_description": {
           "scan_interval": "Minute med dvema preverjanjema.",
           "grace_period": "Minute, ko morajo biti vse entitete integracije nedosegljive, preden se ta ponovno naloži. V tem času po zagonu Home Assistanta se nič ne nalaga ponovno.",
           "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
           "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
-          "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno."
+          "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
+          "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Čakalna doba",
           "max_reloads": "Zaporedna ponovna nalaganja",
           "ignored_integrations": "Prezrte integracije",
-          "notify_services": "Dejanja obvestil"
+          "notify_services": "Dejanja obvestil",
+          "ignored_entries": "Prezrti vnosi"
         },
         "data_description": {
           "scan_interval": "Minute med dvema preverjanjema.",
           "grace_period": "Minute, ko morajo biti vse entitete integracije nedosegljive, preden se ta ponovno naloži. V tem času po zagonu Home Assistanta se nič ne nalaga ponovno.",
           "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
           "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
-          "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno."
+          "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
+          "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Zadnje preverjanje"
+      },
+      "reloads_24h": {
+        "name": "Ponovna nalaganja v 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Neuspešna"
+          },
+          "integrations": {
+            "name": "Integracije"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) še vedno ni na voljo. Število ponovnih nalaganj: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog ni naložen." }
+    "not_loaded": {
+      "message": "Integration Watchdog ni naložen."
+    }
   }
 }

@@ -9,14 +9,16 @@
           "grace_period": "Nogaidīšanas laiks",
           "max_reloads": "Pārlādes pēc kārtas",
           "ignored_integrations": "Ignorētās integrācijas",
-          "notify_services": "Paziņojumu darbības"
+          "notify_services": "Paziņojumu darbības",
+          "ignored_entries": "Ignorētie ieraksti"
         },
         "data_description": {
           "scan_interval": "Minūtes starp divām pārbaudēm.",
           "grace_period": "Minūtes, cik ilgi visām integrācijas vienībām jābūt nepieejamām, pirms tā tiek pārlādēta. Šajā laikā pēc Home Assistant palaišanas nekas netiek pārlādēts.",
           "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
           "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
-          "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr."
+          "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
+          "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Nogaidīšanas laiks",
           "max_reloads": "Pārlādes pēc kārtas",
           "ignored_integrations": "Ignorētās integrācijas",
-          "notify_services": "Paziņojumu darbības"
+          "notify_services": "Paziņojumu darbības",
+          "ignored_entries": "Ignorētie ieraksti"
         },
         "data_description": {
           "scan_interval": "Minūtes starp divām pārbaudēm.",
           "grace_period": "Minūtes, cik ilgi visām integrācijas vienībām jābūt nepieejamām, pirms tā tiek pārlādēta. Šajā laikā pēc Home Assistant palaišanas nekas netiek pārlādēts.",
           "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
           "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
-          "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr."
+          "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
+          "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Pēdējā pārbaude"
+      },
+      "reloads_24h": {
+        "name": "Pārlādes 24 h laikā",
+        "state_attributes": {
+          "failed": {
+            "name": "Neizdevušās"
+          },
+          "integrations": {
+            "name": "Integrācijas"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) joprojām nav pieejama. Veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog nav ielādēts." }
+    "not_loaded": {
+      "message": "Integration Watchdog nav ielādēts."
+    }
   }
 }

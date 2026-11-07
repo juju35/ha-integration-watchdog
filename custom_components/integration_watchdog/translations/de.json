@@ -9,14 +9,16 @@
           "grace_period": "Karenzzeit",
           "max_reloads": "Neuladevorgänge in Folge",
           "ignored_integrations": "Ignorierte Integrationen",
-          "notify_services": "Benachrichtigungsaktionen"
+          "notify_services": "Benachrichtigungsaktionen",
+          "ignored_entries": "Ignorierte Einträge"
         },
         "data_description": {
           "scan_interval": "Minuten zwischen zwei Prüfungen.",
           "grace_period": "Minuten, die alle Entitäten einer Integration nicht verfügbar gewesen sein müssen, bevor sie neu geladen wird. Während dieser Zeit nach dem Start von Home Assistant wird nichts neu geladen.",
           "max_reloads": "Neuladevorgänge einer weiterhin nicht verfügbaren Integration, bevor sie aufgegeben wird, bis sie sich erholt. Die Wartezeit zwischen zwei Neuladevorgängen verdoppelt sich jedes Mal: Karenzzeit, 2 × Karenzzeit…",
           "ignored_integrations": "Integrationen, die nie neu geladen werden. Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen.",
-          "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt."
+          "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt.",
+          "ignored_entries": "Einzelne Integrationseinträge, die nie neu geladen werden; die anderen Einträge ihrer Integration bleiben überwacht (z. B. eine von mehreren Kameras)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Karenzzeit",
           "max_reloads": "Neuladevorgänge in Folge",
           "ignored_integrations": "Ignorierte Integrationen",
-          "notify_services": "Benachrichtigungsaktionen"
+          "notify_services": "Benachrichtigungsaktionen",
+          "ignored_entries": "Ignorierte Einträge"
         },
         "data_description": {
           "scan_interval": "Minuten zwischen zwei Prüfungen.",
           "grace_period": "Minuten, die alle Entitäten einer Integration nicht verfügbar gewesen sein müssen, bevor sie neu geladen wird. Während dieser Zeit nach dem Start von Home Assistant wird nichts neu geladen.",
           "max_reloads": "Neuladevorgänge einer weiterhin nicht verfügbaren Integration, bevor sie aufgegeben wird, bis sie sich erholt. Die Wartezeit zwischen zwei Neuladevorgängen verdoppelt sich jedes Mal: Karenzzeit, 2 × Karenzzeit…",
           "ignored_integrations": "Integrationen, die nie neu geladen werden. Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen.",
-          "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt."
+          "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt.",
+          "ignored_entries": "Einzelne Integrationseinträge, die nie neu geladen werden; die anderen Einträge ihrer Integration bleiben überwacht (z. B. eine von mehreren Kameras)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Letzte Prüfung"
+      },
+      "reloads_24h": {
+        "name": "Neuladungen in 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Fehlgeschlagen"
+          },
+          "integrations": {
+            "name": "Integrationen"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) ist nach {attempt} Neuladevorgängen weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog ist nicht geladen." }
+    "not_loaded": {
+      "message": "Integration Watchdog ist nicht geladen."
+    }
   }
 }

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from . import IntegrationWatchdogConfigEntry
 from .const import DOMAIN
@@ -26,6 +27,7 @@ async def async_setup_entry(
             UnavailableSensor(w, entry.entry_id, "unavailable"),
             LastReloadSensor(w, entry.entry_id, "last_reload"),
             LastCheckSensor(w, entry.entry_id, "last_check"),
+            Reloads24hSensor(w, entry.entry_id, "reloads_24h"),
         ]
     )
 
@@ -85,3 +87,36 @@ class LastCheckSensor(IntegrationWatchdogEntity, SensorEntity):
     @property
     def native_value(self) -> datetime | None:
         return self.watchdog.last_check
+
+
+class Reloads24hSensor(IntegrationWatchdogEntity, SensorEntity):
+    """Reloads (and failed reloads) of the last 24 hours, from the history: an unstable integration shows up here."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def _recent(self) -> list[dict[str, Any]]:
+        since = dt_util.utcnow() - timedelta(hours=24)
+        recent = []
+        for item in self.watchdog.history:
+            at = dt_util.parse_datetime(item.get("at") or "")
+            if at is not None and at.tzinfo is None:
+                at = at.replace(tzinfo=dt_util.UTC)
+            if item.get("kind") in ("reloaded", "reload_failed") and at is not None and at >= since:
+                recent.append(item)
+        return recent
+
+    @property
+    def native_value(self) -> int:
+        return len(self._recent())
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        recent = self._recent()
+        counts: dict[str, int] = {}
+        for item in recent:
+            name = item.get("title") or item.get("domain") or "?"
+            counts[name] = counts.get(name, 0) + 1
+        return {
+            "failed": sum(1 for h in recent if h.get("kind") == "reload_failed"),
+            "integrations": counts,
+        }

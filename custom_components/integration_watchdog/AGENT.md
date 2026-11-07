@@ -11,13 +11,14 @@ custom_components/integration_watchdog/
 ├── watchdog.py      # IntegrationWatchdog: finds unavailable entries, reloads with backoff and limit, event + notifications
 ├── config_flow.py   # Single entry; options: scan_interval, grace_period (min), max_reloads, ignored_integrations (domains), notify_services
 ├── button.py        # button.*_check_now (unavailable while a check runs)
-├── sensor.py        # unavailable (count + integrations/ignored/max_reloads), last_reload (+ domain/title/success/reloads/history), last_check
+├── sensor.py        # unavailable (count + integrations/ignored/max_reloads), last_reload (+ domain/title/success/reloads/history), last_check, reloads_24h (from history: reloaded + reload_failed in 24 h)
 ├── entity.py        # Shared service device, listener on IntegrationWatchdog
 ├── frontend/integration-watchdog-card.js   # custom:integration-watchdog-card + custom:integration-watchdog-mini-card (subclass: compact view, detail button toggling the full view), read the sensors' attributes and press the button
 ├── const.py / icons.json / services.yaml / translations/{en,fr,de,es,it,nl,pt,pt-BR,pl,sr,sr-Latn,ro,da,sv,bg,ru,uk,hu,sk,cs,sl,lv,el}.json / brand/
 ```
 
 ## Rules
+- `ignored_entries` (option, only stored when not empty): config entry ids skipped like an ignored domain.
 - An entry counts only when LOADED, SETUP_RETRY or SETUP_ERROR (`WATCHED_STATES`), not ignored, not this domain, not a helper (`integration_type == "helper"`, cached per domain), with at least one enabled entity that has a state. `restored: true` placeholders (entities the integration didn't create, e.g. device off at setup) count as unavailable: an entry with only those is the typical broken one.
 - Never reload during startup/shutdown: `async_check` returns unless `CoreState.running`, stops mid-check if that changes, and reloads nothing until `grace_period` after `started_at` (set when HA starts; far in the past when the watchdog is set up with HA already running, e.g. options changed).
 - `since` = most recent `last_changed` of these states. Reload when `now - since >= grace_period`.

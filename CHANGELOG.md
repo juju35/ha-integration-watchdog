@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2026-11-07
+
+### What's new
+- **Ignored entries** option: single integration entries never reloaded, while the other entries of their integration are still watched (one camera among several, a printer that is often off). Listed as "Title (domain)" in the options.
+- **Reloads in 24 h** sensor: the reloads and failed reloads of the last day, with `failed` and the count per integration in its attributes — an unstable integration stands out, and an automation can warn when one is reloaded too often.
+
 ## 1.1.4 - 2026-11-07
 
 ### Fixes

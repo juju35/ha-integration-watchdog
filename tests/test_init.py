@@ -19,6 +19,7 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.setup import async_setup_component
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_capture_events,
@@ -1172,3 +1173,39 @@ async def test_card_resource_yaml_mode_untouched(hass: HomeAssistant):
         await _setup(hass)
         await hass.async_block_till_done()
     add_js.assert_called_once()
+
+
+async def test_ignored_single_entry(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    """An ignored entry is never reloaded; another entry of the same integration still is."""
+    from custom_components.integration_watchdog.const import CONF_IGNORED_ENTRIES
+
+    ignored = add_integration(hass, "tapo", [STATE_UNAVAILABLE])
+    watched = MockConfigEntry(domain="tapo", title="Living room camera")
+    watched.add_to_hass(hass)
+    watched.mock_state(hass, ConfigEntryState.LOADED)
+    entity = er.async_get(hass).async_get_or_create("sensor", "tapo", "living", config_entry=watched)
+    hass.states.async_set(entity.entity_id, STATE_UNAVAILABLE)
+    await _setup(hass, **{CONF_IGNORED_ENTRIES: [ignored.entry_id]})
+    freezer.tick(timedelta(hours=1))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+    reload.assert_awaited_once_with(watched.entry_id)
+
+
+async def test_reloads_in_24_hours(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    entry = await _setup(hass)
+    watchdog = entry.runtime_data
+    now = dt_util.utcnow()
+    watchdog.history[:] = [
+        {"kind": "reloaded", "at": (now - timedelta(hours=1)).isoformat(), "title": "Zigbee", "domain": "zha"},
+        {"kind": "reload_failed", "at": (now - timedelta(hours=3)).isoformat(), "title": "Zigbee", "domain": "zha"},
+        {"kind": "gave_up", "at": (now - timedelta(hours=3)).isoformat(), "title": "Zigbee", "domain": "zha"},
+        {"kind": "reloaded", "at": (now - timedelta(hours=5)).isoformat(), "title": "Tapo", "domain": "tapo"},
+        {"kind": "reloaded", "at": (now - timedelta(hours=30)).isoformat(), "title": "Tapo", "domain": "tapo"},
+    ]
+    watchdog._notify_listeners()  # noqa: SLF001
+    await hass.async_block_till_done()
+    state = next(s for s in hass.states.async_all("sensor") if s.entity_id.endswith("_24_h"))
+    assert state.state == "3"
+    assert state.attributes["failed"] == 1
+    assert state.attributes["integrations"] == {"Zigbee": 2, "Tapo": 1}

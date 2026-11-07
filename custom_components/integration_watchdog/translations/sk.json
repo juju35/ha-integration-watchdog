@@ -9,14 +9,16 @@
           "grace_period": "Ochranná lehota",
           "max_reloads": "Opätovné načítania za sebou",
           "ignored_integrations": "Ignorované integrácie",
-          "notify_services": "Akcie upozornení"
+          "notify_services": "Akcie upozornení",
+          "ignored_entries": "Ignorované položky"
         },
         "data_description": {
           "scan_interval": "Počet minút medzi dvoma kontrolami.",
           "grace_period": "Počet minút, počas ktorých musia byť všetky entity integrácie nedostupné, kým sa znovu načíta. Počas tohto času po spustení Home Assistant sa nič znovu nenačítava.",
           "max_reloads": "Počet opätovných načítaní integrácie, ktorá zostáva nedostupná, kým sa vzdá až do jej obnovenia. Odstup medzi dvoma opätovnými načítaniami sa zakaždým zdvojnásobí: ochranná lehota, 2 × ochranná lehota…",
           "ignored_integrations": "Integrácie, ktoré sa nikdy znovu nenačítajú. Zadajte doménu, ak chcete pridať integráciu, ktorá ešte nie je nastavená.",
-          "notify_services": "Každé upozornenie odoslať aj pomocou týchto akcií (notify.mobile_app_…). Trvalé upozornenie sa vytvorí vždy."
+          "notify_services": "Každé upozornenie odoslať aj pomocou týchto akcií (notify.mobile_app_…). Trvalé upozornenie sa vytvorí vždy.",
+          "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Ochranná lehota",
           "max_reloads": "Opätovné načítania za sebou",
           "ignored_integrations": "Ignorované integrácie",
-          "notify_services": "Akcie upozornení"
+          "notify_services": "Akcie upozornení",
+          "ignored_entries": "Ignorované položky"
         },
         "data_description": {
           "scan_interval": "Počet minút medzi dvoma kontrolami.",
           "grace_period": "Počet minút, počas ktorých musia byť všetky entity integrácie nedostupné, kým sa znovu načíta. Počas tohto času po spustení Home Assistant sa nič znovu nenačítava.",
           "max_reloads": "Počet opätovných načítaní integrácie, ktorá zostáva nedostupná, kým sa vzdá až do jej obnovenia. Odstup medzi dvoma opätovnými načítaniami sa zakaždým zdvojnásobí: ochranná lehota, 2 × ochranná lehota…",
           "ignored_integrations": "Integrácie, ktoré sa nikdy znovu nenačítajú. Zadajte doménu, ak chcete pridať integráciu, ktorá ešte nie je nastavená.",
-          "notify_services": "Každé upozornenie odoslať aj pomocou týchto akcií (notify.mobile_app_…). Trvalé upozornenie sa vytvorí vždy."
+          "notify_services": "Každé upozornenie odoslať aj pomocou týchto akcií (notify.mobile_app_…). Trvalé upozornenie sa vytvorí vždy.",
+          "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Posledná kontrola"
+      },
+      "reloads_24h": {
+        "name": "Obnovenia za 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Neúspešné"
+          },
+          "integrations": {
+            "name": "Integrácie"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) je stále nedostupná. Počet opätovných načítaní: {attempt}. Znovu sa nenačíta, kým niektorá z jej entít nebude dostupná."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog nie je načítaný." }
+    "not_loaded": {
+      "message": "Integration Watchdog nie je načítaný."
+    }
   }
 }

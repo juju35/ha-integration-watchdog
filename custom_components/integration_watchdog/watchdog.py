@@ -98,9 +98,12 @@ class IntegrationWatchdog:
         max_reloads: int,
         notify_services: Iterable[str] = (),
         shared: dict[str, Any] | None = None,
+        ignored_entries: Iterable[str] = (),
     ) -> None:
         self.hass = hass
         self.ignored: frozenset[str] = frozenset(ignored) | {DOMAIN}
+        # Single config entries never reloaded (one camera of an integration whose others are watched).
+        self.ignored_entries: frozenset[str] = frozenset(ignored_entries)
         self.grace_period = grace_period
         self.max_reloads = max_reloads
         self.notify_services = list(notify_services)
@@ -230,7 +233,12 @@ class IntegrationWatchdog:
         registry = er.async_get(self.hass)
         found: list[UnavailableIntegration] = []
         for entry in self.hass.config_entries.async_entries():
-            if entry.domain in self.ignored or entry.state not in WATCHED_STATES or self._helpers.get(entry.domain):
+            if (
+                entry.domain in self.ignored
+                or entry.entry_id in self.ignored_entries
+                or entry.state not in WATCHED_STATES
+                or self._helpers.get(entry.domain)
+            ):
                 continue
             states = []
             for entity in er.async_entries_for_config_entry(registry, entry.entry_id):

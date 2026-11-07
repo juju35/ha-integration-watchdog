@@ -28,7 +28,8 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Never during startup**: nothing is reloaded while Home Assistant starts or stops, nor during the grace period after it has started
 - **No reload loop**: an integration that stays unavailable is reloaded at most 3 times in a row (configurable), the delay between two reloads doubling each time; then the watchdog gives up on it until it recovers
 - **Notification** for each reload, failed reload and give-up: persistent notification, and optionally your notify actions (mobile app…)
-- **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain
+- **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain, and **ignored entries**: one entry of an integration (a camera of several) left alone while its other entries are still watched
+- **Reloads in 24 h** sensor: how many reloads the last day, per integration — an unstable integration shows up there
 - **Check now** button and `integration_watchdog.check` action
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
@@ -74,6 +75,7 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 | Check interval | 5 min | Minutes between two checks, from 1 to 1440 |
 | Grace period | 15 min | Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started |
 | Reloads in a row | 3 | Reloads of an integration that stays unavailable before giving up on it, from 1 to 10 |
+| Ignored entries | none | Single entries never reloaded ("Title (domain)"); the other entries of their integration are still watched |
 | Ignored integrations | none | Integrations never reloaded. The list offers the integrations set up; type a domain (`zha`, `mqtt`…) to add another one |
 | Notify actions | none | Also send each notification with these actions (`notify.mobile_app_phone`…). A persistent notification is always created |
 
@@ -111,6 +113,7 @@ Each reload, failed reload and give-up creates a persistent notification, one pe
 | `sensor.integration_watchdog_unavailable_integrations` | Number of integrations whose entities are all unavailable. Attributes: `integrations` (list of `domain`, `title`, `entry_id`, `since`, `reloads`, `gave_up`), `ignored`, `max_reloads` |
 | `sensor.integration_watchdog_last_reload` | Time of the last reload. Attributes: `domain`, `title`, `entry_id`, `success`, `reloads` (since Home Assistant started), `history` (the last 20 reloads and give-ups, newest first: `kind` = `reloaded` / `reload_failed` / `gave_up`, `at`, `domain`, `title`, `entry_id`, `attempt`, `max_reloads`, `unavailable_since`; kept across restarts, not recorded in the database) |
 | `sensor.integration_watchdog_last_check` | End of the last check |
+| `sensor.integration_watchdog_reloads_in_24_h` | Reloads and failed reloads of the last 24 hours (from the history). Attributes: `failed`, `integrations` (count per integration) |
 
 ### Action `integration_watchdog.check`
 

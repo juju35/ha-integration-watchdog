@@ -9,14 +9,16 @@
           "grace_period": "Perioadă de grație",
           "max_reloads": "Reîncărcări consecutive",
           "ignored_integrations": "Integrări ignorate",
-          "notify_services": "Acțiuni de notificare"
+          "notify_services": "Acțiuni de notificare",
+          "ignored_entries": "Intrări ignorate"
         },
         "data_description": {
           "scan_interval": "Minute între două verificări.",
           "grace_period": "Minute în care toate entitățile unei integrări trebuie să fi fost indisponibile înainte ca aceasta să fie reîncărcată. Nimic nu este reîncărcat în acest interval după pornirea Home Assistant.",
           "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
           "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
-          "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna."
+          "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
+          "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Perioadă de grație",
           "max_reloads": "Reîncărcări consecutive",
           "ignored_integrations": "Integrări ignorate",
-          "notify_services": "Acțiuni de notificare"
+          "notify_services": "Acțiuni de notificare",
+          "ignored_entries": "Intrări ignorate"
         },
         "data_description": {
           "scan_interval": "Minute între două verificări.",
           "grace_period": "Minute în care toate entitățile unei integrări trebuie să fi fost indisponibile înainte ca aceasta să fie reîncărcată. Nimic nu este reîncărcat în acest interval după pornirea Home Assistant.",
           "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
           "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
-          "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna."
+          "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
+          "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Ultima verificare"
+      },
+      "reloads_24h": {
+        "name": "Reîncărcări în 24 h",
+        "state_attributes": {
+          "failed": {
+            "name": "Eșuate"
+          },
+          "integrations": {
+            "name": "Integrări"
+          }
+        }
       }
     }
   },
@@ -110,6 +125,8 @@
     "gave_up": "{title} ({domain}) este încă indisponibilă. Reîncărcări efectuate: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă."
   },
   "exceptions": {
-    "not_loaded": { "message": "Integration Watchdog nu este încărcat." }
+    "not_loaded": {
+      "message": "Integration Watchdog nu este încărcat."
+    }
   }
 }

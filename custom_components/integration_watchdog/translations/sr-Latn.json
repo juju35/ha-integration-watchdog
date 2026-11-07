@@ -9,14 +9,16 @@
           "grace_period": "Period čekanja",
           "max_reloads": "Uzastopna ponovna učitavanja",
           "ignored_integrations": "Ignorisane integracije",
-          "notify_services": "Akcije obaveštenja"
+          "notify_services": "Akcije obaveštenja",
+          "ignored_entries": "Zanemareni unosi"
         },
         "data_description": {
           "scan_interval": "Minuti između dve provere.",
           "grace_period": "Koliko minuta svi entiteti integracije moraju biti nedostupni pre nego što se ona ponovo učita. Tokom tog perioda nakon pokretanja Home Assistant-a ništa se ne učitava ponovo.",
           "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
           "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
-          "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira."
+          "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
+          "ignored_entries": "Pojedinačni unosi integracije koji se nikad ne učitavaju ponovo; ostali unosi njihove integracije i dalje se prate (na primer jedna od više kamera)."
         }
       }
     },
@@ -34,14 +36,16 @@
           "grace_period": "Period čekanja",
           "max_reloads": "Uzastopna ponovna učitavanja",
           "ignored_integrations": "Ignorisane integracije",
-          "notify_services": "Akcije obaveštenja"
+          "notify_services": "Akcije obaveštenja",
+          "ignored_entries": "Zanemareni unosi"
         },
         "data_description": {
           "scan_interval": "Minuti između dve provere.",
           "grace_period": "Koliko minuta svi entiteti integracije moraju biti nedostupni pre nego što se ona ponovo učita. Tokom tog perioda nakon pokretanja Home Assistant-a ništa se ne učitava ponovo.",
           "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
           "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
-          "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira."
+          "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
+          "ignored_entries": "Pojedinačni unosi integracije koji se nikad ne učitavaju ponovo; ostali unosi njihove integracije i dalje se prate (na primer jedna od više kamera)."
         }
       }
     }
@@ -92,6 +96,17 @@
       },
       "last_check": {
         "name": "Poslednja provera"
+      },
+      "reloads_24h": {
+        "name": "Ponovna učitavanja za 24 č",
+        "state_attributes": {
+          "failed": {
+            "name": "Neuspela"
+          },
+          "integrations": {
+            "name": "Integracije"
+          }
+        }
       }
     }
   },
