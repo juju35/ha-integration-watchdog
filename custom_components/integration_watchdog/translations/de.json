@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog ist nicht geladen."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} ist weiterhin nicht verfügbar",
+      "description": "**{title}** ({domain}) ist nach {attempt} Neuladevorgängen durch Integration Watchdog weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist.\n\nPrüfe das Gerät oder den Dienst, mit dem sie sich verbindet, sowie die Protokolle. Dieses Problem verschwindet, sobald die Integration wieder funktioniert."
+    }
   }
 }

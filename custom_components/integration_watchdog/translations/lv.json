@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog nav ielādēts."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} joprojām nav pieejama",
+      "description": "**{title}** ({domain}) joprojām nav pieejama. Integration Watchdog veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama.\n\nPārbaudiet ierīci vai pakalpojumu, ar ko tā savienojas, un žurnālus. Šī problēma pazudīs, tiklīdz integrācija atjaunosies."
+    }
   }
 }

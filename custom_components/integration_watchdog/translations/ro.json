@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog nu este încărcat."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} este încă indisponibilă",
+      "description": "**{title}** ({domain}) este încă indisponibilă. Reîncărcări efectuate de Integration Watchdog: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă.\n\nVerificați dispozitivul sau serviciul la care se conectează, precum și jurnalele. Această problemă dispare după ce integrarea își revine."
+    }
   }
 }

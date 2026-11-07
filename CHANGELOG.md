@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 - 2026-11-07
+
+### What's new
+- **Repairs issue** when the watchdog gives up on an integration, one per integration, removed automatically once it has recovered (or is disabled or removed).
+- **Diagnostics**: download them from the integration page to see the options and the watchdog's state (unavailable integrations, reload counts, history), with integration titles and notify actions redacted.
+
 ## 1.2.0 - 2026-11-07
 
 ### What's new

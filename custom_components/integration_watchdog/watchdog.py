@@ -9,7 +9,8 @@ utility meter...) are left out: their entities follow their sources, a reload ca
 An integration that stays unavailable is reloaded at most `max_reloads` times in a row, the delay
 between two reloads doubling each time (grace, 2 x grace, 4 x grace...); once the delay after the
 last one has passed, the watchdog gives up on it until it has been available again for the current
-delay. Every reload, and giving up, is notified.
+delay. Every reload, and giving up, is notified; giving up also raises a Repairs issue, deleted once
+the integration has recovered (or is removed or disabled).
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ from homeassistant.config_entries import ConfigEntry, ConfigEntryChange, ConfigE
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.loader import async_get_integrations
@@ -196,7 +198,13 @@ class IntegrationWatchdog:
         Done on the change itself: disabling then enabling again usually takes less than a check interval.
         """
         if entry.disabled_by is not None:
-            self.attempts.pop(entry.entry_id, None)
+            self._forget(entry.entry_id)
+
+    @callback
+    def _forget(self, entry_id: str) -> None:
+        """Start over for an entry: recovered, removed or disabled. Its Repairs issue, if any, goes too."""
+        self.attempts.pop(entry_id, None)
+        ir.async_delete_issue(self.hass, DOMAIN, issue_id(entry_id))
 
     @callback
     def async_add_listener(self, update_callback: CALLBACK_TYPE) -> Callable[[], None]:
@@ -325,7 +333,7 @@ class IntegrationWatchdog:
             # Removed, or disabled by the user (also forgotten as soon as it is disabled, see
             # async_entry_changed): once enabled again, it starts over.
             if entry is None or entry.disabled_by is not None:
-                del self.attempts[entry_id]
+                self._forget(entry_id)
                 continue
             # Out of the list is not available again: a setup or unload still in progress (a reload past
             # its timeout), or no entity with an available state. Left as it is.
@@ -334,7 +342,7 @@ class IntegrationWatchdog:
             if attempts.recovered_at is None:
                 attempts.recovered_at = now
             if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
-                del self.attempts[entry_id]
+                self._forget(entry_id)
         for item in self.unavailable:
             # Stop as soon as Home Assistant starts stopping, or the watchdog is unloaded or removed.
             if self.hass.state is not CoreState.running or self._stopped:
@@ -363,10 +371,25 @@ class IntegrationWatchdog:
                     attempts.count,
                 )
                 self._record("gave_up", item, attempts.count, now)
+                ir.async_create_issue(
+                    self.hass,
+                    DOMAIN,
+                    issue_id(item.entry_id),
+                    is_fixable=False,
+                    severity=ir.IssueSeverity.WARNING,
+                    translation_key="gave_up",
+                    translation_placeholders={
+                        "title": item.title,
+                        "domain": item.domain,
+                        "attempt": str(attempts.count),
+                    },
+                )
                 await self._async_send("gave_up", item, attempts.count)
             return
         # Given up with a lower limit, before the options were changed: reloaded again up to the new one.
-        attempts.gave_up = False
+        if attempts.gave_up:
+            attempts.gave_up = False
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id(item.entry_id))
         await self._async_reload(item, attempts)
 
     def _delay(self, attempts: Attempts) -> timedelta:
@@ -480,6 +503,11 @@ class IntegrationWatchdog:
                 _LOGGER.warning("Sending the notification with notify.%s didn't finish within %s", name, NOTIFY_TIMEOUT)
             except Exception:  # noqa: BLE001 - a broken notifier must not stop the watchdog
                 _LOGGER.exception("Sending the notification with notify.%s failed", name)
+
+
+def issue_id(entry_id: str) -> str:
+    """Repairs issue raised when the watchdog gives up on a config entry."""
+    return f"gave_up_{entry_id}"
 
 
 def _valid_history_item(item: Any) -> bool:

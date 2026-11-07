@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog není načten."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} je stále nedostupná",
+      "description": "**{title}** ({domain}) je stále nedostupná. Počet opětovných načtení pomocí Integration Watchdog: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná.\n\nZkontrolujte zařízení nebo službu, ke které se připojuje, a protokoly. Tento problém zmizí, jakmile se integrace zotaví."
+    }
   }
 }

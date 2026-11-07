@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Az Integration Watchdog nincs betöltve."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} továbbra sem érhető el",
+      "description": "**{title}** ({domain}) továbbra sem érhető el az Integration Watchdog {attempt} újratöltése után, amely addig nem tölti újra, amíg valamelyik entitása elérhetővé nem válik.\n\nEllenőrizd az eszközt vagy szolgáltatást, amelyhez kapcsolódik, és a naplókat. Ez a probléma eltűnik, amint az integráció helyreáll."
+    }
   }
 }

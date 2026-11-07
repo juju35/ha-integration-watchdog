@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog is niet geladen."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} is nog steeds niet beschikbaar",
+      "description": "**{title}** ({domain}) is na {attempt} keer herladen door Integration Watchdog nog steeds niet beschikbaar. Ze wordt pas opnieuw herladen als een van haar entiteiten beschikbaar is.\n\nControleer het apparaat of de dienst waarmee ze verbindt, en de logboeken. Dit probleem verdwijnt zodra de integratie hersteld is."
+    }
   }
 }

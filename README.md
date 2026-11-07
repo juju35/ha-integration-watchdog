@@ -28,6 +28,8 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Never during startup**: nothing is reloaded while Home Assistant starts or stops, nor during the grace period after it has started
 - **No reload loop**: an integration that stays unavailable is reloaded at most 3 times in a row (configurable), the delay between two reloads doubling each time; then the watchdog gives up on it until it recovers
 - **Notification** for each reload, failed reload and give-up: persistent notification, and optionally your notify actions (mobile app…)
+- **Repairs issue** for each integration given up, removed once it recovers
+- **Diagnostics** with personal data redacted
 - **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain, and **ignored entries**: one entry of an integration (a camera of several) left alone while its other entries are still watched
 - **Reloads in 24 h** sensor: how many reloads the last day, per integration — an unstable integration shows up there
 - **Check now** button and `integration_watchdog.check` action
@@ -104,6 +106,14 @@ The count is kept in memory: restarting Home Assistant starts over (the history 
 ### Notifications
 
 Each reload, failed reload and give-up creates a persistent notification, one per integration (the next one replaces it), in the language of Home Assistant. The same title and message are sent to the notify actions chosen in the options.
+
+### Repairs
+
+Giving up on an integration also raises an issue in **Settings → System → Repairs**, one per integration. It goes away by itself once the integration has recovered (available again for its current delay), is disabled or removed, or gets more reloads after **Reloads in a row** was raised. Like the reload counts, the issues don't survive a restart of Home Assistant.
+
+### Diagnostics
+
+**Settings → Devices & services → Integration Watchdog → ⋮ → Download diagnostics** gives the options and the watchdog's state: unavailable integrations, reload counts per entry, last reload and history. Integration titles (often an e-mail address or a host) and notify actions are redacted; domains and entry ids are kept.
 
 ### Entities
 

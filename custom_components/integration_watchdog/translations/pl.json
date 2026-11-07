@@ -128,5 +128,11 @@
     "not_loaded": {
       "message": "Integration Watchdog nie jest wczytany."
     }
+  },
+  "issues": {
+    "gave_up": {
+      "title": "{title} jest nadal niedostępna",
+      "description": "**{title}** ({domain}) jest nadal niedostępna. Liczba ponownych wczytań przez Integration Watchdog: {attempt}. Nie zostanie ponownie wczytana, dopóki jedna z jej encji nie będzie dostępna.\n\nSprawdź urządzenie lub usługę, z którą się łączy, oraz logi. Ten problem zniknie, gdy integracja zacznie znów działać."
+    }
   }
 }
