@@ -1362,7 +1362,7 @@ async def test_attempts_restored_after_restart(hass: HomeAssistant, freezer: Fro
     assert set(hass_storage[STORAGE_KEY]["data"]["attempts"]) == {dead.entry_id, flaky.entry_id}
 
 
-async def test_repairs_try_again(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+async def test_repairs_try_again(hass: HomeAssistant, freezer: FrozenDateTimeFactory, caplog: pytest.LogCaptureFixture):
     """The issue's "Try again" starts over and reloads the integration in the background."""
     assert await async_setup_component(hass, "repairs", {})
     dead = await _give_up(hass, freezer)
@@ -1388,10 +1388,12 @@ async def test_repairs_try_again(hass: HomeAssistant, freezer: FrozenDateTimeFac
     dead_again = await _give_up_again(hass, freezer, dead)
     assert dead_again.gave_up is True
     result = await manager.async_init(DOMAIN, data={"issue_id": issue_id})
+    caplog.clear()
     with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=False)):
         result = await manager.async_configure(result["flow_id"], {})
         await hass.async_block_till_done()
     assert result["reason"] == "reload_started"
+    assert "Reset of Dead (dead): the reload failed" in caplog.text
     assert dead.entry_id not in watchdog.attempts
 
 

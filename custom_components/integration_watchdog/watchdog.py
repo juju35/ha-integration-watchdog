@@ -297,6 +297,10 @@ class IntegrationWatchdog:
             if entry is not None:
                 _LOGGER.info("Reset of %s (%s): reloading it", entry.title, entry.domain)
                 success = await self._async_timed_reload(entry_id, entry.title, entry.domain)
+                # async_reload returning False (setup failed) is not logged by _async_timed_reload: the Repairs
+                # flow, which no longer waits for the result, tells to look here.
+                if not success:
+                    _LOGGER.warning("Reset of %s (%s): the reload failed", entry.title, entry.domain)
             self.unavailable = self.async_find_unavailable()
         self._notify_listeners()
         return success
