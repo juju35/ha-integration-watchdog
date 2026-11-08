@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '1.4.0';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '1.4.1';
 
 const IW_I18N = {
   en: {

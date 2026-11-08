@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.components import persistent_notification
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import SIGNAL_CONFIG_ENTRY_CHANGED, ConfigEntry, ConfigEntryState
@@ -43,7 +44,7 @@ from .const import (
     STORAGE_VERSION,
     VERSION,
 )
-from .watchdog import IntegrationWatchdog
+from .watchdog import IntegrationWatchdog, notification_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -189,13 +190,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: IntegrationWatchdogConf
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry) -> None:
-    """Forget the reload counts, the history and the Repairs issues, and drop the card resource.
+    """Forget the reload counts, the history, the Repairs issues and the notifications, and drop the card resource.
 
     Done once a check still running has ended.
     """
     shared = hass.data.get(DOMAIN)
     if shared is not None and not await _async_forget(hass, entry, shared):
         return
+    # Persistent notifications only live until Home Assistant stops: those of this run are the entries counted or
+    # recorded in the shared state.
+    if shared is not None:
+        for entry_id in {*shared.get("attempts", {}), *(item["entry_id"] for item in shared.get("history", []))}:
+            persistent_notification.async_dismiss(hass, notification_id(entry_id))
     registry = ir.async_get(hass)
     for domain, issue_id in list(registry.issues):
         if domain == DOMAIN:

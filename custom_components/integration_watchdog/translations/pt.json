@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "O Integration Watchdog não está carregado.",
-          "reload_failed": "Não foi possível recarregar a integração, veja os registos. Os seus recarregamentos foram repostos: o Integration Watchdog recomeça."
+          "reload_started": "A recarregar **{title}**: os seus recarregamentos foram repostos e o Integration Watchdog recomeça. Este problema desaparece assim que o recarregamento começa; uma falha fica nos registos."
         }
       }
     }

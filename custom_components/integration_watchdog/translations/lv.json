@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog nav ielādēts.",
-          "reload_failed": "Integrāciju neizdevās pārlādēt, skatiet žurnālus. Tās pārlādes ir atiestatītas: Integration Watchdog sāk no jauna."
+          "reload_started": "**{title}** pārlāde ir sākta: tās pārlādes ir atiestatītas, un Integration Watchdog sāk no jauna. Šī problēma pazūd, tiklīdz sākas pārlāde; kļūda ir redzama žurnālos."
         }
       }
     }

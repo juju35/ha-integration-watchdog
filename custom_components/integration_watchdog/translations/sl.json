@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog ni naložen.",
-          "reload_failed": "Integracije ni bilo mogoče ponovno naložiti, glejte dnevnike. Njena ponovna nalaganja so ponastavljena: Integration Watchdog začne znova."
+          "reload_started": "Ponovno nalaganje **{title}** se je začelo: njena ponovna nalaganja so ponastavljena in Integration Watchdog začne znova. Ta težava izgine, takoj ko se nalaganje začne; napaka je v dnevnikih."
         }
       }
     }

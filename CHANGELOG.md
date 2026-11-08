@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 - 2026-11-08
+
+### Fixes
+- The notification of an integration is dismissed once the watchdog starts over for it (recovered, reset, disabled or removed) and when Integration Watchdog itself is removed, instead of staying forever.
+- **Try again** on a Repairs issue no longer keeps the dialog waiting for a running check and the reload: it starts the reload in the background and closes at once, saying so; a failed reload is logged.
+- A reload started by **Try again** or the `integration_watchdog.reset` action that fails (the integration's setup returns an error) is now logged as a warning; before, only an exception or a timeout was.
+
 ## 1.4.0 - 2026-11-07
 
 ### What's new

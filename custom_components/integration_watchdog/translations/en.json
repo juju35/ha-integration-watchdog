@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog is not loaded.",
-          "reload_failed": "The integration could not be reloaded, see the logs. Its reloads were reset: Integration Watchdog starts over."
+          "reload_started": "Reloading **{title}**: its reloads were reset and Integration Watchdog starts over. This issue goes away as soon as the reload starts; a failure is in the logs."
         }
       }
     }

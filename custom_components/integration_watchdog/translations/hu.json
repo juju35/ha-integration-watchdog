@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Az Integration Watchdog nincs betöltve.",
-          "reload_failed": "Az integráció nem tölthető újra, lásd a naplókat. Az újratöltései visszaállítva: az Integration Watchdog elölről kezdi."
+          "reload_started": "**{title}** újratöltése elindult: az újratöltései visszaállítva, az Integration Watchdog elölről kezdi. Ez a probléma eltűnik, amint az újratöltés elkezdődik; a hiba a naplókban látható."
         }
       }
     }

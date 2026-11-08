@@ -105,13 +105,13 @@ The count is saved with the history (`.storage/integration_watchdog.history`): a
 
 ### Notifications
 
-Each reload, failed reload and give-up creates a persistent notification, one per integration (the next one replaces it), in the language of Home Assistant. The same title and message are sent to the notify actions chosen in the options.
+Each reload, failed reload and give-up creates a persistent notification, one per integration (the next one replaces it), in the language of Home Assistant. It is dismissed once the watchdog starts over for the integration (recovered, reset, disabled or removed), and when Integration Watchdog is removed. The same title and message are sent to the notify actions chosen in the options.
 
 ### Repairs
 
 Giving up on an integration also raises an issue in **Settings → System → Repairs**, one per integration. It goes away by itself once the integration has recovered (available again for its current delay), is disabled or removed, or gets more reloads after **Reloads in a row** was raised. An integration still given up when Home Assistant restarts gets its issue back.
 
-Opening the issue offers **Try again**: submitting it forgets the reloads of the integration, deletes the issue and reloads the integration now (like the `integration_watchdog.reset` action). If it is still unavailable afterwards, the watchdog starts over: reloads up to **Reloads in a row**, then gives up again.
+Opening the issue offers **Try again**: submitting it forgets the reloads of the integration, deletes the issue and reloads the integration now (like the `integration_watchdog.reset` action). The reload runs in the background: the dialog closes at once, saying that it was started, and a failed reload is logged. If it is still unavailable afterwards, the watchdog starts over: reloads up to **Reloads in a row**, then gives up again.
 
 ### Diagnostics
 
