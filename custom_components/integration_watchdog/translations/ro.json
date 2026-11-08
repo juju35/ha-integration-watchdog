@@ -114,6 +114,16 @@
     "check": {
       "name": "Verifică integrările",
       "description": "Caută integrările ale căror entități sunt toate indisponibile și le reîncarcă pe cele care au depășit perioada de grație."
+    },
+    "reset": {
+      "name": "Resetează o integrare",
+      "description": "Uită reîncărcările făcute pentru o integrare (abandonată sau nu) și o reîncarcă imediat.",
+      "fields": {
+        "entry_id": {
+          "name": "Intrare de integrare",
+          "description": "Intrarea de integrare de resetat și reîncărcat."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog nu este încărcat."
+    },
+    "unknown_entry": {
+      "message": "Nu există intrarea de integrare {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} nu a putut fi reîncărcată, consultați jurnalele. Reîncărcările sale au fost resetate: Integration Watchdog o ia de la capăt."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} este încă indisponibilă",
-      "description": "**{title}** ({domain}) este încă indisponibilă. Reîncărcări efectuate de Integration Watchdog: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă.\n\nVerificați dispozitivul sau serviciul la care se conectează, precum și jurnalele. Această problemă dispare după ce integrarea își revine."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) este încă indisponibilă. Reîncărcări efectuate de Integration Watchdog: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă.\n\nVerificați dispozitivul sau serviciul la care se conectează, precum și jurnalele. Această problemă dispare după ce integrarea își revine.\n\nTrimiteți pentru a reîncerca acum: Integration Watchdog uită reîncărcările și reîncarcă integrarea."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog nu este încărcat.",
+          "reload_failed": "Integrarea nu a putut fi reîncărcată, consultați jurnalele. Reîncărcările sale au fost resetate: Integration Watchdog o ia de la capăt."
+        }
+      }
     }
   }
 }

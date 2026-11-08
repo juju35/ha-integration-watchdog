@@ -114,6 +114,16 @@
     "check": {
       "name": "Controlla le integrazioni",
       "description": "Cerca le integrazioni le cui entità sono tutte non disponibili e ricarica quelle il cui periodo di tolleranza è trascorso."
+    },
+    "reset": {
+      "name": "Reimposta un'integrazione",
+      "description": "Dimentica i ricaricamenti fatti su un'integrazione (abbandonata o no) e la ricarica subito.",
+      "fields": {
+        "entry_id": {
+          "name": "Voce dell'integrazione",
+          "description": "La voce dell'integrazione da reimpostare e ricaricare."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog non è caricato."
+    },
+    "unknown_entry": {
+      "message": "Nessuna voce di integrazione {entry_id}."
+    },
+    "reload_failed": {
+      "message": "Impossibile ricaricare {title}, vedi i log. I suoi ricaricamenti sono stati reimpostati: Integration Watchdog ricomincia."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} è ancora non disponibile",
-      "description": "**{title}** ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti di Integration Watchdog, che non la ricaricherà più finché una delle sue entità non sarà disponibile.\n\nControlla il dispositivo o il servizio a cui si collega, e i log. Questo problema scompare quando l'integrazione si ripristina."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti di Integration Watchdog, che non la ricaricherà più finché una delle sue entità non sarà disponibile.\n\nControlla il dispositivo o il servizio a cui si collega, e i log. Questo problema scompare quando l'integrazione si ripristina.\n\nConferma per riprovare ora: Integration Watchdog dimentica i suoi ricaricamenti e ricarica l'integrazione."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog non è caricato.",
+          "reload_failed": "Impossibile ricaricare l'integrazione, vedi i log. I suoi ricaricamenti sono stati reimpostati: Integration Watchdog ricomincia."
+        }
+      }
     }
   }
 }

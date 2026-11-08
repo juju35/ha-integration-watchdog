@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 - 2026-11-07
+
+### What's new
+- **Try again** on the Repairs issue of an integration given up: it forgets its reloads and reloads it now.
+- **`integration_watchdog.reset` action** (administrators) doing the same for any integration entry, and a **Try again** button next to a given-up row of the card.
+- Card rows and mini card chips open the integration's page on its entry (`#config_entry=<entry_id>`), not just the integration.
+
+### Fixes
+- The reload counts (and given-up integrations) are saved with the history, so a restart of Home Assistant no longer starts over; entries removed meanwhile are dropped, and the Repairs issue of an integration still given up comes back.
+
 ## 1.3.0 - 2026-11-07
 
 ### What's new

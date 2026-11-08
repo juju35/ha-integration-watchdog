@@ -114,6 +114,16 @@
     "check": {
       "name": "Skontrolovať integrácie",
       "description": "Vyhľadá integrácie, ktorých všetky entity sú nedostupné, a znovu načíta tie, ktorým uplynula ochranná lehota."
+    },
+    "reset": {
+      "name": "Resetovať integráciu",
+      "description": "Zabudne opätovné načítania integrácie (vzdanej alebo nie) a hneď ju znovu načíta.",
+      "fields": {
+        "entry_id": {
+          "name": "Záznam integrácie",
+          "description": "Záznam integrácie, ktorý sa resetuje a znovu načíta."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog nie je načítaný."
+    },
+    "unknown_entry": {
+      "message": "Žiadny záznam integrácie {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} sa nepodarilo znovu načítať, pozrite si záznamy. Jej opätovné načítania boli resetované: Integration Watchdog začína odznova."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} je stále nedostupná",
-      "description": "**{title}** ({domain}) je stále nedostupná. Počet opätovných načítaní cez Integration Watchdog: {attempt}. Znovu sa nenačíta, kým niektorá z jej entít nebude dostupná.\n\nSkontrolujte zariadenie alebo službu, ku ktorej sa pripája, a záznamy. Tento problém zmizne, keď sa integrácia zotaví."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) je stále nedostupná. Počet opätovných načítaní cez Integration Watchdog: {attempt}. Znovu sa nenačíta, kým niektorá z jej entít nebude dostupná.\n\nSkontrolujte zariadenie alebo službu, ku ktorej sa pripája, a záznamy. Tento problém zmizne, keď sa integrácia zotaví.\n\nPotvrďte a skúste to znova teraz: Integration Watchdog zabudne jej opätovné načítania a znovu načíta integráciu."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog nie je načítaný.",
+          "reload_failed": "Integráciu sa nepodarilo znovu načítať, pozrite si záznamy. Jej opätovné načítania boli resetované: Integration Watchdog začína odznova."
+        }
+      }
     }
   }
 }

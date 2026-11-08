@@ -10,7 +10,8 @@ An integration that stays unavailable is reloaded at most `max_reloads` times in
 between two reloads doubling each time (grace, 2 x grace, 4 x grace...); once the delay after the
 last one has passed, the watchdog gives up on it until it has been available again for the current
 delay. Every reload, and giving up, is notified; giving up also raises a Repairs issue, deleted once
-the integration has recovered (or is removed or disabled).
+the integration has recovered (or is removed or disabled), whose "Try again" (like the reset action)
+starts over and reloads it at once. The counts are saved with the history, so a restart keeps them.
 """
 
 from __future__ import annotations
@@ -45,8 +46,8 @@ WATCHED_STATES = (
     ConfigEntryState.SETUP_ERROR,
 )
 
-# Seconds a change of the history waits before being written, so that a check reloading several integrations
-# writes it once.
+# Seconds a change of the history or the counts waits before being written, so that a check reloading several
+# integrations writes it once.
 HISTORY_SAVE_DELAY = 10
 # Kinds of the history items: the notification sent for each.
 HISTORY_KINDS = ("reloaded", "reload_failed", "gave_up")
@@ -76,6 +77,34 @@ class Attempts:
     gave_up: bool = False
     # First check that found the integration available again, None while it is unavailable.
     recovered_at: datetime | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        """JSON form, saved with the history and shown in the diagnostics."""
+        return {
+            "count": self.count,
+            "last": self.last.isoformat() if self.last else None,
+            "gave_up": self.gave_up,
+            "recovered_at": self.recovered_at.isoformat() if self.recovered_at else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Any) -> Attempts | None:
+        """Read what as_dict wrote; None when it is malformed."""
+        if not isinstance(data, dict):
+            return None
+        count, gave_up = data.get("count"), data.get("gave_up")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 0 or not isinstance(gave_up, bool):
+            return None
+        dates: list[datetime | None] = []
+        for key in ("last", "recovered_at"):
+            value = data.get(key)
+            if value is None:
+                dates.append(None)
+            elif not isinstance(value, str) or (parsed := dt_util.parse_datetime(value)) is None:
+                return None
+            else:
+                dates.append(parsed)
+        return cls(count, dates[0], gave_up, dates[1])
 
 
 @dataclass(frozen=True)
@@ -119,8 +148,8 @@ class IntegrationWatchdog:
         # The reload count and the last reload too, so that the sensor doesn't start over at each options change.
         shared.setdefault("reloads", 0)
         self.attempts: dict[str, Attempts] = shared.setdefault("attempts", {})
-        # Recent reloads and give-ups for the card, newest first: loaded from storage by async_load (once per
-        # Home Assistant run, then shared like the counts above).
+        # Recent reloads and give-ups for the card, newest first, and the counts above: loaded from storage by
+        # async_load (once per Home Assistant run, then shared).
         self.history: list[dict[str, Any]] = shared.setdefault("history", [])
         self._store: Store[dict[str, Any]] = shared.setdefault("store", Store(hass, STORAGE_VERSION, STORAGE_KEY))
         self.last_check: datetime | None = None
@@ -151,7 +180,7 @@ class IntegrationWatchdog:
         return self._shared.get("last_reload")
 
     async def async_load(self) -> None:
-        """Read the history saved by a previous run of Home Assistant, once."""
+        """Read the history and the counts saved by a previous run of Home Assistant, once."""
         if self._shared.get("history_loaded"):
             return
         self._shared["history_loaded"] = True
@@ -160,12 +189,57 @@ class IntegrationWatchdog:
         except Exception:  # noqa: BLE001 - a broken file must not prevent the watchdog from starting
             _LOGGER.exception("Could not read the reload history: starting a new one")
             return
-        items = data.get("history") if isinstance(data, dict) else None
-        if not isinstance(items, list):
+        if not isinstance(data, dict):
             return
-        valid = [i for i in items if _valid_history_item(i)]
-        # Items recorded since the start (before the file was read) stay first.
-        self.history.extend(valid[: max(HISTORY_SIZE - len(self.history), 0)])
+        items = data.get("history")
+        if isinstance(items, list):
+            valid = [i for i in items if _valid_history_item(i)]
+            # Items recorded since the start (before the file was read) stay first.
+            self.history.extend(valid[: max(HISTORY_SIZE - len(self.history), 0)])
+        saved = data.get("attempts")
+        if not isinstance(saved, dict):
+            return
+        dropped = False
+        for entry_id, value in saved.items():
+            attempts = Attempts.from_dict(value)
+            entry = self.hass.config_entries.async_get_entry(entry_id)
+            # Removed while Home Assistant was stopped (or malformed): forgotten.
+            if attempts is None or entry is None:
+                dropped = True
+                continue
+            if entry_id in self.attempts:
+                continue
+            self.attempts[entry_id] = attempts
+            # The Repairs issue is not persistent: raised again for an integration still given up.
+            if attempts.gave_up:
+                self._create_issue(entry_id, entry.title, entry.domain, attempts.count)
+        if dropped:
+            self._save()
+
+    def _saved_data(self) -> dict[str, Any]:
+        return {
+            "history": list(self.history),
+            "attempts": {entry_id: attempts.as_dict() for entry_id, attempts in self.attempts.items()},
+        }
+
+    @callback
+    def _save(self) -> None:
+        """Write the history and the counts a little later."""
+        self._store.async_delay_save(self._saved_data, HISTORY_SAVE_DELAY)
+
+    @callback
+    def _create_issue(self, entry_id: str, title: str, domain: str, attempt: int) -> None:
+        """The Repairs issue of an integration given up, with its "Try again" (see repairs.py)."""
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            issue_id(entry_id),
+            is_fixable=True,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="gave_up",
+            translation_placeholders={"title": title, "domain": domain, "attempt": str(attempt)},
+            data={"entry_id": entry_id},
+        )
 
     @callback
     def _record(self, kind: str, item: UnavailableIntegration, attempt: int, at: datetime) -> None:
@@ -184,7 +258,7 @@ class IntegrationWatchdog:
             },
         )
         del self.history[HISTORY_SIZE:]
-        self._store.async_delay_save(lambda: {"history": list(self.history)}, HISTORY_SAVE_DELAY)
+        self._save()
 
     @callback
     def async_stop(self) -> None:
@@ -202,9 +276,26 @@ class IntegrationWatchdog:
 
     @callback
     def _forget(self, entry_id: str) -> None:
-        """Start over for an entry: recovered, removed or disabled. Its Repairs issue, if any, goes too."""
-        self.attempts.pop(entry_id, None)
+        """Start over for an entry: recovered, removed, disabled or reset. Its Repairs issue, if any, goes too."""
+        if self.attempts.pop(entry_id, None) is not None:
+            self._save()
         ir.async_delete_issue(self.hass, DOMAIN, issue_id(entry_id))
+
+    async def async_reset(self, entry_id: str) -> bool:
+        """Start over for an entry and reload it now (Repairs "Try again", the reset action).
+
+        Waits for a check still running, so that both don't reload it at once. Returns whether the reload succeeded.
+        """
+        async with self._lock:
+            self._forget(entry_id)
+            entry = self.hass.config_entries.async_get_entry(entry_id)
+            success = False
+            if entry is not None:
+                _LOGGER.info("Reset of %s (%s): reloading it", entry.title, entry.domain)
+                success = await self._async_timed_reload(entry_id, entry.title, entry.domain)
+            self.unavailable = self.async_find_unavailable()
+        self._notify_listeners()
+        return success
 
     @callback
     def async_add_listener(self, update_callback: CALLBACK_TYPE) -> Callable[[], None]:
@@ -297,6 +388,7 @@ class IntegrationWatchdog:
             _LOGGER.debug("A check is already running")
             return
         seen = self._shared["checks"]
+        saved = {entry_id: attempts.as_dict() for entry_id, attempts in self.attempts.items()}
         try:
             async with self._lock:
                 if self.hass.state is not CoreState.running or self._stopped:
@@ -313,6 +405,9 @@ class IntegrationWatchdog:
                 finally:
                     self.last_check = dt_util.utcnow()
         finally:
+            # The counts changed (reload, give-up, recovery): saved so that a restart keeps them.
+            if saved != {entry_id: attempts.as_dict() for entry_id, attempts in self.attempts.items()}:
+                self._save()
             # Also after an unexpected error: the entities (and the button, available again) must not stay stale.
             self._notify_listeners()
 
@@ -371,19 +466,7 @@ class IntegrationWatchdog:
                     attempts.count,
                 )
                 self._record("gave_up", item, attempts.count, now)
-                ir.async_create_issue(
-                    self.hass,
-                    DOMAIN,
-                    issue_id(item.entry_id),
-                    is_fixable=False,
-                    severity=ir.IssueSeverity.WARNING,
-                    translation_key="gave_up",
-                    translation_placeholders={
-                        "title": item.title,
-                        "domain": item.domain,
-                        "attempt": str(attempts.count),
-                    },
-                )
+                self._create_issue(item.entry_id, item.title, item.domain, attempts.count)
                 await self._async_send("gave_up", item, attempts.count)
             return
         # Given up with a lower limit, before the options were changed: reloaded again up to the new one.
@@ -397,16 +480,36 @@ class IntegrationWatchdog:
         return self.grace_period * 2 ** max(attempts.count - 1, 0)
 
     @staticmethod
-    def _log_late_reload(task: asyncio.Task, item: UnavailableIntegration) -> None:
+    def _log_late_reload(task: asyncio.Task, title: str, domain: str) -> None:
         """Log the failure of a reload that finished after its timeout."""
         if task.cancelled() or (err := task.exception()) is None:
             return
         _LOGGER.error(
             "Reloading %s (%s) failed after its timeout",
-            item.title,
-            item.domain,
+            title,
+            domain,
             exc_info=(type(err), err, err.__traceback__),
         )
+
+    async def _async_timed_reload(self, entry_id: str, title: str, domain: str) -> bool:
+        """Reload a config entry within RELOAD_TIMEOUT; a timeout or an error is a failure."""
+        # Shielded: on timeout the check goes on, the reload itself isn't cancelled halfway.
+        task = self.hass.async_create_background_task(
+            self.hass.config_entries.async_reload(entry_id), f"{DOMAIN} reload {entry_id}"
+        )
+        try:
+            async with asyncio.timeout(RELOAD_TIMEOUT.total_seconds()):
+                return bool(await asyncio.shield(task))
+        except TimeoutError:
+            _LOGGER.warning(
+                "Reloading %s (%s) didn't finish within %s: counted as failed", title, domain, RELOAD_TIMEOUT
+            )
+            # Nobody awaits the shielded reload any more: read its outcome so that a late failure is logged
+            # here instead of asyncio's "Task exception was never retrieved".
+            task.add_done_callback(lambda t: self._log_late_reload(t, title, domain))
+        except Exception:  # noqa: BLE001 - one broken integration must not stop the watchdog
+            _LOGGER.exception("Reloading %s (%s) failed", title, domain)
+        return False
 
     async def _async_reload(self, item: UnavailableIntegration, attempts: Attempts) -> None:
         entry: ConfigEntry | None = self.hass.config_entries.async_get_entry(item.entry_id)
@@ -422,27 +525,7 @@ class IntegrationWatchdog:
             item.domain,
             item.since.isoformat(),
         )
-        # Shielded: on timeout the check goes on, the reload itself isn't cancelled halfway.
-        task = self.hass.async_create_background_task(
-            self.hass.config_entries.async_reload(item.entry_id), f"{DOMAIN} reload {item.entry_id}"
-        )
-        try:
-            async with asyncio.timeout(RELOAD_TIMEOUT.total_seconds()):
-                success = await asyncio.shield(task)
-        except TimeoutError:
-            _LOGGER.warning(
-                "Reloading %s (%s) didn't finish within %s: counted as failed",
-                item.title,
-                item.domain,
-                RELOAD_TIMEOUT,
-            )
-            # Nobody awaits the shielded reload any more: read its outcome so that a late failure is logged
-            # here instead of asyncio's "Task exception was never retrieved".
-            task.add_done_callback(lambda t, item=item: self._log_late_reload(t, item))
-            success = False
-        except Exception:  # noqa: BLE001 - one broken integration must not stop the watchdog
-            _LOGGER.exception("Reloading %s (%s) failed", item.title, item.domain)
-            success = False
+        success = await self._async_timed_reload(item.entry_id, item.title, item.domain)
         attempts.count += 1
         attempts.last = dt_util.utcnow()
         self._shared["reloads"] += 1

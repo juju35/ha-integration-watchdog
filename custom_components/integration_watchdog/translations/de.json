@@ -114,6 +114,16 @@
     "check": {
       "name": "Integrationen prüfen",
       "description": "Sucht die Integrationen, deren Entitäten alle nicht verfügbar sind, und lädt diejenigen neu, deren Karenzzeit abgelaufen ist."
+    },
+    "reset": {
+      "name": "Integration zurücksetzen",
+      "description": "Vergisst die Neuladevorgänge einer Integration (aufgegeben oder nicht) und lädt sie sofort neu.",
+      "fields": {
+        "entry_id": {
+          "name": "Integrationseintrag",
+          "description": "Der Integrationseintrag, der zurückgesetzt und neu geladen wird."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog ist nicht geladen."
+    },
+    "unknown_entry": {
+      "message": "Kein Integrationseintrag {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} konnte nicht neu geladen werden, siehe Protokolle. Die Neuladevorgänge wurden zurückgesetzt: Integration Watchdog beginnt von vorn."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} ist weiterhin nicht verfügbar",
-      "description": "**{title}** ({domain}) ist nach {attempt} Neuladevorgängen durch Integration Watchdog weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist.\n\nPrüfe das Gerät oder den Dienst, mit dem sie sich verbindet, sowie die Protokolle. Dieses Problem verschwindet, sobald die Integration wieder funktioniert."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) ist nach {attempt} Neuladevorgängen durch Integration Watchdog weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist.\n\nPrüfe das Gerät oder den Dienst, mit dem sie sich verbindet, sowie die Protokolle. Dieses Problem verschwindet, sobald die Integration wieder funktioniert.\n\nAbsenden, um es jetzt erneut zu versuchen: Integration Watchdog vergisst die Neuladevorgänge und lädt die Integration neu."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog ist nicht geladen.",
+          "reload_failed": "Die Integration konnte nicht neu geladen werden, siehe Protokolle. Die Neuladevorgänge wurden zurückgesetzt: Integration Watchdog beginnt von vorn."
+        }
+      }
     }
   }
 }

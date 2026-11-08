@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '1.3.0';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '1.4.0';
 
 const IW_I18N = {
   en: {
@@ -20,6 +20,8 @@ const IW_I18N = {
     checked: 'Checked {d}',
     check_now: 'Check now',
     check_failed: 'Check failed: {error}',
+    retry: 'Try again',
+    retry_failed: 'Try again failed: {error}',
     stat_unavailable: 'Unavailable',
     stat_reloads: 'Reloads',
     stat_reloads_hint: 'Since Home Assistant started',
@@ -74,6 +76,8 @@ const IW_I18N = {
     checked: 'Vérifié {d}',
     check_now: 'Vérifier maintenant',
     check_failed: 'Échec de la vérification : {error}',
+    retry: 'Réessayer',
+    retry_failed: 'Échec de la nouvelle tentative : {error}',
     stat_unavailable: 'Indisponibles',
     stat_reloads: 'Rechargements',
     stat_reloads_hint: 'Depuis le démarrage de Home Assistant',
@@ -128,6 +132,8 @@ const IW_I18N = {
     checked: 'Geprüft {d}',
     check_now: 'Jetzt prüfen',
     check_failed: 'Prüfung fehlgeschlagen: {error}',
+    retry: 'Erneut versuchen',
+    retry_failed: 'Erneuter Versuch fehlgeschlagen: {error}',
     stat_unavailable: 'Nicht verfügbar',
     stat_reloads: 'Neuladungen',
     stat_reloads_hint: 'Seit dem Start von Home Assistant',
@@ -182,6 +188,8 @@ const IW_I18N = {
     checked: 'Comprobado {d}',
     check_now: 'Comprobar ahora',
     check_failed: 'La comprobación ha fallado: {error}',
+    retry: 'Reintentar',
+    retry_failed: 'El reintento ha fallado: {error}',
     stat_unavailable: 'No disponibles',
     stat_reloads: 'Recargas',
     stat_reloads_hint: 'Desde que se inició Home Assistant',
@@ -236,6 +244,8 @@ const IW_I18N = {
     checked: 'Controllato {d}',
     check_now: 'Controlla ora',
     check_failed: 'Controllo non riuscito: {error}',
+    retry: 'Riprova',
+    retry_failed: 'Nuovo tentativo non riuscito: {error}',
     stat_unavailable: 'Non disponibili',
     stat_reloads: 'Ricaricamenti',
     stat_reloads_hint: 'Dall’avvio di Home Assistant',
@@ -290,6 +300,8 @@ const IW_I18N = {
     checked: 'Gecontroleerd {d}',
     check_now: 'Nu controleren',
     check_failed: 'Controle mislukt: {error}',
+    retry: 'Opnieuw proberen',
+    retry_failed: 'Opnieuw proberen mislukt: {error}',
     stat_unavailable: 'Niet beschikbaar',
     stat_reloads: 'Herladen',
     stat_reloads_hint: 'Sinds Home Assistant is gestart',
@@ -344,6 +356,8 @@ const IW_I18N = {
     checked: 'Verificado {d}',
     check_now: 'Verificar agora',
     check_failed: 'A verificação falhou: {error}',
+    retry: 'Tentar novamente',
+    retry_failed: 'A nova tentativa falhou: {error}',
     stat_unavailable: 'Indisponíveis',
     stat_reloads: 'Recarregamentos',
     stat_reloads_hint: 'Desde o arranque do Home Assistant',
@@ -400,6 +414,8 @@ const IW_I18N = {
     checked: 'Sprawdzono {d}',
     check_now: 'Sprawdź teraz',
     check_failed: 'Sprawdzanie nie powiodło się: {error}',
+    retry: 'Spróbuj ponownie',
+    retry_failed: 'Ponowna próba nie powiodła się: {error}',
     stat_unavailable: 'Niedostępne',
     stat_reloads: 'Ponowne wczytania',
     stat_reloads_hint: 'Od uruchomienia Home Assistant',
@@ -456,6 +472,8 @@ const IW_I18N = {
     checked: 'Проверено {d}',
     check_now: 'Провери сада',
     check_failed: 'Провера није успела: {error}',
+    retry: 'Покушај поново',
+    retry_failed: 'Поновни покушај није успео: {error}',
     stat_unavailable: 'Недоступне',
     stat_reloads: 'Поновна учитавања',
     stat_reloads_hint: 'Од покретања Home Assistant-а',
@@ -512,6 +530,8 @@ const IW_I18N = {
     checked: 'Provereno {d}',
     check_now: 'Proveri sada',
     check_failed: 'Provera nije uspela: {error}',
+    retry: 'Pokušaj ponovo',
+    retry_failed: 'Ponovni pokušaj nije uspeo: {error}',
     stat_unavailable: 'Nedostupne',
     stat_reloads: 'Ponovna učitavanja',
     stat_reloads_hint: 'Od pokretanja Home Assistant-a',
@@ -566,6 +586,8 @@ const IW_I18N = {
     checked: 'Verificat {d}',
     check_now: 'Verifică acum',
     check_failed: 'Verificarea a eșuat: {error}',
+    retry: 'Reîncearcă',
+    retry_failed: 'Reîncercarea a eșuat: {error}',
     stat_unavailable: 'Indisponibile',
     stat_reloads: 'Reîncărcări',
     stat_reloads_hint: 'De la pornirea Home Assistant',
@@ -620,6 +642,8 @@ const IW_I18N = {
     checked: 'Kontrolleret {d}',
     check_now: 'Kontrollér nu',
     check_failed: 'Kontrollen mislykkedes: {error}',
+    retry: 'Prøv igen',
+    retry_failed: 'Nyt forsøg mislykkedes: {error}',
     stat_unavailable: 'Utilgængelige',
     stat_reloads: 'Genindlæsninger',
     stat_reloads_hint: 'Siden Home Assistant startede',
@@ -674,6 +698,8 @@ const IW_I18N = {
     checked: 'Kontrollerad {d}',
     check_now: 'Kontrollera nu',
     check_failed: 'Kontrollen misslyckades: {error}',
+    retry: 'Försök igen',
+    retry_failed: 'Nytt försök misslyckades: {error}',
     stat_unavailable: 'Otillgängliga',
     stat_reloads: 'Omladdningar',
     stat_reloads_hint: 'Sedan Home Assistant startade',
@@ -728,6 +754,8 @@ const IW_I18N = {
     checked: 'Проверено {d}',
     check_now: 'Провери сега',
     check_failed: 'Проверката не бе успешна: {error}',
+    retry: 'Опитай отново',
+    retry_failed: 'Новият опит не бе успешен: {error}',
     stat_unavailable: 'Недостъпни',
     stat_reloads: 'Презареждания',
     stat_reloads_hint: 'От стартирането на Home Assistant',
@@ -782,6 +810,8 @@ const IW_I18N = {
     checked: 'Проверено {d}',
     check_now: 'Проверить сейчас',
     check_failed: 'Ошибка проверки: {error}',
+    retry: 'Повторить',
+    retry_failed: 'Повторная попытка не удалась: {error}',
     stat_unavailable: 'Недоступно',
     stat_reloads: 'Перезагрузки',
     stat_reloads_hint: 'С момента запуска Home Assistant',
@@ -836,6 +866,8 @@ const IW_I18N = {
     checked: 'Перевірено {d}',
     check_now: 'Перевірити зараз',
     check_failed: 'Помилка перевірки: {error}',
+    retry: 'Повторити',
+    retry_failed: 'Повторна спроба не вдалася: {error}',
     stat_unavailable: 'Недоступно',
     stat_reloads: 'Перезавантаження',
     stat_reloads_hint: 'Від запуску Home Assistant',
@@ -890,6 +922,8 @@ const IW_I18N = {
     checked: 'Ellenőrizve: {d}',
     check_now: 'Ellenőrzés most',
     check_failed: 'Az ellenőrzés sikertelen: {error}',
+    retry: 'Újra',
+    retry_failed: 'Az újrapróbálás sikertelen: {error}',
     stat_unavailable: 'Nem elérhető',
     stat_reloads: 'Újratöltések',
     stat_reloads_hint: 'A Home Assistant indulása óta',
@@ -944,6 +978,8 @@ const IW_I18N = {
     checked: 'Skontrolované {d}',
     check_now: 'Skontrolovať teraz',
     check_failed: 'Kontrola zlyhala: {error}',
+    retry: 'Skúsiť znova',
+    retry_failed: 'Nový pokus zlyhal: {error}',
     stat_unavailable: 'Nedostupné',
     stat_reloads: 'Opätovné načítania',
     stat_reloads_hint: 'Od spustenia Home Assistant',
@@ -998,6 +1034,8 @@ const IW_I18N = {
     checked: 'Zkontrolováno {d}',
     check_now: 'Zkontrolovat nyní',
     check_failed: 'Kontrola selhala: {error}',
+    retry: 'Zkusit znovu',
+    retry_failed: 'Nový pokus selhal: {error}',
     stat_unavailable: 'Nedostupné',
     stat_reloads: 'Opětovná načtení',
     stat_reloads_hint: 'Od spuštění Home Assistant',
@@ -1052,6 +1090,8 @@ const IW_I18N = {
     checked: 'Preverjeno {d}',
     check_now: 'Preveri zdaj',
     check_failed: 'Preverjanje ni uspelo: {error}',
+    retry: 'Poskusi znova',
+    retry_failed: 'Ponoven poskus ni uspel: {error}',
     stat_unavailable: 'Ni na voljo',
     stat_reloads: 'Ponovna nalaganja',
     stat_reloads_hint: 'Od zagona Home Assistanta',
@@ -1106,6 +1146,8 @@ const IW_I18N = {
     checked: 'Pārbaudīts {d}',
     check_now: 'Pārbaudīt tagad',
     check_failed: 'Pārbaude neizdevās: {error}',
+    retry: 'Mēģināt vēlreiz',
+    retry_failed: 'Atkārtotais mēģinājums neizdevās: {error}',
     stat_unavailable: 'Nav pieejamas',
     stat_reloads: 'Pārlādes',
     stat_reloads_hint: 'Kopš Home Assistant palaišanas',
@@ -1160,6 +1202,8 @@ const IW_I18N = {
     checked: 'Ελέγχθηκε {d}',
     check_now: 'Έλεγχος τώρα',
     check_failed: 'Ο έλεγχος απέτυχε: {error}',
+    retry: 'Δοκιμή ξανά',
+    retry_failed: 'Η νέα προσπάθεια απέτυχε: {error}',
     stat_unavailable: 'Μη διαθέσιμες',
     stat_reloads: 'Επαναφορτώσεις',
     stat_reloads_hint: 'Από την εκκίνηση του Home Assistant',
@@ -1490,7 +1534,10 @@ class IntegrationWatchdogCard extends HTMLElement {
   _bind() {
     this.shadowRoot.querySelector('.check')?.addEventListener('click', () => this._check());
     for (const el of this.shadowRoot.querySelectorAll('.row[data-domain]')) {
-      el.addEventListener('click', () => this._openIntegration(el.dataset.domain));
+      el.addEventListener('click', () => this._openIntegration(el.dataset.domain, el.dataset.entry));
+    }
+    for (const el of this.shadowRoot.querySelectorAll('.retry[data-entry]')) {
+      el.addEventListener('click', () => this._retry(el.dataset.entry));
     }
     // A brand image that doesn't exist (custom integration without a brand) falls back to the generic icon.
     for (const img of this.shadowRoot.querySelectorAll('img.brand')) {
@@ -1515,11 +1562,12 @@ class IntegrationWatchdogCard extends HTMLElement {
     return `<div class="pill" title="${t}"><span class="dot"></span><span class="ptxt">${t}</span></div>`;
   }
 
-  // A row: a button opening the integration's page for an administrator, plain text for the other users.
-  _row(cls, domain, focus, title, body) {
+  // A row: a button opening the integration's page (on its entry) for an administrator, plain text for the other users.
+  _row(cls, domain, focus, title, body, entry) {
     const t = iwEsc(title);
+    const target = entry ? ` data-entry="${iwEsc(entry)}"` : '';
     return this._admin
-      ? `<button class="${cls}" data-domain="${iwEsc(domain)}" data-focus="${iwEsc(focus)}" title="${t}">${body}</button>`
+      ? `<button class="${cls}" data-domain="${iwEsc(domain)}"${target} data-focus="${iwEsc(focus)}" title="${t}">${body}</button>`
       : `<div class="${cls}" title="${t}">${body}</div>`;
   }
 
@@ -1532,6 +1580,16 @@ class IntegrationWatchdogCard extends HTMLElement {
     if (!this._config.check_button || !this._ids.button) return '';
     const label = iwEsc(this._t('check_now'));
     return `<button class="check" data-focus="check" title="${label}" aria-label="${label}"${checking ? ' disabled' : ''}><ha-icon icon="mdi:refresh"></ha-icon></button>`;
+  }
+
+  // "Try again" on an integration given up: the reset action forgets its reloads and reloads it. A failure is a toast.
+  async _retry(entryId) {
+    try {
+      await this._hass.callService('integration_watchdog', 'reset', { entry_id: entryId });
+    } catch (err) {
+      const message = this._t('retry_failed', { error: err?.message || err?.code || String(err) });
+      this.dispatchEvent(new CustomEvent('hass-notification', { detail: { message }, bubbles: true, composed: true }));
+    }
   }
 
   // A failure (connection lost, button removed) is shown as a Home Assistant toast.
@@ -1570,7 +1628,7 @@ class IntegrationWatchdogCard extends HTMLElement {
     const kind = i.gave_up ? 'alert' : 'warn';
     const sub = [i.domain, i.since ? this._t('since', { d: this._duration(iwMinutes(i.since)) }) : ''].filter(Boolean).join(' · ');
     const value = i.gave_up ? this._t('gave_up') : i.reloads && max ? this._t('attempts', { n: i.reloads, max }) : this._t('waiting');
-    return this._row(
+    const row = this._row(
       `row ${kind}`,
       i.domain,
       `u:${i.entry_id || i.domain}`,
@@ -1582,7 +1640,12 @@ class IntegrationWatchdogCard extends HTMLElement {
               <span class="sub">${iwEsc(sub)}</span>
             </span>
             <span class="tag">${iwEsc(value)}</span>`,
+      i.entry_id,
     );
+    // Given up: an administrator gets "Try again" (the reset action) next to the row.
+    if (!i.gave_up || !this._admin || !i.entry_id) return row;
+    const label = iwEsc(`${this._t('retry')} — ${i.title}`);
+    return `<div class="line">${row}<button class="retry" data-entry="${iwEsc(i.entry_id)}" data-focus="r:${iwEsc(i.entry_id)}" title="${label}" aria-label="${label}"><ha-icon icon="mdi:restart"></ha-icon></button></div>`;
   }
 
   _historyRow(h) {
@@ -1611,13 +1674,15 @@ class IntegrationWatchdogCard extends HTMLElement {
               <span class="lbl">${iwEsc(label)}</span>
               <span class="ago">${iwEsc(this._ago(h.at))}</span>
             </span>`,
+      h.entry_id,
     );
   }
 
-  // The integration's page in Settings, where its entries can be reloaded or their logs read.
-  _openIntegration(domain) {
+  // The integration's page in Settings, where its entries can be reloaded or their logs read; scrolled to the entry.
+  _openIntegration(domain, entry) {
     if (!domain) return;
-    window.history.pushState(null, '', `/config/integrations/integration/${encodeURIComponent(domain)}`);
+    const hash = entry ? `#config_entry=${encodeURIComponent(entry)}` : '';
+    window.history.pushState(null, '', `/config/integrations/integration/${encodeURIComponent(domain)}${hash}`);
     window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
   }
 
@@ -1685,6 +1750,14 @@ class IntegrationWatchdogCard extends HTMLElement {
       .check:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
       .check[disabled] { cursor: default; opacity: .4; background: none; }
       .check ha-icon { --mdc-icon-size: 16px; }
+      /* A given-up row and its "Try again" button (outlined, not filled) */
+      .line { display: flex; align-items: center; gap: 6px; min-width: 0; }
+      .line > .row { flex: 1; }
+      .retry { all: unset; cursor: pointer; flex: none; box-sizing: border-box; width: 30px; height: 30px; border-radius: 50%;
+               display: grid; place-items: center; color: var(--iw-alert); border: 1px solid color-mix(in srgb, var(--iw-alert) 50%, transparent); }
+      .retry:hover { background: color-mix(in srgb, var(--iw-alert) 12%, transparent); }
+      .retry:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+      .retry ha-icon { --mdc-icon-size: 16px; }
 
       .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
       .stat { --t: var(--secondary-text-color); display: flex; flex-direction: column; align-items: center; gap: 1px;
@@ -1821,7 +1894,7 @@ class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
     });
     for (const el of this.shadowRoot.querySelectorAll('.r')) {
       el.addEventListener('click', () => {
-        if (el.dataset.domain) this._openIntegration(el.dataset.domain);
+        if (el.dataset.domain) this._openIntegration(el.dataset.domain, el.dataset.entry);
         else if (el.dataset.entity) {
           this.dispatchEvent(new CustomEvent('hass-more-info', { detail: { entityId: el.dataset.entity }, bubbles: true, composed: true }));
         }
@@ -1830,8 +1903,13 @@ class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
   }
 
   // A chip: an administrator's opens the integration's page in Settings, the others open the sensor's more-info.
-  _chip(cls, icon, text, title, focus, domain, entity) {
-    const target = domain && this._admin ? ` data-domain="${iwEsc(domain)}"` : entity ? ` data-entity="${iwEsc(entity)}"` : '';
+  _chip(cls, icon, text, title, focus, domain, entity, entry) {
+    const target =
+      domain && this._admin
+        ? ` data-domain="${iwEsc(domain)}"${entry ? ` data-entry="${iwEsc(entry)}"` : ''}`
+        : entity
+          ? ` data-entity="${iwEsc(entity)}"`
+          : '';
     return `<button class="r ${cls}"${target} data-focus="${iwEsc(focus)}" title="${iwEsc(title)}"><ha-icon icon="${icon}"></ha-icon><span class="rt">${iwEsc(text)}</span></button>`;
   }
 
@@ -1849,6 +1927,7 @@ class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
         `m:u:${i.entry_id || i.domain}`,
         i.domain,
         ids.unavailable,
+        i.entry_id,
       );
     });
     // Everything available: the last reload, failed reload or give-up, plain with its coloured icon.
@@ -1865,6 +1944,7 @@ class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
           'm:h',
           last.domain,
           ids.last_reload,
+          last.entry_id,
         ),
       );
     }

@@ -114,6 +114,16 @@
     "check": {
       "name": "Integrációk ellenőrzése",
       "description": "Megkeresi azokat az integrációkat, amelyeknek minden entitása nem elérhető, és újratölti azokat, amelyeknek lejárt a türelmi ideje."
+    },
+    "reset": {
+      "name": "Integráció visszaállítása",
+      "description": "Elfelejti egy integráció újratöltéseit (feladott vagy sem), és azonnal újratölti.",
+      "fields": {
+        "entry_id": {
+          "name": "Integrációs bejegyzés",
+          "description": "A visszaállítandó és újratöltendő integrációs bejegyzés."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Az Integration Watchdog nincs betöltve."
+    },
+    "unknown_entry": {
+      "message": "Nincs {entry_id} integrációs bejegyzés."
+    },
+    "reload_failed": {
+      "message": "{title} nem tölthető újra, lásd a naplókat. Az újratöltései visszaállítva: az Integration Watchdog elölről kezdi."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} továbbra sem érhető el",
-      "description": "**{title}** ({domain}) továbbra sem érhető el az Integration Watchdog {attempt} újratöltése után, amely addig nem tölti újra, amíg valamelyik entitása elérhetővé nem válik.\n\nEllenőrizd az eszközt vagy szolgáltatást, amelyhez kapcsolódik, és a naplókat. Ez a probléma eltűnik, amint az integráció helyreáll."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) továbbra sem érhető el az Integration Watchdog {attempt} újratöltése után, amely addig nem tölti újra, amíg valamelyik entitása elérhetővé nem válik.\n\nEllenőrizd az eszközt vagy szolgáltatást, amelyhez kapcsolódik, és a naplókat. Ez a probléma eltűnik, amint az integráció helyreáll.\n\nKüldd el az újrapróbáláshoz: az Integration Watchdog elfelejti az újratöltéseit, és újratölti az integrációt."
+          }
+        },
+        "abort": {
+          "not_loaded": "Az Integration Watchdog nincs betöltve.",
+          "reload_failed": "Az integráció nem tölthető újra, lásd a naplókat. Az újratöltései visszaállítva: az Integration Watchdog elölről kezdi."
+        }
+      }
     }
   }
 }

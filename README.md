@@ -26,13 +26,13 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Automatic check** at a set interval (5 minutes by default) of every loaded integration
 - **Reload** of an integration once all its enabled entities have been `unavailable` for the grace period (15 minutes by default)
 - **Never during startup**: nothing is reloaded while Home Assistant starts or stops, nor during the grace period after it has started
-- **No reload loop**: an integration that stays unavailable is reloaded at most 3 times in a row (configurable), the delay between two reloads doubling each time; then the watchdog gives up on it until it recovers
+- **No reload loop**: an integration that stays unavailable is reloaded at most 3 times in a row (configurable), the delay between two reloads doubling each time; then the watchdog gives up on it until it recovers. The counts are saved, so a restart doesn't start over
 - **Notification** for each reload, failed reload and give-up: persistent notification, and optionally your notify actions (mobile app…)
-- **Repairs issue** for each integration given up, removed once it recovers
+- **Repairs issue** for each integration given up, removed once it recovers, with **Try again** to start over and reload it now
 - **Diagnostics** with personal data redacted
 - **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain, and **ignored entries**: one entry of an integration (a camera of several) left alone while its other entries are still watched
 - **Reloads in 24 h** sensor: how many reloads the last day, per integration — an unstable integration shows up there
-- **Check now** button and `integration_watchdog.check` action
+- **Check now** button and `integration_watchdog.check` action; `integration_watchdog.reset` action to start over on an integration
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
 - **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
@@ -101,7 +101,7 @@ An integration that stays unavailable after a reload is reloaded again after the
 
 A reload that doesn't finish within 5 minutes, or a notify action that doesn't answer within 30 seconds, counts as failed, so that a hung integration can't block the following checks.
 
-The count is kept in memory: restarting Home Assistant starts over (the history shown by the card is saved, though). Changing the options keeps it, so an integration given up stays so (until a higher **Reloads in a row** allows more reloads).
+The count is saved with the history (`.storage/integration_watchdog.history`): after a restart of Home Assistant, an integration given up stays so, and one being reloaded keeps its count and delay. Entries removed while Home Assistant was stopped are dropped when it starts. Changing the options keeps the count too, so an integration given up stays so (until a higher **Reloads in a row** allows more reloads). To start over on an integration, use **Try again** on its Repairs issue, the `integration_watchdog.reset` action or the card's **Try again** button.
 
 ### Notifications
 
@@ -109,7 +109,9 @@ Each reload, failed reload and give-up creates a persistent notification, one pe
 
 ### Repairs
 
-Giving up on an integration also raises an issue in **Settings → System → Repairs**, one per integration. It goes away by itself once the integration has recovered (available again for its current delay), is disabled or removed, or gets more reloads after **Reloads in a row** was raised. Like the reload counts, the issues don't survive a restart of Home Assistant.
+Giving up on an integration also raises an issue in **Settings → System → Repairs**, one per integration. It goes away by itself once the integration has recovered (available again for its current delay), is disabled or removed, or gets more reloads after **Reloads in a row** was raised. An integration still given up when Home Assistant restarts gets its issue back.
+
+Opening the issue offers **Try again**: submitting it forgets the reloads of the integration, deletes the issue and reloads the integration now (like the `integration_watchdog.reset` action). If it is still unavailable afterwards, the watchdog starts over: reloads up to **Reloads in a row**, then gives up again.
 
 ### Diagnostics
 
@@ -131,6 +133,20 @@ Runs a check now and waits for the reloads. If a check is already running, waits
 
 ```yaml
 action: integration_watchdog.check
+```
+
+### Action `integration_watchdog.reset`
+
+Starts over for one integration entry: forgets its reloads (given up or not), deletes its Repairs issue and reloads it now. Waits for a check still running. Fails if the entry doesn't exist or the reload fails (the count is reset anyway). For administrators.
+
+| Field | Description |
+|---|---|
+| `entry_id` | The integration entry (config entry ID), e.g. from the `entry_id` of the **Unavailable integrations** sensor |
+
+```yaml
+action: integration_watchdog.reset
+data:
+  entry_id: 01JABCDEF0123456789ABCDEFG
 ```
 
 ### Event `integration_watchdog_reloaded`
@@ -177,7 +193,8 @@ type: custom:integration-watchdog-card
 - **Summary**: unavailable integrations, reloads since Home Assistant started, ignored integrations (listed on hover)
 - **Unavailable integrations**: for each one, how long it has been down and its reloads (*1/3 reloads*), *Grace period* before the first one, *Given up* once the limit is reached
 - **Recent reloads**: the last attempt of each integration (reloaded, failed or given up), newest first, with the attempt and how long ago. The history is saved, so it survives a restart
-- For an administrator, a row opens the integration's page in **Settings**, to reload it by hand or read its logs (other users can't open Settings, so their rows are not clickable). Integration logos come from the Home Assistant brands
+- For an administrator, a row opens the integration's page in **Settings** on its entry (`/config/integrations/integration/<domain>#config_entry=<entry_id>`), to reload it by hand or read its logs (other users can't open Settings, so their rows are not clickable). Integration logos come from the Home Assistant brands
+- For an administrator, an integration given up gets a **Try again** button next to its row: it runs the `integration_watchdog.reset` action (start over and reload now)
 
 Every option is in the visual editor:
 
@@ -207,7 +224,7 @@ type: custom:integration-watchdog-mini-card
 | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-dark.png" alt="Mini card, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-ok-dark.png" alt="Mini card, all available, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/mini-zoom-dark.png" alt="Mini card zoomed in, dark theme" width="400"> |
 
 - The **detail** button (top right) switches the card to the full [card](#card), with the same options, and back, as does a click anywhere else on the page
-- For an administrator, an integration's chip opens its page in **Settings**; for other users, a chip opens the sensor
+- For an administrator, an integration's chip opens its page in **Settings**, on its entry; for other users, a chip opens the sensor
 - In a Sections view the card takes 6 columns by default, its minimum; on a narrow card the icon gives way and the status keeps only its coloured dot
 
 It takes every option of the full card (they set its detail view, `hide_when_ok` and `check_button` apply to both views), plus:

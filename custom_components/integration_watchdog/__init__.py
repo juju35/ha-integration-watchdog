@@ -7,12 +7,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import voluptuous as vol
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import SIGNAL_CONFIG_ENTRY_CHANGED, ConfigEntry, ConfigEntryState
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, Platform
 from homeassistant.core import CoreState, Event, HomeAssistant, ServiceCall
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -24,6 +25,7 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    ATTR_ENTRY_ID,
     CARD_URL,
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
@@ -36,6 +38,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     SERVICE_CHECK,
+    SERVICE_RESET,
     STORAGE_KEY,
     STORAGE_VERSION,
     VERSION,
@@ -67,14 +70,40 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _register)
 
     async def check(_call: ServiceCall) -> None:
-        entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
-        if not entries:
-            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
         # Waits for a check already running, then runs its own.
-        await entries[0].runtime_data.async_check(wait=True)
+        await _loaded_watchdog(hass).async_check(wait=True)
+
+    async def reset(call: ServiceCall) -> None:
+        """Start over for an integration given up (or still being reloaded) and reload it now."""
+        watchdog = _loaded_watchdog(hass)
+        entry_id = call.data[ATTR_ENTRY_ID]
+        target = hass.config_entries.async_get_entry(entry_id)
+        if target is None or target.domain == DOMAIN:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="unknown_entry",
+                translation_placeholders={"entry_id": entry_id},
+            )
+        if not await watchdog.async_reset(entry_id):
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="reload_failed",
+                translation_placeholders={"title": target.title},
+            )
 
     async_register_admin_service(hass, DOMAIN, SERVICE_CHECK, check)
+    async_register_admin_service(
+        hass, DOMAIN, SERVICE_RESET, reset, vol.Schema({vol.Required(ATTR_ENTRY_ID): cv.string})
+    )
     return True
+
+
+def _loaded_watchdog(hass: HomeAssistant) -> IntegrationWatchdog:
+    """The watchdog of the loaded entry, for the actions and the Repairs flow."""
+    entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.state is ConfigEntryState.LOADED]
+    if not entries:
+        raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_loaded")
+    return entries[0].runtime_data
 
 
 def _storage_resources(hass: HomeAssistant) -> Any | None:

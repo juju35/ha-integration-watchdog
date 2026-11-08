@@ -114,6 +114,16 @@
     "check": {
       "name": "Vérifier les intégrations",
       "description": "Recherche les intégrations dont toutes les entités sont indisponibles et recharge celles dont le délai de grâce est écoulé."
+    },
+    "reset": {
+      "name": "Réinitialiser une intégration",
+      "description": "Oublie les rechargements faits sur une intégration (abandonnée ou non) et la recharge immédiatement.",
+      "fields": {
+        "entry_id": {
+          "name": "Entrée d'intégration",
+          "description": "L'entrée d'intégration à réinitialiser et recharger."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog n'est pas chargé."
+    },
+    "unknown_entry": {
+      "message": "Aucune entrée d'intégration {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} n'a pas pu être rechargée, voir les journaux. Ses rechargements ont été réinitialisés : Integration Watchdog recommence."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} est toujours indisponible",
-      "description": "**{title}** ({domain}) est toujours indisponible après {attempt} rechargements par Integration Watchdog, qui ne la rechargera plus tant qu'aucune de ses entités n'est disponible.\n\nVérifiez l'appareil ou le service auquel elle se connecte, ainsi que les journaux. Ce problème disparaît une fois l'intégration rétablie."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) est toujours indisponible après {attempt} rechargements par Integration Watchdog, qui ne la rechargera plus tant qu'aucune de ses entités n'est disponible.\n\nVérifiez l'appareil ou le service auquel elle se connecte, ainsi que les journaux. Ce problème disparaît une fois l'intégration rétablie.\n\nValidez pour réessayer maintenant : Integration Watchdog oublie ses rechargements et recharge l'intégration."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog n'est pas chargé.",
+          "reload_failed": "L'intégration n'a pas pu être rechargée, voir les journaux. Ses rechargements ont été réinitialisés : Integration Watchdog recommence."
+        }
+      }
     }
   }
 }

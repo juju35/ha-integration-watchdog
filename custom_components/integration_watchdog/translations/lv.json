@@ -114,6 +114,16 @@
     "check": {
       "name": "Pārbaudīt integrācijas",
       "description": "Meklē integrācijas, kuru visas vienības nav pieejamas, un pārlādē tās, kurām beidzies nogaidīšanas laiks."
+    },
+    "reset": {
+      "name": "Atiestatīt integrāciju",
+      "description": "Aizmirst integrācijas pārlādes (atmestas vai nē) un uzreiz to pārlādē.",
+      "fields": {
+        "entry_id": {
+          "name": "Integrācijas ieraksts",
+          "description": "Integrācijas ieraksts, ko atiestatīt un pārlādēt."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog nav ielādēts."
+    },
+    "unknown_entry": {
+      "message": "Nav integrācijas ieraksta {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} neizdevās pārlādēt, skatiet žurnālus. Tās pārlādes ir atiestatītas: Integration Watchdog sāk no jauna."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} joprojām nav pieejama",
-      "description": "**{title}** ({domain}) joprojām nav pieejama. Integration Watchdog veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama.\n\nPārbaudiet ierīci vai pakalpojumu, ar ko tā savienojas, un žurnālus. Šī problēma pazudīs, tiklīdz integrācija atjaunosies."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) joprojām nav pieejama. Integration Watchdog veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama.\n\nPārbaudiet ierīci vai pakalpojumu, ar ko tā savienojas, un žurnālus. Šī problēma pazudīs, tiklīdz integrācija atjaunosies.\n\nIesniedziet, lai mēģinātu vēlreiz tagad: Integration Watchdog aizmirst tās pārlādes un pārlādē integrāciju."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog nav ielādēts.",
+          "reload_failed": "Integrāciju neizdevās pārlādēt, skatiet žurnālus. Tās pārlādes ir atiestatītas: Integration Watchdog sāk no jauna."
+        }
+      }
     }
   }
 }

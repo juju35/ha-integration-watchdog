@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "integration_watchdog"
 # Same as manifest.json and the card: the card URL carries it, so that browsers load a new release.
-VERSION: Final = "1.3.0"
+VERSION: Final = "1.4.0"
 
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 CONF_GRACE_PERIOD: Final = "grace_period"
@@ -26,12 +26,14 @@ DEFAULT_MAX_RELOADS: Final = 3
 MAX_MAX_RELOADS: Final = 10
 
 SERVICE_CHECK: Final = "check"
+SERVICE_RESET: Final = "reset"
+ATTR_ENTRY_ID: Final = "entry_id"
 EVENT_RELOADED: Final = f"{DOMAIN}_reloaded"
 
 # The card bundled with the integration, served by Home Assistant and added to the dashboard resources.
 CARD_URL: Final = f"/{DOMAIN}/integration-watchdog-card.js"
 
-# Recent reloads (and give-ups) kept for the card, newest first, saved across restarts.
+# Recent reloads (and give-ups) kept for the card, newest first, saved across restarts with the reload counts.
 HISTORY_SIZE: Final = 20
 STORAGE_KEY: Final = f"{DOMAIN}.history"
 STORAGE_VERSION: Final = 1

@@ -114,6 +114,16 @@
     "check": {
       "name": "Integraties controleren",
       "description": "Zoekt de integraties waarvan alle entiteiten niet beschikbaar zijn en herlaadt die waarvan de wachttijd voorbij is."
+    },
+    "reset": {
+      "name": "Integratie resetten",
+      "description": "Vergeet hoe vaak een integratie is herladen (opgegeven of niet) en herlaadt haar nu.",
+      "fields": {
+        "entry_id": {
+          "name": "Integratie-item",
+          "description": "Het integratie-item dat gereset en herladen wordt."
+        }
+      }
     }
   },
   "common": {
@@ -127,12 +137,28 @@
   "exceptions": {
     "not_loaded": {
       "message": "Integration Watchdog is niet geladen."
+    },
+    "unknown_entry": {
+      "message": "Geen integratie-item {entry_id}."
+    },
+    "reload_failed": {
+      "message": "{title} kon niet herladen worden, zie de logboeken. Het aantal keer herladen is gereset: Integration Watchdog begint opnieuw."
     }
   },
   "issues": {
     "gave_up": {
       "title": "{title} is nog steeds niet beschikbaar",
-      "description": "**{title}** ({domain}) is na {attempt} keer herladen door Integration Watchdog nog steeds niet beschikbaar. Ze wordt pas opnieuw herladen als een van haar entiteiten beschikbaar is.\n\nControleer het apparaat of de dienst waarmee ze verbindt, en de logboeken. Dit probleem verdwijnt zodra de integratie hersteld is."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "description": "**{title}** ({domain}) is na {attempt} keer herladen door Integration Watchdog nog steeds niet beschikbaar. Ze wordt pas opnieuw herladen als een van haar entiteiten beschikbaar is.\n\nControleer het apparaat of de dienst waarmee ze verbindt, en de logboeken. Dit probleem verdwijnt zodra de integratie hersteld is.\n\nVerstuur om het nu opnieuw te proberen: Integration Watchdog vergeet hoe vaak ze is herladen en herlaadt de integratie."
+          }
+        },
+        "abort": {
+          "not_loaded": "Integration Watchdog is niet geladen.",
+          "reload_failed": "De integratie kon niet herladen worden, zie de logboeken. Het aantal keer herladen is gereset: Integration Watchdog begint opnieuw."
+        }
+      }
     }
   }
 }
