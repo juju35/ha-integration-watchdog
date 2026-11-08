@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog není načten.",
-          "reload_failed": "Integraci se nepodařilo znovu načíst, viz protokoly. Její opětovná načtení byla resetována: Integration Watchdog začíná znovu."
+          "reload_started": "Opětovné načtení **{title}** bylo spuštěno: její opětovná načtení byla resetována a Integration Watchdog začíná znovu. Tento problém zmizí, jakmile načítání začne; chyba bude v protokolech."
         }
       }
     }

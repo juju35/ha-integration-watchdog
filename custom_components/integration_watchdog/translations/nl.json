@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog is niet geladen.",
-          "reload_failed": "De integratie kon niet herladen worden, zie de logboeken. Het aantal keer herladen is gereset: Integration Watchdog begint opnieuw."
+          "reload_started": "**{title}** wordt herladen: het aantal keer herladen is gereset en Integration Watchdog begint opnieuw. Dit probleem verdwijnt zodra het herladen begint; een fout staat in de logboeken."
         }
       }
     }

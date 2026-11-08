@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog er ikke indlæst.",
-          "reload_failed": "Integrationen kunne ikke genindlæses, se logfilerne. Dens genindlæsninger blev nulstillet: Integration Watchdog starter forfra."
+          "reload_started": "Genindlæser **{title}**: dens genindlæsninger blev nulstillet, og Integration Watchdog starter forfra. Dette problem forsvinder, så snart genindlæsningen starter; en fejl står i logfilerne."
         }
       }
     }

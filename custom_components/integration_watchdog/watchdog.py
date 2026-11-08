@@ -276,10 +276,14 @@ class IntegrationWatchdog:
 
     @callback
     def _forget(self, entry_id: str) -> None:
-        """Start over for an entry: recovered, removed, disabled or reset. Its Repairs issue, if any, goes too."""
+        """Start over for an entry: recovered, removed, disabled or reset.
+
+        Its Repairs issue and its notification, if any, go too.
+        """
         if self.attempts.pop(entry_id, None) is not None:
             self._save()
         ir.async_delete_issue(self.hass, DOMAIN, issue_id(entry_id))
+        persistent_notification.async_dismiss(self.hass, notification_id(entry_id))
 
     async def async_reset(self, entry_id: str) -> bool:
         """Start over for an entry and reload it now (Repairs "Try again", the reset action).
@@ -570,7 +574,7 @@ class IntegrationWatchdog:
 
         title, message = text(f"{key}_title"), text(key)
         persistent_notification.async_create(
-            self.hass, message, title=title, notification_id=f"{DOMAIN}_{item.entry_id}"
+            self.hass, message, title=title, notification_id=notification_id(item.entry_id)
         )
         for service in self.notify_services:
             name = service.removeprefix("notify.")
@@ -591,6 +595,11 @@ class IntegrationWatchdog:
 def issue_id(entry_id: str) -> str:
     """Repairs issue raised when the watchdog gives up on a config entry."""
     return f"gave_up_{entry_id}"
+
+
+def notification_id(entry_id: str) -> str:
+    """Persistent notification of the reloads of a config entry (one per entry, replaced, dismissed by _forget)."""
+    return f"{DOMAIN}_{entry_id}"
 
 
 def _valid_history_item(item: Any) -> bool:

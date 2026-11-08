@@ -33,10 +33,14 @@ class GaveUpRepairFlow(RepairsFlow):
             watchdog = _loaded_watchdog(self.hass)
         except HomeAssistantError:
             return self.async_abort(reason="not_loaded")
-        # The counts are reset (and the issue deleted) even when the reload fails: the watchdog starts over.
-        if not await watchdog.async_reset(self._entry_id):
-            return self.async_abort(reason="reload_failed")
-        return self.async_create_entry(data={})
+        # In the background: the reset waits for a check still running, and the reload itself may take minutes.
+        # The flow closes at once, telling that the reload was started; the reset deletes the issue (and the
+        # notification) and starts over even when the reload fails, which is logged.
+        self.hass.async_create_background_task(watchdog.async_reset(self._entry_id), f"{DOMAIN} reset {self._entry_id}")
+        entry = self.hass.config_entries.async_get_entry(self._entry_id)
+        return self.async_abort(
+            reason="reload_started", description_placeholders={"title": entry.title if entry else self._entry_id}
+        )
 
 
 async def async_create_fix_flow(hass: HomeAssistant, issue_id: str, data: dict[str, Any] | None) -> RepairsFlow:

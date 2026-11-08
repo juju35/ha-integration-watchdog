@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog nie jest wczytany.",
-          "reload_failed": "Nie udało się ponownie wczytać integracji, sprawdź logi. Licznik ponownych wczytań został zresetowany: Integration Watchdog zaczyna od nowa."
+          "reload_started": "Ponowne wczytywanie **{title}**: licznik ponownych wczytań został zresetowany, a Integration Watchdog zaczyna od nowa. Ten problem zniknie, gdy tylko wczytywanie się rozpocznie; błąd znajdziesz w logach."
         }
       }
     }

@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog ist nicht geladen.",
-          "reload_failed": "Die Integration konnte nicht neu geladen werden, siehe Protokolle. Die Neuladevorgänge wurden zurückgesetzt: Integration Watchdog beginnt von vorn."
+          "reload_started": "**{title}** wird neu geladen: Die Neuladevorgänge wurden zurückgesetzt und Integration Watchdog beginnt von vorn. Dieses Problem verschwindet, sobald das Neuladen beginnt; ein Fehler steht in den Protokollen."
         }
       }
     }

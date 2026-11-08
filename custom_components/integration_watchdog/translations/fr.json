@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog n'est pas chargé.",
-          "reload_failed": "L'intégration n'a pas pu être rechargée, voir les journaux. Ses rechargements ont été réinitialisés : Integration Watchdog recommence."
+          "reload_started": "Rechargement de **{title}** lancé : ses rechargements ont été réinitialisés et Integration Watchdog recommence. Ce problème disparaît dès le début du rechargement ; un échec figure dans les journaux."
         }
       }
     }

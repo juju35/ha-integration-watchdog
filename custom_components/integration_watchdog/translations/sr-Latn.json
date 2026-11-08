@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog nije učitan.",
-          "reload_failed": "Integracija nije mogla da se ponovo učita, pogledajte zapise. Njena ponovna učitavanja su resetovana: Integration Watchdog počinje iznova."
+          "reload_started": "Ponovno učitavanje **{title}** je pokrenuto: njegova ponovna učitavanja su resetovana i Integration Watchdog počinje iznova. Ovaj problem nestaje čim učitavanje počne; greška je u zapisima."
         }
       }
     }

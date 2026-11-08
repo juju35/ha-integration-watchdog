@@ -156,7 +156,7 @@
         },
         "abort": {
           "not_loaded": "Integration Watchdog är inte inläst.",
-          "reload_failed": "Integrationen kunde inte laddas om, se loggarna. Dess omladdningar har återställts: Integration Watchdog börjar om."
+          "reload_started": "Laddar om **{title}**: dess omladdningar har återställts och Integration Watchdog börjar om. Det här problemet försvinner så snart omladdningen startar; ett fel finns i loggarna."
         }
       }
     }
