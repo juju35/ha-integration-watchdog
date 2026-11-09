@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Interval de verificare",
           "grace_period": "Perioadă de grație",
+          "grace_overrides": "Perioadă de grație pe integrare",
           "max_reloads": "Reîncărcări consecutive",
           "ignored_integrations": "Integrări ignorate",
           "notify_services": "Acțiuni de notificare",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minute între două verificări.",
           "grace_period": "Minute în care toate entitățile unei integrări trebuie să fi fost indisponibile înainte ca aceasta să fie reîncărcată. Nimic nu este reîncărcat în acest interval după pornirea Home Assistant.",
+          "grace_overrides": "O linie pe integrare: domeniu: minute (zha: 30). Înlocuiește perioada de grație a acelei integrări și intervalele dintre reîncărcările ei; după o pornire, perioada de grație globală se aplică în continuare tuturor.",
           "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
           "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
           "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
@@ -23,6 +25,9 @@
           "pause_entity": "Cât timp această entitate este pornită (un input_boolean pentru mentenanță, un program pentru noapte…), nu se reîncarcă nimic; verificările listează în continuare integrările indisponibile."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Fiecare linie trebuie să fie domeniu: minute, de la 1 la 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog este deja configurat.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Interval de verificare",
           "grace_period": "Perioadă de grație",
+          "grace_overrides": "Perioadă de grație pe integrare",
           "max_reloads": "Reîncărcări consecutive",
           "ignored_integrations": "Integrări ignorate",
           "notify_services": "Acțiuni de notificare",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minute între două verificări.",
           "grace_period": "Minute în care toate entitățile unei integrări trebuie să fi fost indisponibile înainte ca aceasta să fie reîncărcată. Nimic nu este reîncărcat în acest interval după pornirea Home Assistant.",
+          "grace_overrides": "O linie pe integrare: domeniu: minute (zha: 30). Înlocuiește perioada de grație a acelei integrări și intervalele dintre reîncărcările ei; după o pornire, perioada de grație globală se aplică în continuare tuturor.",
           "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
           "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
           "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
@@ -52,6 +59,9 @@
           "pause_entity": "Cât timp această entitate este pornită (un input_boolean pentru mentenanță, un program pentru noapte…), nu se reîncarcă nimic; verificările listează în continuare integrările indisponibile."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Fiecare linie trebuie să fie domeniu: minute, de la 1 la 1440 (zha: 30)."
     }
   },
   "entity": {

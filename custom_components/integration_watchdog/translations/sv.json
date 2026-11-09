@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Kontrollintervall",
           "grace_period": "Respittid",
+          "grace_overrides": "Respittid per integration",
           "max_reloads": "Omladdningar i rad",
           "ignored_integrations": "Ignorerade integrationer",
           "notify_services": "Aviseringsåtgärder",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minuter mellan två kontroller.",
           "grace_period": "Minuter som alla entiteter i en integration måste ha varit otillgängliga innan den laddas om. Ingenting laddas om under denna tid efter att Home Assistant har startat.",
+          "grace_overrides": "En rad per integration: domän: minuter (zha: 30). Den ersätter respittiden för den integrationen och väntetiderna mellan dess omladdningar; efter en start gäller den globala respittiden fortfarande för alla.",
           "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
           "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
           "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid.",
@@ -23,6 +25,9 @@
           "pause_entity": "Så länge denna entitet är på (en input_boolean för underhåll, ett schema för natten…) laddas inget om; kontrollerna listar fortfarande de otillgängliga integrationerna."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Varje rad måste vara domän: minuter, från 1 till 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog är redan konfigurerad.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Kontrollintervall",
           "grace_period": "Respittid",
+          "grace_overrides": "Respittid per integration",
           "max_reloads": "Omladdningar i rad",
           "ignored_integrations": "Ignorerade integrationer",
           "notify_services": "Aviseringsåtgärder",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minuter mellan två kontroller.",
           "grace_period": "Minuter som alla entiteter i en integration måste ha varit otillgängliga innan den laddas om. Ingenting laddas om under denna tid efter att Home Assistant har startat.",
+          "grace_overrides": "En rad per integration: domän: minuter (zha: 30). Den ersätter respittiden för den integrationen och väntetiderna mellan dess omladdningar; efter en start gäller den globala respittiden fortfarande för alla.",
           "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
           "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
           "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid.",
@@ -52,6 +59,9 @@
           "pause_entity": "Så länge denna entitet är på (en input_boolean för underhåll, ett schema för natten…) laddas inget om; kontrollerna listar fortfarande de otillgängliga integrationerna."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Varje rad måste vara domän: minuter, från 1 till 1440 (zha: 30)."
     }
   },
   "entity": {

@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Intervallo di controllo",
           "grace_period": "Periodo di tolleranza",
+          "grace_overrides": "Periodo di tolleranza per integrazione",
           "max_reloads": "Ricaricamenti consecutivi",
           "ignored_integrations": "Integrazioni ignorate",
           "notify_services": "Azioni di notifica",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minuti tra due controlli.",
           "grace_period": "Minuti durante i quali tutte le entità di un'integrazione devono essere non disponibili prima che venga ricaricata. Durante questo periodo, dopo l'avvio di Home Assistant, non viene ricaricato nulla.",
+          "grace_overrides": "Una riga per integrazione: dominio: minuti (zha: 30). Sostituisce il periodo di tolleranza di quell'integrazione e le attese tra i suoi ricaricamenti; dopo un avvio, il periodo di tolleranza globale vale comunque per tutte.",
           "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
           "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
           "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
@@ -23,6 +25,9 @@
           "pause_entity": "Finché questa entità è accesa (un input_boolean di manutenzione, una pianificazione per la notte…), non si ricarica nulla; i controlli elencano comunque le integrazioni non disponibili."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Ogni riga deve essere dominio: minuti, da 1 a 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog è già configurato.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Intervallo di controllo",
           "grace_period": "Periodo di tolleranza",
+          "grace_overrides": "Periodo di tolleranza per integrazione",
           "max_reloads": "Ricaricamenti consecutivi",
           "ignored_integrations": "Integrazioni ignorate",
           "notify_services": "Azioni di notifica",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minuti tra due controlli.",
           "grace_period": "Minuti durante i quali tutte le entità di un'integrazione devono essere non disponibili prima che venga ricaricata. Durante questo periodo, dopo l'avvio di Home Assistant, non viene ricaricato nulla.",
+          "grace_overrides": "Una riga per integrazione: dominio: minuti (zha: 30). Sostituisce il periodo di tolleranza di quell'integrazione e le attese tra i suoi ricaricamenti; dopo un avvio, il periodo di tolleranza globale vale comunque per tutte.",
           "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
           "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
           "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
@@ -52,6 +59,9 @@
           "pause_entity": "Finché questa entità è accesa (un input_boolean di manutenzione, una pianificazione per la notte…), non si ricarica nulla; i controlli elencano comunque le integrazioni non disponibili."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Ogni riga deve essere dominio: minuti, da 1 a 1440 (zha: 30)."
     }
   },
   "entity": {

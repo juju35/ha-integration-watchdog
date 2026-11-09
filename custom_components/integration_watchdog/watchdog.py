@@ -131,6 +131,7 @@ class IntegrationWatchdog:
         shared: dict[str, Any] | None = None,
         ignored_entries: Iterable[str] = (),
         pause_entity: str | None = None,
+        grace_overrides: dict[str, timedelta] | None = None,
     ) -> None:
         self.hass = hass
         # While this entity is on, nothing is reloaded (the checks still list the unavailable integrations).
@@ -139,6 +140,8 @@ class IntegrationWatchdog:
         # Single config entries never reloaded (one camera of an integration whose others are watched).
         self.ignored_entries: frozenset[str] = frozenset(ignored_entries)
         self.grace_period = grace_period
+        # Per integration domain (a slow Zigbee network, a cloud that takes its time): its own grace period.
+        self.grace_overrides: dict[str, timedelta] = dict(grace_overrides or {})
         self.max_reloads = max_reloads
         self.notify_services = list(notify_services)
         self.unavailable: list[UnavailableIntegration] = []
@@ -452,7 +455,7 @@ class IntegrationWatchdog:
                 continue
             if attempts.recovered_at is None:
                 attempts.recovered_at = now
-            if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts):
+            if attempts.count == 0 or now - attempts.recovered_at >= self._delay(attempts, entry.domain):
                 self._forget(entry_id)
         for item in self.unavailable:
             # Stop as soon as Home Assistant starts stopping, or the watchdog is unloaded or removed.
@@ -467,13 +470,15 @@ class IntegrationWatchdog:
     async def _async_handle(self, item: UnavailableIntegration) -> None:
         now = dt_util.utcnow()
         attempts = self.attempts.setdefault(item.entry_id, Attempts())
-        if self.started_at is None or now - item.since < self.grace_period or now - self.started_at < self.grace_period:
+        grace = self.grace(item.domain)
+        # After a start, the global grace period applies to all (the time for Home Assistant to settle).
+        if self.started_at is None or now - item.since < grace or now - self.started_at < self.grace_period:
             return
         if self.paused:
             _LOGGER.debug("%s (%s) not reloaded: paused by %s", item.title, item.domain, self.pause_entity)
             return
         # The last reload gets its full delay too before giving up.
-        if attempts.last is not None and now - attempts.last < self._delay(attempts):
+        if attempts.last is not None and now - attempts.last < self._delay(attempts, item.domain):
             return
         if attempts.count >= self.max_reloads:
             if not attempts.gave_up:
@@ -494,9 +499,13 @@ class IntegrationWatchdog:
             ir.async_delete_issue(self.hass, DOMAIN, issue_id(item.entry_id))
         await self._async_reload(item, attempts)
 
-    def _delay(self, attempts: Attempts) -> timedelta:
+    def grace(self, domain: str) -> timedelta:
+        """Grace period of an integration: its own one when set, else the global one."""
+        return self.grace_overrides.get(domain, self.grace_period)
+
+    def _delay(self, attempts: Attempts, domain: str) -> timedelta:
         """Minimum time after a reload before the next one: grace, 2 x grace, 4 x grace..."""
-        return self.grace_period * 2 ** max(attempts.count - 1, 0)
+        return self.grace(domain) * 2 ** max(attempts.count - 1, 0)
 
     @staticmethod
     def _log_late_reload(task: asyncio.Task, title: str, domain: str) -> None:

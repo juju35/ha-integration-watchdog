@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Prüfintervall",
           "grace_period": "Karenzzeit",
+          "grace_overrides": "Karenzzeit pro Integration",
           "max_reloads": "Neuladevorgänge in Folge",
           "ignored_integrations": "Ignorierte Integrationen",
           "notify_services": "Benachrichtigungsaktionen",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minuten zwischen zwei Prüfungen.",
           "grace_period": "Minuten, die alle Entitäten einer Integration nicht verfügbar gewesen sein müssen, bevor sie neu geladen wird. Während dieser Zeit nach dem Start von Home Assistant wird nichts neu geladen.",
+          "grace_overrides": "Eine Zeile pro Integration: Domain: Minuten (zha: 30). Sie ersetzt die Karenzzeit dieser Integration und die Abstände zwischen ihren Neuladungen; nach einem Start gilt weiterhin die globale Karenzzeit für alle.",
           "max_reloads": "Neuladevorgänge einer weiterhin nicht verfügbaren Integration, bevor sie aufgegeben wird, bis sie sich erholt. Die Wartezeit zwischen zwei Neuladevorgängen verdoppelt sich jedes Mal: Karenzzeit, 2 × Karenzzeit…",
           "ignored_integrations": "Integrationen, die nie neu geladen werden. Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen.",
           "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt.",
@@ -23,6 +25,9 @@
           "pause_entity": "Solange diese Entität an ist (ein input_boolean für Wartung, ein Zeitplan für die Nacht…), wird nichts neu geladen; die Prüfungen listen weiterhin die nicht verfügbaren Integrationen."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Jede Zeile muss Domain: Minuten sein, von 1 bis 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog ist bereits eingerichtet.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Prüfintervall",
           "grace_period": "Karenzzeit",
+          "grace_overrides": "Karenzzeit pro Integration",
           "max_reloads": "Neuladevorgänge in Folge",
           "ignored_integrations": "Ignorierte Integrationen",
           "notify_services": "Benachrichtigungsaktionen",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minuten zwischen zwei Prüfungen.",
           "grace_period": "Minuten, die alle Entitäten einer Integration nicht verfügbar gewesen sein müssen, bevor sie neu geladen wird. Während dieser Zeit nach dem Start von Home Assistant wird nichts neu geladen.",
+          "grace_overrides": "Eine Zeile pro Integration: Domain: Minuten (zha: 30). Sie ersetzt die Karenzzeit dieser Integration und die Abstände zwischen ihren Neuladungen; nach einem Start gilt weiterhin die globale Karenzzeit für alle.",
           "max_reloads": "Neuladevorgänge einer weiterhin nicht verfügbaren Integration, bevor sie aufgegeben wird, bis sie sich erholt. Die Wartezeit zwischen zwei Neuladevorgängen verdoppelt sich jedes Mal: Karenzzeit, 2 × Karenzzeit…",
           "ignored_integrations": "Integrationen, die nie neu geladen werden. Gib eine Domain ein, um eine noch nicht eingerichtete hinzuzufügen.",
           "notify_services": "Jede Benachrichtigung zusätzlich mit diesen Aktionen senden (notify.mobile_app_…). Eine dauerhafte Benachrichtigung wird immer erstellt.",
@@ -52,6 +59,9 @@
           "pause_entity": "Solange diese Entität an ist (ein input_boolean für Wartung, ein Zeitplan für die Nacht…), wird nichts neu geladen; die Prüfungen listen weiterhin die nicht verfügbaren Integrationen."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Jede Zeile muss Domain: Minuten sein, von 1 bis 1440 (zha: 30)."
     }
   },
   "entity": {

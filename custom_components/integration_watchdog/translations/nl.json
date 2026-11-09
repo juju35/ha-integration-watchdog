@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Controle-interval",
           "grace_period": "Wachttijd",
+          "grace_overrides": "Respijttijd per integratie",
           "max_reloads": "Herlaadpogingen op rij",
           "ignored_integrations": "Genegeerde integraties",
           "notify_services": "Meldingsacties",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minuten tussen twee controles.",
           "grace_period": "Minuten dat alle entiteiten van een integratie niet beschikbaar moeten zijn voordat deze wordt herladen. Na het opstarten van Home Assistant wordt gedurende deze tijd niets herladen.",
+          "grace_overrides": "Eén regel per integratie: domein: minuten (zha: 30). Vervangt de respijttijd van die integratie en de wachttijden tussen haar herlaadbeurten; na een start geldt de algemene respijttijd nog steeds voor alle.",
           "max_reloads": "Herlaadpogingen van een integratie die niet beschikbaar blijft voordat ze wordt opgegeven tot ze herstelt. De tijd tussen twee herlaadpogingen verdubbelt telkens: wachttijd, 2 × wachttijd…",
           "ignored_integrations": "Integraties die nooit worden herladen. Typ een domein om er een toe te voegen die nog niet is ingesteld.",
           "notify_services": "Stuur elke melding ook met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt.",
@@ -23,6 +25,9 @@
           "pause_entity": "Zolang deze entiteit aan staat (een input_boolean voor onderhoud, een schema voor de nacht…), wordt niets herladen; de controles tonen nog steeds de onbeschikbare integraties."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Elke regel moet domein: minuten zijn, van 1 tot 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog is al geconfigureerd.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Controle-interval",
           "grace_period": "Wachttijd",
+          "grace_overrides": "Respijttijd per integratie",
           "max_reloads": "Herlaadpogingen op rij",
           "ignored_integrations": "Genegeerde integraties",
           "notify_services": "Meldingsacties",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minuten tussen twee controles.",
           "grace_period": "Minuten dat alle entiteiten van een integratie niet beschikbaar moeten zijn voordat deze wordt herladen. Na het opstarten van Home Assistant wordt gedurende deze tijd niets herladen.",
+          "grace_overrides": "Eén regel per integratie: domein: minuten (zha: 30). Vervangt de respijttijd van die integratie en de wachttijden tussen haar herlaadbeurten; na een start geldt de algemene respijttijd nog steeds voor alle.",
           "max_reloads": "Herlaadpogingen van een integratie die niet beschikbaar blijft voordat ze wordt opgegeven tot ze herstelt. De tijd tussen twee herlaadpogingen verdubbelt telkens: wachttijd, 2 × wachttijd…",
           "ignored_integrations": "Integraties die nooit worden herladen. Typ een domein om er een toe te voegen die nog niet is ingesteld.",
           "notify_services": "Stuur elke melding ook met deze acties (notify.mobile_app_…). Er wordt altijd een blijvende melding aangemaakt.",
@@ -52,6 +59,9 @@
           "pause_entity": "Zolang deze entiteit aan staat (een input_boolean voor onderhoud, een schema voor de nacht…), wordt niets herladen; de controles tonen nog steeds de onbeschikbare integraties."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Elke regel moet domein: minuten zijn, van 1 tot 1440 (zha: 30)."
     }
   },
   "entity": {

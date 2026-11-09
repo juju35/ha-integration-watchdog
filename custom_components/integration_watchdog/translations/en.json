@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Check interval",
           "grace_period": "Grace period",
+          "grace_overrides": "Grace period per integration",
           "max_reloads": "Reloads in a row",
           "ignored_integrations": "Ignored integrations",
           "notify_services": "Notify actions",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minutes between two checks.",
           "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started.",
+          "grace_overrides": "One line per integration: domain: minutes (zha: 30). It replaces the grace period for that integration and the delays between its reloads; after a start, the global grace period still applies to all.",
           "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
           "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
           "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created.",
@@ -23,6 +25,9 @@
           "pause_entity": "While this entity is on (an input_boolean for maintenance, a schedule for the night…), nothing is reloaded; the checks still list the unavailable integrations."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Each line must be domain: minutes, from 1 to 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog is already configured.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Check interval",
           "grace_period": "Grace period",
+          "grace_overrides": "Grace period per integration",
           "max_reloads": "Reloads in a row",
           "ignored_integrations": "Ignored integrations",
           "notify_services": "Notify actions",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minutes between two checks.",
           "grace_period": "Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started.",
+          "grace_overrides": "One line per integration: domain: minutes (zha: 30). It replaces the grace period for that integration and the delays between its reloads; after a start, the global grace period still applies to all.",
           "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
           "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
           "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created.",
@@ -52,6 +59,9 @@
           "pause_entity": "While this entity is on (an input_boolean for maintenance, a schedule for the night…), nothing is reloaded; the checks still list the unavailable integrations."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Each line must be domain: minutes, from 1 to 1440 (zha: 30)."
     }
   },
   "entity": {

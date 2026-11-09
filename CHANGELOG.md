@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0 - 2026-11-09
+
+### Features
+- **Grace period per integration** (option): one line per integration, `domain: minutes` (`zha: 30`), replaces the grace period of that integration and the delays between its reloads (which still double each time). Right after Home Assistant starts, the global grace period still applies to all. A line that isn't `domain: minutes` (1 to 1440) is refused in the form. Shown in the diagnostics.
+
 ## 1.6.0 - 2026-11-09
 
 ### Features

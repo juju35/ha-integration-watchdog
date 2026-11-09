@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Intervalo de comprobación",
           "grace_period": "Periodo de gracia",
+          "grace_overrides": "Periodo de gracia por integración",
           "max_reloads": "Recargas seguidas",
           "ignored_integrations": "Integraciones ignoradas",
           "notify_services": "Acciones de notificación",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minutos entre dos comprobaciones.",
           "grace_period": "Minutos que todas las entidades de una integración deben haber estado no disponibles antes de recargarla. No se recarga nada durante este tiempo tras el inicio de Home Assistant.",
+          "grace_overrides": "Una línea por integración: dominio: minutos (zha: 30). Sustituye el periodo de gracia de esa integración y las esperas entre sus recargas; tras un inicio, el periodo de gracia global sigue aplicándose a todas.",
           "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
           "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
           "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
@@ -23,6 +25,9 @@
           "pause_entity": "Mientras esta entidad esté encendida (un input_boolean de mantenimiento, una programación para la noche…), no se recarga nada; las comprobaciones siguen listando las integraciones no disponibles."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Cada línea debe ser dominio: minutos, de 1 a 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog ya está configurado.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Intervalo de comprobación",
           "grace_period": "Periodo de gracia",
+          "grace_overrides": "Periodo de gracia por integración",
           "max_reloads": "Recargas seguidas",
           "ignored_integrations": "Integraciones ignoradas",
           "notify_services": "Acciones de notificación",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minutos entre dos comprobaciones.",
           "grace_period": "Minutos que todas las entidades de una integración deben haber estado no disponibles antes de recargarla. No se recarga nada durante este tiempo tras el inicio de Home Assistant.",
+          "grace_overrides": "Una línea por integración: dominio: minutos (zha: 30). Sustituye el periodo de gracia de esa integración y las esperas entre sus recargas; tras un inicio, el periodo de gracia global sigue aplicándose a todas.",
           "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
           "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
           "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
@@ -52,6 +59,9 @@
           "pause_entity": "Mientras esta entidad esté encendida (un input_boolean de mantenimiento, una programación para la noche…), no se recarga nada; las comprobaciones siguen listando las integraciones no disponibles."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Cada línea debe ser dominio: minutos, de 1 a 1440 (zha: 30)."
     }
   },
   "entity": {

@@ -28,6 +28,7 @@ from homeassistant.util import dt as dt_util
 from .const import (
     ATTR_ENTRY_ID,
     CARD_URL,
+    CONF_GRACE_OVERRIDES,
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
     CONF_IGNORED_ENTRIES,
@@ -171,6 +172,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
         hass.data.setdefault(DOMAIN, {}),
         options.get(CONF_IGNORED_ENTRIES, []),
         options.get(CONF_PAUSE_ENTITY),
+        {domain: timedelta(minutes=int(m)) for domain, m in options.get(CONF_GRACE_OVERRIDES, {}).items()},
     )
     await watchdog.async_load()
     entry.runtime_data = watchdog

@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Pārbaudes intervāls",
           "grace_period": "Nogaidīšanas laiks",
+          "grace_overrides": "Labvēlības periods katrai integrācijai",
           "max_reloads": "Pārlādes pēc kārtas",
           "ignored_integrations": "Ignorētās integrācijas",
           "notify_services": "Paziņojumu darbības",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minūtes starp divām pārbaudēm.",
           "grace_period": "Minūtes, cik ilgi visām integrācijas vienībām jābūt nepieejamām, pirms tā tiek pārlādēta. Šajā laikā pēc Home Assistant palaišanas nekas netiek pārlādēts.",
+          "grace_overrides": "Viena rinda katrai integrācijai: domēns: minūtes (zha: 30). Tas aizstāj šīs integrācijas labvēlības periodu un pauzes starp tās pārlādēm; pēc starta globālais labvēlības periods joprojām attiecas uz visām.",
           "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
           "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
           "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
@@ -23,6 +25,9 @@
           "pause_entity": "Kamēr šī entītija ir ieslēgta (input_boolean apkopei, grafiks naktij…), nekas netiek pārlādēts; pārbaudes joprojām uzskaita nepieejamās integrācijas."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Katrai rindai jābūt domēns: minūtes, no 1 līdz 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog jau ir konfigurēts.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Pārbaudes intervāls",
           "grace_period": "Nogaidīšanas laiks",
+          "grace_overrides": "Labvēlības periods katrai integrācijai",
           "max_reloads": "Pārlādes pēc kārtas",
           "ignored_integrations": "Ignorētās integrācijas",
           "notify_services": "Paziņojumu darbības",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minūtes starp divām pārbaudēm.",
           "grace_period": "Minūtes, cik ilgi visām integrācijas vienībām jābūt nepieejamām, pirms tā tiek pārlādēta. Šajā laikā pēc Home Assistant palaišanas nekas netiek pārlādēts.",
+          "grace_overrides": "Viena rinda katrai integrācijai: domēns: minūtes (zha: 30). Tas aizstāj šīs integrācijas labvēlības periodu un pauzes starp tās pārlādēm; pēc starta globālais labvēlības periods joprojām attiecas uz visām.",
           "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
           "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
           "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
@@ -52,6 +59,9 @@
           "pause_entity": "Kamēr šī entītija ir ieslēgta (input_boolean apkopei, grafiks naktij…), nekas netiek pārlādēts; pārbaudes joprojām uzskaita nepieejamās integrācijas."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Katrai rindai jābūt domēns: minūtes, no 1 līdz 1440 (zha: 30)."
     }
   },
   "entity": {
