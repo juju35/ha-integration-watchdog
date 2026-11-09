@@ -8,6 +8,8 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
@@ -24,6 +26,7 @@ from .const import (
     CONF_IGNORED_ENTRIES,
     CONF_MAX_RELOADS,
     CONF_NOTIFY,
+    CONF_PAUSE_ENTITY,
     CONF_SCAN_INTERVAL,
     DEFAULT_GRACE_PERIOD,
     DEFAULT_MAX_RELOADS,
@@ -31,6 +34,7 @@ from .const import (
     DOMAIN,
     MAX_MAX_RELOADS,
     MAX_MINUTES,
+    PAUSE_DOMAINS,
 )
 
 
@@ -94,6 +98,9 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
             vol.Optional(CONF_IGNORED_ENTRIES, default=ignored_entries): SelectSelector(
                 SelectSelectorConfig(options=entry_options, multiple=True, mode=SelectSelectorMode.DROPDOWN)
             ),
+            vol.Optional(
+                CONF_PAUSE_ENTITY, description={"suggested_value": current.get(CONF_PAUSE_ENTITY)}
+            ): EntitySelector(EntitySelectorConfig(domain=PAUSE_DOMAINS)),
             vol.Optional(CONF_NOTIFY, default=notify): SelectSelector(
                 SelectSelectorConfig(
                     options=notify_options,
@@ -109,15 +116,19 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
 def _options(user_input: dict[str, Any]) -> dict[str, Any]:
     # Ignored single entries only when some are chosen: existing entries keep the options they had.
     entries = sorted(set(user_input.get(CONF_IGNORED_ENTRIES, [])))
-    return ({CONF_IGNORED_ENTRIES: entries} if entries else {}) | {
-        CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
-        CONF_GRACE_PERIOD: int(user_input[CONF_GRACE_PERIOD]),
-        CONF_MAX_RELOADS: int(user_input[CONF_MAX_RELOADS]),
-        CONF_IGNORED: sorted({d.strip() for d in user_input.get(CONF_IGNORED, []) if d.strip()}),
-        CONF_NOTIFY: sorted(
-            {f"notify.{n.strip().removeprefix('notify.')}" for n in user_input.get(CONF_NOTIFY, []) if n.strip()}
-        ),
-    }
+    return (
+        ({CONF_IGNORED_ENTRIES: entries} if entries else {})
+        | {
+            CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
+            CONF_GRACE_PERIOD: int(user_input[CONF_GRACE_PERIOD]),
+            CONF_MAX_RELOADS: int(user_input[CONF_MAX_RELOADS]),
+            CONF_IGNORED: sorted({d.strip() for d in user_input.get(CONF_IGNORED, []) if d.strip()}),
+            CONF_NOTIFY: sorted(
+                {f"notify.{n.strip().removeprefix('notify.')}" for n in user_input.get(CONF_NOTIFY, []) if n.strip()}
+            ),
+        }
+        | ({CONF_PAUSE_ENTITY: user_input[CONF_PAUSE_ENTITY]} if user_input.get(CONF_PAUSE_ENTITY) else {})
+    )
 
 
 class IntegrationWatchdogConfigFlow(ConfigFlow, domain=DOMAIN):

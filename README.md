@@ -31,6 +31,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Repairs issue** for each integration given up, removed once it recovers, with **Try again** to start over and reload it now
 - **Diagnostics** with personal data redacted
 - **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain, and **ignored entries**: one entry of an integration (a camera of several) left alone while its other entries are still watched
+- **Pause entity**: while an entity of your choice is on (an `input_boolean` for maintenance, a `schedule` for the night), nothing is reloaded; the checks still list what is unavailable
 - **Reloads in 24 h** sensor: how many reloads the last day, per integration — an unstable integration shows up there
 - **Check now** button and `integration_watchdog.check` action; `integration_watchdog.reset` action to start over on an integration
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
@@ -79,6 +80,7 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 | Reloads in a row | 3 | Reloads of an integration that stays unavailable before giving up on it, from 1 to 10 |
 | Ignored entries | none | Single entries never reloaded ("Title (domain)"); the other entries of their integration are still watched |
 | Ignored integrations | none | Integrations never reloaded. The list offers the integrations set up; type a domain (`zha`, `mqtt`…) to add another one |
+| Pause entity | none | An `input_boolean`, `switch`, `binary_sensor` or `schedule`: while it is on, nothing is reloaded (maintenance of the network, a planned outage, the night). The checks still run and list the unavailable integrations, and the *Unavailable integrations* sensor has `paused: true`; reloads start again at the first check after it turns off, the grace period counted from when each integration became unavailable |
 | Notify actions | none | Also send each notification with these actions (`notify.mobile_app_phone`…). A persistent notification is always created |
 
 ### What counts as unavailable

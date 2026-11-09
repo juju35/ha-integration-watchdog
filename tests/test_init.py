@@ -121,6 +121,15 @@ async def test_options_flow(hass):
     assert entry.state is ConfigEntryState.LOADED
     assert hass.states.get(UNAVAILABLE).attributes["ignored"] == ["mqtt"]
 
+    # A pause entity is kept only when chosen.
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_MAX_RELOADS: 3, "pause_entity": "input_boolean.maintenance"},
+    )
+    await hass.async_block_till_done()
+    assert entry.options["pause_entity"] == "input_boolean.maintenance"
+
 
 async def test_reloads_unavailable_integration_after_grace_period(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     dead = add_integration(hass, "dead", [STATE_UNAVAILABLE, STATE_UNAVAILABLE])
@@ -151,6 +160,24 @@ async def test_reloads_unavailable_integration_after_grace_period(hass: HomeAssi
     assert state.attributes["domain"] == "dead"
     assert state.attributes["reloads"] == 1
     assert hass.states.get(LAST_CHECK).state not in ("unknown", "unavailable")
+
+
+async def test_pause_entity_holds_the_reloads(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    dead = add_integration(hass, "dead", [STATE_UNAVAILABLE])
+    hass.states.async_set("input_boolean.maintenance", "on")
+    await _setup(hass, pause_entity="input_boolean.maintenance")
+    freezer.tick(timedelta(hours=1))
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        await _check(hass)
+        reload.assert_not_awaited()
+        state = hass.states.get(UNAVAILABLE)
+        # Still listed, and the sensor says why nothing happens.
+        assert state.state == "1"
+        assert state.attributes["paused"] is True
+        hass.states.async_set("input_boolean.maintenance", "off")
+        await _check(hass)
+        reload.assert_awaited_once_with(dead.entry_id)
+    assert hass.states.get(UNAVAILABLE).attributes["paused"] is False
 
 
 async def test_ignored_integration(hass: HomeAssistant, freezer: FrozenDateTimeFactory):

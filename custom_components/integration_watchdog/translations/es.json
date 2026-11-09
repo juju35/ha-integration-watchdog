@@ -10,7 +10,8 @@
           "max_reloads": "Recargas seguidas",
           "ignored_integrations": "Integraciones ignoradas",
           "notify_services": "Acciones de notificación",
-          "ignored_entries": "Entradas ignoradas"
+          "ignored_entries": "Entradas ignoradas",
+          "pause_entity": "Entidad de pausa"
         },
         "data_description": {
           "scan_interval": "Minutos entre dos comprobaciones.",
@@ -18,7 +19,8 @@
           "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
           "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
           "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
-          "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo)."
+          "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo).",
+          "pause_entity": "Mientras esta entidad esté encendida (un input_boolean de mantenimiento, una programación para la noche…), no se recarga nada; las comprobaciones siguen listando las integraciones no disponibles."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Recargas seguidas",
           "ignored_integrations": "Integraciones ignoradas",
           "notify_services": "Acciones de notificación",
-          "ignored_entries": "Entradas ignoradas"
+          "ignored_entries": "Entradas ignoradas",
+          "pause_entity": "Entidad de pausa"
         },
         "data_description": {
           "scan_interval": "Minutos entre dos comprobaciones.",
@@ -45,7 +48,8 @@
           "max_reloads": "Recargas de una integración que sigue no disponible antes de desistir hasta que se recupere. El tiempo entre dos recargas se duplica cada vez: periodo de gracia, 2 × periodo de gracia…",
           "ignored_integrations": "Integraciones que nunca se recargan. Escribe un dominio para añadir una que aún no esté configurada.",
           "notify_services": "Enviar también cada notificación con estas acciones (notify.mobile_app_…). Siempre se crea una notificación persistente.",
-          "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo)."
+          "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo).",
+          "pause_entity": "Mientras esta entidad esté encendida (un input_boolean de mantenimiento, una programación para la noche…), no se recarga nada; las comprobaciones siguen listando las integraciones no disponibles."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Recargas máximas"
+          },
+          "paused": {
+            "name": "En pausa"
           }
         }
       },

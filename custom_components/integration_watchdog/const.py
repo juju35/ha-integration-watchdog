@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "integration_watchdog"
 # Same as manifest.json and the card: the card URL carries it, so that browsers load a new release.
-VERSION: Final = "1.5.0"
+VERSION: Final = "1.6.0"
 
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 CONF_GRACE_PERIOD: Final = "grace_period"
@@ -14,6 +14,9 @@ CONF_IGNORED: Final = "ignored_integrations"
 CONF_IGNORED_ENTRIES: Final = "ignored_entries"
 CONF_MAX_RELOADS: Final = "max_reloads"
 CONF_NOTIFY: Final = "notify_services"
+# An entity that pauses the reloads while it is on (an input_boolean for maintenance, a schedule for the night…).
+CONF_PAUSE_ENTITY: Final = "pause_entity"
+PAUSE_DOMAINS: Final = ["input_boolean", "switch", "binary_sensor", "schedule"]
 
 # Minutes between two checks.
 DEFAULT_SCAN_INTERVAL: Final = 5

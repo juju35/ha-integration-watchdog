@@ -10,7 +10,8 @@
           "max_reloads": "Reîncărcări consecutive",
           "ignored_integrations": "Integrări ignorate",
           "notify_services": "Acțiuni de notificare",
-          "ignored_entries": "Intrări ignorate"
+          "ignored_entries": "Intrări ignorate",
+          "pause_entity": "Entitate de pauză"
         },
         "data_description": {
           "scan_interval": "Minute între două verificări.",
@@ -18,7 +19,8 @@
           "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
           "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
           "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
-          "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu)."
+          "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu).",
+          "pause_entity": "Cât timp această entitate este pornită (un input_boolean pentru mentenanță, un program pentru noapte…), nu se reîncarcă nimic; verificările listează în continuare integrările indisponibile."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Reîncărcări consecutive",
           "ignored_integrations": "Integrări ignorate",
           "notify_services": "Acțiuni de notificare",
-          "ignored_entries": "Intrări ignorate"
+          "ignored_entries": "Intrări ignorate",
+          "pause_entity": "Entitate de pauză"
         },
         "data_description": {
           "scan_interval": "Minute între două verificări.",
@@ -45,7 +48,8 @@
           "max_reloads": "Reîncărcări ale unei integrări care rămâne indisponibilă înainte de a renunța la ea până când își revine. Intervalul dintre două reîncărcări se dublează de fiecare dată: perioada de grație, 2 × perioada de grație…",
           "ignored_integrations": "Integrări care nu sunt reîncărcate niciodată. Introduceți un domeniu pentru a adăuga una care nu este încă configurată.",
           "notify_services": "Trimite fiecare notificare și prin aceste acțiuni (notify.mobile_app_…). O notificare persistentă este creată întotdeauna.",
-          "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu)."
+          "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu).",
+          "pause_entity": "Cât timp această entitate este pornită (un input_boolean pentru mentenanță, un program pentru noapte…), nu se reîncarcă nimic; verificările listează în continuare integrările indisponibile."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Reîncărcări maxime"
+          },
+          "paused": {
+            "name": "În pauză"
           }
         }
       },

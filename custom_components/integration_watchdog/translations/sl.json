@@ -10,7 +10,8 @@
           "max_reloads": "Zaporedna ponovna nalaganja",
           "ignored_integrations": "Prezrte integracije",
           "notify_services": "Dejanja obvestil",
-          "ignored_entries": "Prezrti vnosi"
+          "ignored_entries": "Prezrti vnosi",
+          "pause_entity": "Entiteta premora"
         },
         "data_description": {
           "scan_interval": "Minute med dvema preverjanjema.",
@@ -18,7 +19,8 @@
           "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
           "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
           "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
-          "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer)."
+          "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer).",
+          "pause_entity": "Dokler je ta entiteta vklopljena (input_boolean za vzdrževanje, urnik za noč…), se nič ne naloži znova; preverjanja še vedno navajajo nedosegljive integracije."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Zaporedna ponovna nalaganja",
           "ignored_integrations": "Prezrte integracije",
           "notify_services": "Dejanja obvestil",
-          "ignored_entries": "Prezrti vnosi"
+          "ignored_entries": "Prezrti vnosi",
+          "pause_entity": "Entiteta premora"
         },
         "data_description": {
           "scan_interval": "Minute med dvema preverjanjema.",
@@ -45,7 +48,8 @@
           "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
           "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
           "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
-          "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer)."
+          "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer).",
+          "pause_entity": "Dokler je ta entiteta vklopljena (input_boolean za vzdrževanje, urnik za noč…), se nič ne naloži znova; preverjanja še vedno navajajo nedosegljive integracije."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Največ ponovnih nalaganj"
+          },
+          "paused": {
+            "name": "Zaustavljeno"
           }
         }
       },

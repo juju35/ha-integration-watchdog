@@ -10,7 +10,8 @@
           "max_reloads": "Egymás utáni újratöltések",
           "ignored_integrations": "Figyelmen kívül hagyott integrációk",
           "notify_services": "Értesítési műveletek",
-          "ignored_entries": "Figyelmen kívül hagyott bejegyzések"
+          "ignored_entries": "Figyelmen kívül hagyott bejegyzések",
+          "pause_entity": "Szüneteltető entitás"
         },
         "data_description": {
           "scan_interval": "Két ellenőrzés között eltelt percek.",
@@ -18,7 +19,8 @@
           "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
           "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
           "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
-          "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy)."
+          "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy).",
+          "pause_entity": "Amíg ez az entitás be van kapcsolva (karbantartási input_boolean, éjszakai ütemezés…), semmi sem töltődik újra; az ellenőrzések továbbra is listázzák a nem elérhető integrációkat."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Egymás utáni újratöltések",
           "ignored_integrations": "Figyelmen kívül hagyott integrációk",
           "notify_services": "Értesítési műveletek",
-          "ignored_entries": "Figyelmen kívül hagyott bejegyzések"
+          "ignored_entries": "Figyelmen kívül hagyott bejegyzések",
+          "pause_entity": "Szüneteltető entitás"
         },
         "data_description": {
           "scan_interval": "Két ellenőrzés között eltelt percek.",
@@ -45,7 +48,8 @@
           "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
           "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
           "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
-          "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy)."
+          "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy).",
+          "pause_entity": "Amíg ez az entitás be van kapcsolva (karbantartási input_boolean, éjszakai ütemezés…), semmi sem töltődik újra; az ellenőrzések továbbra is listázzák a nem elérhető integrációkat."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Max. újratöltések"
+          },
+          "paused": {
+            "name": "Szüneteltetve"
           }
         }
       },

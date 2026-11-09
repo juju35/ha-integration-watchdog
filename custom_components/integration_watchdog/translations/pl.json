@@ -10,7 +10,8 @@
           "max_reloads": "Ponowne wczytania z rzędu",
           "ignored_integrations": "Ignorowane integracje",
           "notify_services": "Akcje powiadomień",
-          "ignored_entries": "Ignorowane wpisy"
+          "ignored_entries": "Ignorowane wpisy",
+          "pause_entity": "Encja pauzy"
         },
         "data_description": {
           "scan_interval": "Liczba minut między dwoma sprawdzeniami.",
@@ -18,7 +19,8 @@
           "max_reloads": "Liczba ponownych wczytań integracji, która pozostaje niedostępna, zanim zostanie porzucona do czasu jej przywrócenia. Odstęp między dwoma ponownymi wczytaniami za każdym razem się podwaja: okres karencji, 2 × okres karencji…",
           "ignored_integrations": "Integracje, które nigdy nie są ponownie wczytywane. Wpisz domenę, aby dodać integrację, która nie jest jeszcze skonfigurowana.",
           "notify_services": "Wysyłaj też każde powiadomienie za pomocą tych akcji (notify.mobile_app_…). Trwałe powiadomienie jest tworzone zawsze.",
-          "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer)."
+          "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer).",
+          "pause_entity": "Gdy ta encja jest włączona (input_boolean na czas konserwacji, harmonogram na noc…), nic nie jest przeładowywane; sprawdzenia nadal wymieniają niedostępne integracje."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Ponowne wczytania z rzędu",
           "ignored_integrations": "Ignorowane integracje",
           "notify_services": "Akcje powiadomień",
-          "ignored_entries": "Ignorowane wpisy"
+          "ignored_entries": "Ignorowane wpisy",
+          "pause_entity": "Encja pauzy"
         },
         "data_description": {
           "scan_interval": "Liczba minut między dwoma sprawdzeniami.",
@@ -45,7 +48,8 @@
           "max_reloads": "Liczba ponownych wczytań integracji, która pozostaje niedostępna, zanim zostanie porzucona do czasu jej przywrócenia. Odstęp między dwoma ponownymi wczytaniami za każdym razem się podwaja: okres karencji, 2 × okres karencji…",
           "ignored_integrations": "Integracje, które nigdy nie są ponownie wczytywane. Wpisz domenę, aby dodać integrację, która nie jest jeszcze skonfigurowana.",
           "notify_services": "Wysyłaj też każde powiadomienie za pomocą tych akcji (notify.mobile_app_…). Trwałe powiadomienie jest tworzone zawsze.",
-          "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer)."
+          "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer).",
+          "pause_entity": "Gdy ta encja jest włączona (input_boolean na czas konserwacji, harmonogram na noc…), nic nie jest przeładowywane; sprawdzenia nadal wymieniają niedostępne integracje."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Maksymalna liczba ponownych wczytań"
+          },
+          "paused": {
+            "name": "Wstrzymano"
           }
         }
       },
