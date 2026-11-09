@@ -180,6 +180,55 @@ async def test_pause_entity_holds_the_reloads(hass: HomeAssistant, freezer: Froz
     assert hass.states.get(UNAVAILABLE).attributes["paused"] is False
 
 
+async def test_grace_overrides_per_integration(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
+    slow = add_integration(hass, "slow", [STATE_UNAVAILABLE])
+    fast = add_integration(hass, "fast", [STATE_UNAVAILABLE])
+    await _setup(hass, grace_overrides={"slow": 60, "fast": 5})
+    with patch.object(hass.config_entries, "async_reload", AsyncMock(return_value=True)) as reload:
+        # "fast" after its own 5 minutes, before the global 15; "slow" not at 15.
+        freezer.tick(timedelta(minutes=4))
+        await _check(hass)
+        reload.assert_not_awaited()
+        freezer.tick(timedelta(minutes=1))
+        await _check(hass)
+        reload.assert_awaited_once_with(fast.entry_id)
+        reload.reset_mock()
+        freezer.tick(timedelta(minutes=10))
+        await _check(hass)
+        assert slow.entry_id not in [c.args[0] for c in reload.await_args_list]
+        # "slow" waits its own hour.
+        reload.reset_mock()
+        freezer.tick(timedelta(minutes=45))
+        await _check(hass)
+        assert slow.entry_id in [c.args[0] for c in reload.await_args_list]
+
+
+async def test_options_flow_grace_overrides(hass):
+    entry = await _setup(hass)
+    base = {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_MAX_RELOADS: 3}
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {**base, "grace_overrides": "zha: 30\nfoo"}
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"grace_overrides": "invalid_overrides"}
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {**base, "grace_overrides": "ZHA: 30, tuya=90\n\n"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    assert entry.options["grace_overrides"] == {"tuya": 90, "zha": 30}
+    assert entry.runtime_data.grace("zha") == timedelta(minutes=30)
+    assert entry.runtime_data.grace("mqtt") == timedelta(minutes=5)
+    # Shown back one per line; emptied, the option goes away.
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    key = next(k for k in result["data_schema"].schema if k == "grace_overrides")
+    assert key.description["suggested_value"] == "tuya: 90\nzha: 30"
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {**base, "grace_overrides": ""})
+    await hass.async_block_till_done()
+    assert "grace_overrides" not in entry.options
+
+
 async def test_ignored_integration(hass: HomeAssistant, freezer: FrozenDateTimeFactory):
     add_integration(hass, "dead", [STATE_UNAVAILABLE])
     await _setup(hass, **{CONF_IGNORED: ["dead"]})

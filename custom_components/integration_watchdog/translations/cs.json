@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Interval kontroly",
           "grace_period": "Ochranná lhůta",
+          "grace_overrides": "Ochranná lhůta pro integraci",
           "max_reloads": "Opětovná načtení za sebou",
           "ignored_integrations": "Ignorované integrace",
           "notify_services": "Akce oznámení",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Počet minut mezi dvěma kontrolami.",
           "grace_period": "Počet minut, po které musí být všechny entity integrace nedostupné, než se znovu načte. Během této doby po spuštění Home Assistant se nic znovu nenačítá.",
+          "grace_overrides": "Jeden řádek na integraci: doména: minuty (zha: 30). Nahrazuje ochrannou lhůtu této integrace a čekání mezi jejími opětovnými načteními; po spuštění stále platí globální ochranná lhůta pro všechny.",
           "max_reloads": "Počet opětovných načtení integrace, která zůstává nedostupná, než se vzdá až do jejího obnovení. Odstup mezi dvěma opětovnými načteními se pokaždé zdvojnásobí: ochranná lhůta, 2 × ochranná lhůta…",
           "ignored_integrations": "Integrace, které se nikdy znovu nenačtou. Zadejte doménu, chcete-li přidat integraci, která ještě není nastavená.",
           "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy.",
@@ -23,6 +25,9 @@
           "pause_entity": "Dokud je tato entita zapnutá (input_boolean pro údržbu, plán na noc…), nic se nenačítá znovu; kontroly dál vypisují nedostupné integrace."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Každý řádek musí mít tvar doména: minuty, od 1 do 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog je již nakonfigurován.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Interval kontroly",
           "grace_period": "Ochranná lhůta",
+          "grace_overrides": "Ochranná lhůta pro integraci",
           "max_reloads": "Opětovná načtení za sebou",
           "ignored_integrations": "Ignorované integrace",
           "notify_services": "Akce oznámení",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Počet minut mezi dvěma kontrolami.",
           "grace_period": "Počet minut, po které musí být všechny entity integrace nedostupné, než se znovu načte. Během této doby po spuštění Home Assistant se nic znovu nenačítá.",
+          "grace_overrides": "Jeden řádek na integraci: doména: minuty (zha: 30). Nahrazuje ochrannou lhůtu této integrace a čekání mezi jejími opětovnými načteními; po spuštění stále platí globální ochranná lhůta pro všechny.",
           "max_reloads": "Počet opětovných načtení integrace, která zůstává nedostupná, než se vzdá až do jejího obnovení. Odstup mezi dvěma opětovnými načteními se pokaždé zdvojnásobí: ochranná lhůta, 2 × ochranná lhůta…",
           "ignored_integrations": "Integrace, které se nikdy znovu nenačtou. Zadejte doménu, chcete-li přidat integraci, která ještě není nastavená.",
           "notify_services": "Každé oznámení odeslat také pomocí těchto akcí (notify.mobile_app_…). Trvalé oznámení se vytvoří vždy.",
@@ -52,6 +59,9 @@
           "pause_entity": "Dokud je tato entita zapnutá (input_boolean pro údržbu, plán na noc…), nic se nenačítá znovu; kontroly dál vypisují nedostupné integrace."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Každý řádek musí mít tvar doména: minuty, od 1 do 1440 (zha: 30)."
     }
   },
   "entity": {

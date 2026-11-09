@@ -77,6 +77,7 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 |---|---|---|
 | Check interval | 5 min | Minutes between two checks, from 1 to 1440 |
 | Grace period | 15 min | Minutes every entity of an integration must have been unavailable before it is reloaded. Nothing is reloaded during this time after Home Assistant has started |
+| Grace period per integration | — | One line per integration, `domain: minutes` (`zha: 30`): its own grace period and delays between reloads, for an integration that takes longer (a big Zigbee network) or should be reloaded sooner. Right after Home Assistant starts, the global grace period still applies to all |
 | Reloads in a row | 3 | Reloads of an integration that stays unavailable before giving up on it, from 1 to 10 |
 | Ignored entries | none | Single entries never reloaded ("Title (domain)"); the other entries of their integration are still watched |
 | Ignored integrations | none | Integrations never reloaded. The list offers the integrations set up; type a domain (`zha`, `mqtt`…) to add another one |

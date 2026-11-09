@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import voluptuous as vol
@@ -17,10 +18,13 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
 )
 from homeassistant.loader import async_get_integrations
 
 from .const import (
+    CONF_GRACE_OVERRIDES,
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
     CONF_IGNORED_ENTRIES,
@@ -36,6 +40,25 @@ from .const import (
     MAX_MINUTES,
     PAUSE_DOMAINS,
 )
+
+_OVERRIDE_LINE = re.compile(r"^\s*([a-z0-9_]+)\s*[:=]\s*(\d+)\s*$")
+
+
+def parse_overrides(text: str) -> dict[str, int]:
+    """One "domain: minutes" per line (or comma separated); raises ValueError on a line that isn't."""
+    overrides: dict[str, int] = {}
+    for line in re.split(r"[\n,]", text or ""):
+        if not line.strip():
+            continue
+        match = _OVERRIDE_LINE.match(line.strip().lower())
+        if not match or not 1 <= int(match[2]) <= MAX_MINUTES:
+            raise ValueError(line.strip())
+        overrides[match[1]] = int(match[2])
+    return dict(sorted(overrides.items()))
+
+
+def format_overrides(overrides: dict[str, int]) -> str:
+    return "\n".join(f"{domain}: {minutes}" for domain, minutes in sorted(overrides.items()))
 
 
 def _minutes() -> NumberSelector:
@@ -84,6 +107,10 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
                 CONF_SCAN_INTERVAL, default=current.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
             ): _minutes(),
             vol.Required(CONF_GRACE_PERIOD, default=current.get(CONF_GRACE_PERIOD, DEFAULT_GRACE_PERIOD)): _minutes(),
+            vol.Optional(
+                CONF_GRACE_OVERRIDES,
+                description={"suggested_value": format_overrides(current.get(CONF_GRACE_OVERRIDES, {}))},
+            ): TextSelector(TextSelectorConfig(multiline=True)),
             vol.Required(CONF_MAX_RELOADS, default=current.get(CONF_MAX_RELOADS, DEFAULT_MAX_RELOADS)): NumberSelector(
                 NumberSelectorConfig(min=1, max=MAX_MAX_RELOADS, step=1, mode=NumberSelectorMode.BOX)
             ),
@@ -114,6 +141,7 @@ async def _schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
 
 
 def _options(user_input: dict[str, Any]) -> dict[str, Any]:
+    overrides = parse_overrides(user_input.get(CONF_GRACE_OVERRIDES, ""))
     # Ignored single entries only when some are chosen: existing entries keep the options they had.
     entries = sorted(set(user_input.get(CONF_IGNORED_ENTRIES, [])))
     return (
@@ -128,7 +156,16 @@ def _options(user_input: dict[str, Any]) -> dict[str, Any]:
             ),
         }
         | ({CONF_PAUSE_ENTITY: user_input[CONF_PAUSE_ENTITY]} if user_input.get(CONF_PAUSE_ENTITY) else {})
+        | ({CONF_GRACE_OVERRIDES: overrides} if overrides else {})
     )
+
+
+def _errors(user_input: dict[str, Any]) -> dict[str, str]:
+    try:
+        parse_overrides(user_input.get(CONF_GRACE_OVERRIDES, ""))
+    except ValueError:
+        return {CONF_GRACE_OVERRIDES: "invalid_overrides"}
+    return {}
 
 
 class IntegrationWatchdogConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -139,9 +176,13 @@ class IntegrationWatchdogConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
-        if user_input is not None:
+        errors = _errors(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             return self.async_create_entry(title="Integration Watchdog", data={}, options=_options(user_input))
-        return self.async_show_form(step_id="user", data_schema=await _schema(self.hass, {}))
+        schema = await _schema(self.hass, {})
+        if user_input is not None:
+            schema = self.add_suggested_values_to_schema(schema, user_input)
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
     @staticmethod
     @callback
@@ -153,8 +194,10 @@ class IntegrationWatchdogOptionsFlow(OptionsFlow):
     """Change the interval, the grace period and the ignored integrations."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if user_input is not None:
+        errors = _errors(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             return self.async_create_entry(data=_options(user_input))
-        return self.async_show_form(
-            step_id="init", data_schema=await _schema(self.hass, dict(self.config_entry.options))
-        )
+        schema = await _schema(self.hass, dict(self.config_entry.options))
+        if user_input is not None:
+            schema = self.add_suggested_values_to_schema(schema, user_input)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

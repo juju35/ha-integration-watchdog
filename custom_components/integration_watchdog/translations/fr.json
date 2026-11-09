@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Intervalle de vérification",
           "grace_period": "Délai de grâce",
+          "grace_overrides": "Délai de grâce par intégration",
           "max_reloads": "Rechargements successifs",
           "ignored_integrations": "Intégrations ignorées",
           "notify_services": "Actions de notification",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minutes entre deux vérifications.",
           "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. Rien n'est rechargé pendant ce délai après le démarrage de Home Assistant.",
+          "grace_overrides": "Une ligne par intégration : domaine: minutes (zha: 30). Il remplace le délai de grâce de cette intégration et les délais entre ses rechargements ; après un démarrage, le délai de grâce global s'applique toujours à toutes.",
           "max_reloads": "Rechargements d'une intégration qui reste indisponible avant d'abandonner jusqu'à ce qu'elle revienne. Le délai entre deux rechargements double à chaque fois : délai de grâce, 2 × délai de grâce…",
           "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée.",
           "notify_services": "Envoyer aussi chaque notification avec ces actions (notify.mobile_app_…). Une notification persistante est toujours créée.",
@@ -23,6 +25,9 @@
           "pause_entity": "Tant que cette entité est allumée (un input_boolean de maintenance, un planning pour la nuit…), rien n'est rechargé ; les vérifications listent toujours les intégrations indisponibles."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Chaque ligne doit être domaine: minutes, de 1 à 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog est déjà configuré.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Intervalle de vérification",
           "grace_period": "Délai de grâce",
+          "grace_overrides": "Délai de grâce par intégration",
           "max_reloads": "Rechargements successifs",
           "ignored_integrations": "Intégrations ignorées",
           "notify_services": "Actions de notification",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minutes entre deux vérifications.",
           "grace_period": "Minutes pendant lesquelles toutes les entités d'une intégration doivent être indisponibles avant qu'elle soit rechargée. Rien n'est rechargé pendant ce délai après le démarrage de Home Assistant.",
+          "grace_overrides": "Une ligne par intégration : domaine: minutes (zha: 30). Il remplace le délai de grâce de cette intégration et les délais entre ses rechargements ; après un démarrage, le délai de grâce global s'applique toujours à toutes.",
           "max_reloads": "Rechargements d'une intégration qui reste indisponible avant d'abandonner jusqu'à ce qu'elle revienne. Le délai entre deux rechargements double à chaque fois : délai de grâce, 2 × délai de grâce…",
           "ignored_integrations": "Intégrations jamais rechargées. Saisissez un domaine pour en ajouter une qui n'est pas encore configurée.",
           "notify_services": "Envoyer aussi chaque notification avec ces actions (notify.mobile_app_…). Une notification persistante est toujours créée.",
@@ -52,6 +59,9 @@
           "pause_entity": "Tant que cette entité est allumée (un input_boolean de maintenance, un planning pour la nuit…), rien n'est rechargé ; les vérifications listent toujours les intégrations indisponibles."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Chaque ligne doit être domaine: minutes, de 1 à 1440 (zha: 30)."
     }
   },
   "entity": {

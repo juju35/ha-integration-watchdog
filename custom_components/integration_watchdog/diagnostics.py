@@ -38,6 +38,7 @@ async def async_get_config_entry_diagnostics(
             "ignored": sorted(watchdog.ignored),
             "ignored_entries": sorted(watchdog.ignored_entries),
             "grace_period": watchdog.grace_period.total_seconds(),
+            "grace_overrides": {d: g.total_seconds() for d, g in watchdog.grace_overrides.items()},
             "max_reloads": watchdog.max_reloads,
             "running": watchdog.running,
             "started_at": watchdog.started_at.isoformat() if watchdog.started_at else None,

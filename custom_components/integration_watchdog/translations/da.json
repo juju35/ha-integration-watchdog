@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Kontrolinterval",
           "grace_period": "Respitperiode",
+          "grace_overrides": "Henstandsperiode pr. integration",
           "max_reloads": "Genindlæsninger i træk",
           "ignored_integrations": "Ignorerede integrationer",
           "notify_services": "Notifikationshandlinger",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minutter mellem to kontroller.",
           "grace_period": "Minutter, som alle enheder i en integration skal have været utilgængelige, før den genindlæses. Intet genindlæses i dette tidsrum, efter at Home Assistant er startet.",
+          "grace_overrides": "Én linje pr. integration: domæne: minutter (zha: 30). Den erstatter henstandsperioden for den integration og ventetiderne mellem dens genindlæsninger; efter en start gælder den globale henstandsperiode stadig for alle.",
           "max_reloads": "Genindlæsninger af en integration, der forbliver utilgængelig, før den opgives, indtil den kommer sig. Tiden mellem to genindlæsninger fordobles hver gang: respitperiode, 2 × respitperiode…",
           "ignored_integrations": "Integrationer, der aldrig genindlæses. Skriv et domæne for at tilføje en, der endnu ikke er konfigureret.",
           "notify_services": "Send også hver notifikation med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation.",
@@ -23,6 +25,9 @@
           "pause_entity": "Så længe denne entitet er tændt (en input_boolean til vedligehold, en tidsplan for natten…), genindlæses intet; tjekkene viser stadig de utilgængelige integrationer."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Hver linje skal være domæne: minutter, fra 1 til 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog er allerede konfigureret.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Kontrolinterval",
           "grace_period": "Respitperiode",
+          "grace_overrides": "Henstandsperiode pr. integration",
           "max_reloads": "Genindlæsninger i træk",
           "ignored_integrations": "Ignorerede integrationer",
           "notify_services": "Notifikationshandlinger",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minutter mellem to kontroller.",
           "grace_period": "Minutter, som alle enheder i en integration skal have været utilgængelige, før den genindlæses. Intet genindlæses i dette tidsrum, efter at Home Assistant er startet.",
+          "grace_overrides": "Én linje pr. integration: domæne: minutter (zha: 30). Den erstatter henstandsperioden for den integration og ventetiderne mellem dens genindlæsninger; efter en start gælder den globale henstandsperiode stadig for alle.",
           "max_reloads": "Genindlæsninger af en integration, der forbliver utilgængelig, før den opgives, indtil den kommer sig. Tiden mellem to genindlæsninger fordobles hver gang: respitperiode, 2 × respitperiode…",
           "ignored_integrations": "Integrationer, der aldrig genindlæses. Skriv et domæne for at tilføje en, der endnu ikke er konfigureret.",
           "notify_services": "Send også hver notifikation med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation.",
@@ -52,6 +59,9 @@
           "pause_entity": "Så længe denne entitet er tændt (en input_boolean til vedligehold, en tidsplan for natten…), genindlæses intet; tjekkene viser stadig de utilgængelige integrationer."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Hver linje skal være domæne: minutter, fra 1 til 1440 (zha: 30)."
     }
   },
   "entity": {

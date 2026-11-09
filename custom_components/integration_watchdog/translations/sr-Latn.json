@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Interval provere",
           "grace_period": "Period čekanja",
+          "grace_overrides": "Grejs period po integraciji",
           "max_reloads": "Uzastopna ponovna učitavanja",
           "ignored_integrations": "Ignorisane integracije",
           "notify_services": "Akcije obaveštenja",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minuti između dve provere.",
           "grace_period": "Koliko minuta svi entiteti integracije moraju biti nedostupni pre nego što se ona ponovo učita. Tokom tog perioda nakon pokretanja Home Assistant-a ništa se ne učitava ponovo.",
+          "grace_overrides": "Jedan red po integraciji: domen: minuti (zha: 30). Zamenjuje grejs period te integracije i razmake između njenih ponovnih učitavanja; posle pokretanja, globalni grejs period i dalje važi za sve.",
           "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
           "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
           "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
@@ -23,6 +25,9 @@
           "pause_entity": "Dok je ovaj entitet uključen (prekidač za održavanje, raspored za noć…), ništa se ne učitava ponovo; provere i dalje navode nedostupne integracije."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Svaki red mora biti domen: minuti, od 1 do 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog je već podešen.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Interval provere",
           "grace_period": "Period čekanja",
+          "grace_overrides": "Grejs period po integraciji",
           "max_reloads": "Uzastopna ponovna učitavanja",
           "ignored_integrations": "Ignorisane integracije",
           "notify_services": "Akcije obaveštenja",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minuti između dve provere.",
           "grace_period": "Koliko minuta svi entiteti integracije moraju biti nedostupni pre nego što se ona ponovo učita. Tokom tog perioda nakon pokretanja Home Assistant-a ništa se ne učitava ponovo.",
+          "grace_overrides": "Jedan red po integraciji: domen: minuti (zha: 30). Zamenjuje grejs period te integracije i razmake između njenih ponovnih učitavanja; posle pokretanja, globalni grejs period i dalje važi za sve.",
           "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
           "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
           "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
@@ -52,6 +59,9 @@
           "pause_entity": "Dok je ovaj entitet uključen (prekidač za održavanje, raspored za noć…), ništa se ne učitava ponovo; provere i dalje navode nedostupne integracije."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Svaki red mora biti domen: minuti, od 1 do 1440 (zha: 30)."
     }
   },
   "entity": {

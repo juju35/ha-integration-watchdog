@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Interval preverjanja",
           "grace_period": "Čakalna doba",
+          "grace_overrides": "Čas mirovanja po integraciji",
           "max_reloads": "Zaporedna ponovna nalaganja",
           "ignored_integrations": "Prezrte integracije",
           "notify_services": "Dejanja obvestil",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minute med dvema preverjanjema.",
           "grace_period": "Minute, ko morajo biti vse entitete integracije nedosegljive, preden se ta ponovno naloži. V tem času po zagonu Home Assistanta se nič ne nalaga ponovno.",
+          "grace_overrides": "Ena vrstica na integracijo: domena: minute (zha: 30). Nadomesti čas mirovanja te integracije in premore med njenimi ponovnimi nalaganji; po zagonu globalni čas mirovanja še vedno velja za vse.",
           "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
           "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
           "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
@@ -23,6 +25,9 @@
           "pause_entity": "Dokler je ta entiteta vklopljena (input_boolean za vzdrževanje, urnik za noč…), se nič ne naloži znova; preverjanja še vedno navajajo nedosegljive integracije."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Vsaka vrstica mora biti domena: minute, od 1 do 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "Integration Watchdog je že nastavljen.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Interval preverjanja",
           "grace_period": "Čakalna doba",
+          "grace_overrides": "Čas mirovanja po integraciji",
           "max_reloads": "Zaporedna ponovna nalaganja",
           "ignored_integrations": "Prezrte integracije",
           "notify_services": "Dejanja obvestil",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minute med dvema preverjanjema.",
           "grace_period": "Minute, ko morajo biti vse entitete integracije nedosegljive, preden se ta ponovno naloži. V tem času po zagonu Home Assistanta se nič ne nalaga ponovno.",
+          "grace_overrides": "Ena vrstica na integracijo: domena: minute (zha: 30). Nadomesti čas mirovanja te integracije in premore med njenimi ponovnimi nalaganji; po zagonu globalni čas mirovanja še vedno velja za vse.",
           "max_reloads": "Število ponovnih nalaganj integracije, ki ostaja nedosegljiva, preden se jo opusti, dokler si ne opomore. Razmik med dvema ponovnima nalaganjema se vsakič podvoji: čakalna doba, 2 × čakalna doba…",
           "ignored_integrations": "Integracije, ki se nikoli ne naložijo ponovno. Vnesite domeno, da dodate integracijo, ki še ni nastavljena.",
           "notify_services": "Vsako obvestilo pošlji tudi s temi dejanji (notify.mobile_app_…). Trajno obvestilo se ustvari vedno.",
@@ -52,6 +59,9 @@
           "pause_entity": "Dokler je ta entiteta vklopljena (input_boolean za vzdrževanje, urnik za noč…), se nič ne naloži znova; preverjanja še vedno navajajo nedosegljive integracije."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Vsaka vrstica mora biti domena: minute, od 1 do 1440 (zha: 30)."
     }
   },
   "entity": {

@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Ellenőrzési időköz",
           "grace_period": "Türelmi idő",
+          "grace_overrides": "Türelmi idő integrációnként",
           "max_reloads": "Egymás utáni újratöltések",
           "ignored_integrations": "Figyelmen kívül hagyott integrációk",
           "notify_services": "Értesítési műveletek",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Két ellenőrzés között eltelt percek.",
           "grace_period": "Ennyi percig kell egy integráció minden entitásának elérhetetlennek lennie, mielőtt újratöltődik. A Home Assistant indulása után ennyi ideig semmi sem töltődik újra.",
+          "grace_overrides": "Integrációnként egy sor: tartomány: perc (zha: 30). Ez váltja fel az adott integráció türelmi idejét és az újratöltései közti várakozást; indulás után a globális türelmi idő továbbra is mindegyikre vonatkozik.",
           "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
           "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
           "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
@@ -23,6 +25,9 @@
           "pause_entity": "Amíg ez az entitás be van kapcsolva (karbantartási input_boolean, éjszakai ütemezés…), semmi sem töltődik újra; az ellenőrzések továbbra is listázzák a nem elérhető integrációkat."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Minden sor tartomány: perc formájú legyen, 1 és 1440 között (zha: 30)."
     },
     "abort": {
       "already_configured": "Az Integration Watchdog már be van állítva.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Ellenőrzési időköz",
           "grace_period": "Türelmi idő",
+          "grace_overrides": "Türelmi idő integrációnként",
           "max_reloads": "Egymás utáni újratöltések",
           "ignored_integrations": "Figyelmen kívül hagyott integrációk",
           "notify_services": "Értesítési műveletek",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Két ellenőrzés között eltelt percek.",
           "grace_period": "Ennyi percig kell egy integráció minden entitásának elérhetetlennek lennie, mielőtt újratöltődik. A Home Assistant indulása után ennyi ideig semmi sem töltődik újra.",
+          "grace_overrides": "Integrációnként egy sor: tartomány: perc (zha: 30). Ez váltja fel az adott integráció türelmi idejét és az újratöltései közti várakozást; indulás után a globális türelmi idő továbbra is mindegyikre vonatkozik.",
           "max_reloads": "Egy elérhetetlen maradó integráció újratöltéseinek száma, mielőtt feladja a helyreállásáig. A két újratöltés közötti idő minden alkalommal megduplázódik: türelmi idő, 2 × türelmi idő…",
           "ignored_integrations": "Soha újra nem töltött integrációk. Írjon be egy tartományt egy még be nem állított integráció hozzáadásához.",
           "notify_services": "Minden értesítés elküldése ezekkel a műveletekkel is (notify.mobile_app_…). Állandó értesítés mindig létrejön.",
@@ -52,6 +59,9 @@
           "pause_entity": "Amíg ez az entitás be van kapcsolva (karbantartási input_boolean, éjszakai ütemezés…), semmi sem töltődik újra; az ellenőrzések továbbra is listázzák a nem elérhető integrációkat."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Minden sor tartomány: perc formájú legyen, 1 és 1440 között (zha: 30)."
     }
   },
   "entity": {

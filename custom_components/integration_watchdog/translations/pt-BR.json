@@ -7,6 +7,7 @@
         "data": {
           "scan_interval": "Intervalo de verificação",
           "grace_period": "Período de tolerância",
+          "grace_overrides": "Período de tolerância por integração",
           "max_reloads": "Recarregamentos seguidos",
           "ignored_integrations": "Integrações ignoradas",
           "notify_services": "Ações de notificação",
@@ -16,6 +17,7 @@
         "data_description": {
           "scan_interval": "Minutos entre duas verificações.",
           "grace_period": "Minutos durante os quais todas as entidades de uma integração têm de estar indisponíveis antes de esta ser recarregada. Nada é recarregado durante este período após o arranque do Home Assistant.",
+          "grace_overrides": "Uma linha por integração: domínio: minutos (zha: 30). Substitui o período de tolerância dessa integração e as esperas entre os seus recarregamentos; após um arranque, o período de tolerância global continua a aplicar-se a todas.",
           "max_reloads": "Recarregamentos de uma integração que continua indisponível antes de desistir dela até que recupere. O intervalo entre dois recarregamentos duplica de cada vez: período de tolerância, 2 × período de tolerância…",
           "ignored_integrations": "Integrações nunca recarregadas. Escreva um domínio para adicionar uma que ainda não esteja configurada.",
           "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente.",
@@ -23,6 +25,9 @@
           "pause_entity": "Enquanto esta entidade estiver ligada (um input_boolean de manutenção, um horário para a noite…), nada é recarregado; as verificações continuam a listar as integrações indisponíveis."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Cada linha deve ser domínio: minutos, de 1 a 1440 (zha: 30)."
     },
     "abort": {
       "already_configured": "O Integration Watchdog já está configurado.",
@@ -36,6 +41,7 @@
         "data": {
           "scan_interval": "Intervalo de verificação",
           "grace_period": "Período de tolerância",
+          "grace_overrides": "Período de tolerância por integração",
           "max_reloads": "Recarregamentos seguidos",
           "ignored_integrations": "Integrações ignoradas",
           "notify_services": "Ações de notificação",
@@ -45,6 +51,7 @@
         "data_description": {
           "scan_interval": "Minutos entre duas verificações.",
           "grace_period": "Minutos durante os quais todas as entidades de uma integração têm de estar indisponíveis antes de esta ser recarregada. Nada é recarregado durante este período após o arranque do Home Assistant.",
+          "grace_overrides": "Uma linha por integração: domínio: minutos (zha: 30). Substitui o período de tolerância dessa integração e as esperas entre os seus recarregamentos; após um arranque, o período de tolerância global continua a aplicar-se a todas.",
           "max_reloads": "Recarregamentos de uma integração que continua indisponível antes de desistir dela até que recupere. O intervalo entre dois recarregamentos duplica de cada vez: período de tolerância, 2 × período de tolerância…",
           "ignored_integrations": "Integrações nunca recarregadas. Escreva um domínio para adicionar uma que ainda não esteja configurada.",
           "notify_services": "Enviar também cada notificação com estas ações (notify.mobile_app_…). É sempre criada uma notificação persistente.",
@@ -52,6 +59,9 @@
           "pause_entity": "Enquanto esta entidade estiver ligada (um input_boolean de manutenção, um horário para a noite…), nada é recarregado; as verificações continuam a listar as integrações indisponíveis."
         }
       }
+    },
+    "error": {
+      "invalid_overrides": "Cada linha deve ser domínio: minutos, de 1 a 1440 (zha: 30)."
     }
   },
   "entity": {
