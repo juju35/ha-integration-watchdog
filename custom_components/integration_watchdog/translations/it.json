@@ -10,7 +10,8 @@
           "max_reloads": "Ricaricamenti consecutivi",
           "ignored_integrations": "Integrazioni ignorate",
           "notify_services": "Azioni di notifica",
-          "ignored_entries": "Voci ignorate"
+          "ignored_entries": "Voci ignorate",
+          "pause_entity": "Entità di pausa"
         },
         "data_description": {
           "scan_interval": "Minuti tra due controlli.",
@@ -18,7 +19,8 @@
           "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
           "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
           "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
-          "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio)."
+          "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio).",
+          "pause_entity": "Finché questa entità è accesa (un input_boolean di manutenzione, una pianificazione per la notte…), non si ricarica nulla; i controlli elencano comunque le integrazioni non disponibili."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Ricaricamenti consecutivi",
           "ignored_integrations": "Integrazioni ignorate",
           "notify_services": "Azioni di notifica",
-          "ignored_entries": "Voci ignorate"
+          "ignored_entries": "Voci ignorate",
+          "pause_entity": "Entità di pausa"
         },
         "data_description": {
           "scan_interval": "Minuti tra due controlli.",
@@ -45,7 +48,8 @@
           "max_reloads": "Ricaricamenti di un'integrazione che resta non disponibile prima di rinunciare finché non torna disponibile. L'attesa tra due ricaricamenti raddoppia ogni volta: periodo di tolleranza, 2 × periodo di tolleranza…",
           "ignored_integrations": "Integrazioni mai ricaricate. Digita un dominio per aggiungerne una non ancora configurata.",
           "notify_services": "Invia ogni notifica anche con queste azioni (notify.mobile_app_…). Viene sempre creata una notifica persistente.",
-          "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio)."
+          "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio).",
+          "pause_entity": "Finché questa entità è accesa (un input_boolean di manutenzione, una pianificazione per la notte…), non si ricarica nulla; i controlli elencano comunque le integrazioni non disponibili."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Ricaricamenti massimi"
+          },
+          "paused": {
+            "name": "In pausa"
           }
         }
       },

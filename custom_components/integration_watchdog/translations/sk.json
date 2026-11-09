@@ -10,7 +10,8 @@
           "max_reloads": "Opätovné načítania za sebou",
           "ignored_integrations": "Ignorované integrácie",
           "notify_services": "Akcie upozornení",
-          "ignored_entries": "Ignorované položky"
+          "ignored_entries": "Ignorované položky",
+          "pause_entity": "Entita pozastavenia"
         },
         "data_description": {
           "scan_interval": "Počet minút medzi dvoma kontrolami.",
@@ -18,7 +19,8 @@
           "max_reloads": "Počet opätovných načítaní integrácie, ktorá zostáva nedostupná, kým sa vzdá až do jej obnovenia. Odstup medzi dvoma opätovnými načítaniami sa zakaždým zdvojnásobí: ochranná lehota, 2 × ochranná lehota…",
           "ignored_integrations": "Integrácie, ktoré sa nikdy znovu nenačítajú. Zadajte doménu, ak chcete pridať integráciu, ktorá ešte nie je nastavená.",
           "notify_services": "Každé upozornenie odoslať aj pomocou týchto akcií (notify.mobile_app_…). Trvalé upozornenie sa vytvorí vždy.",
-          "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier)."
+          "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier).",
+          "pause_entity": "Kým je táto entita zapnutá (input_boolean na údržbu, plán na noc…), nič sa neobnovuje; kontroly naďalej uvádzajú nedostupné integrácie."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Opätovné načítania za sebou",
           "ignored_integrations": "Ignorované integrácie",
           "notify_services": "Akcie upozornení",
-          "ignored_entries": "Ignorované položky"
+          "ignored_entries": "Ignorované položky",
+          "pause_entity": "Entita pozastavenia"
         },
         "data_description": {
           "scan_interval": "Počet minút medzi dvoma kontrolami.",
@@ -45,7 +48,8 @@
           "max_reloads": "Počet opätovných načítaní integrácie, ktorá zostáva nedostupná, kým sa vzdá až do jej obnovenia. Odstup medzi dvoma opätovnými načítaniami sa zakaždým zdvojnásobí: ochranná lehota, 2 × ochranná lehota…",
           "ignored_integrations": "Integrácie, ktoré sa nikdy znovu nenačítajú. Zadajte doménu, ak chcete pridať integráciu, ktorá ešte nie je nastavená.",
           "notify_services": "Každé upozornenie odoslať aj pomocou týchto akcií (notify.mobile_app_…). Trvalé upozornenie sa vytvorí vždy.",
-          "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier)."
+          "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier).",
+          "pause_entity": "Kým je táto entita zapnutá (input_boolean na údržbu, plán na noc…), nič sa neobnovuje; kontroly naďalej uvádzajú nedostupné integrácie."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Max. opätovných načítaní"
+          },
+          "paused": {
+            "name": "Pozastavené"
           }
         }
       },

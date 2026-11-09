@@ -49,6 +49,7 @@ class UnavailableSensor(IntegrationWatchdogEntity, SensorEntity):
             "integrations": [self.watchdog.as_dict(u) for u in self.watchdog.unavailable],
             "ignored": sorted(self.watchdog.ignored - {DOMAIN}),
             "max_reloads": self.watchdog.max_reloads,
+            "paused": self.watchdog.paused,
         }
 
 

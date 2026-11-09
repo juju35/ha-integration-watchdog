@@ -10,7 +10,8 @@
           "max_reloads": "Uzastopna ponovna učitavanja",
           "ignored_integrations": "Ignorisane integracije",
           "notify_services": "Akcije obaveštenja",
-          "ignored_entries": "Zanemareni unosi"
+          "ignored_entries": "Zanemareni unosi",
+          "pause_entity": "Entitet pauze"
         },
         "data_description": {
           "scan_interval": "Minuti između dve provere.",
@@ -18,7 +19,8 @@
           "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
           "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
           "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
-          "ignored_entries": "Pojedinačni unosi integracije koji se nikad ne učitavaju ponovo; ostali unosi njihove integracije i dalje se prate (na primer jedna od više kamera)."
+          "ignored_entries": "Pojedinačni unosi integracije koji se nikad ne učitavaju ponovo; ostali unosi njihove integracije i dalje se prate (na primer jedna od više kamera).",
+          "pause_entity": "Dok je ovaj entitet uključen (prekidač za održavanje, raspored za noć…), ništa se ne učitava ponovo; provere i dalje navode nedostupne integracije."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Uzastopna ponovna učitavanja",
           "ignored_integrations": "Ignorisane integracije",
           "notify_services": "Akcije obaveštenja",
-          "ignored_entries": "Zanemareni unosi"
+          "ignored_entries": "Zanemareni unosi",
+          "pause_entity": "Entitet pauze"
         },
         "data_description": {
           "scan_interval": "Minuti između dve provere.",
@@ -45,7 +48,8 @@
           "max_reloads": "Broj ponovnih učitavanja integracije koja ostaje nedostupna pre nego što se od nje odustane dok se ne oporavi. Pauza između dva ponovna učitavanja se svaki put udvostručuje: period čekanja, 2 × period čekanja…",
           "ignored_integrations": "Integracije koje se nikada ne učitavaju ponovo. Unesite domen da biste dodali neku koja još nije podešena.",
           "notify_services": "Svako obaveštenje pošalji i ovim akcijama (notify.mobile_app_…). Trajno obaveštenje se uvek kreira.",
-          "ignored_entries": "Pojedinačni unosi integracije koji se nikad ne učitavaju ponovo; ostali unosi njihove integracije i dalje se prate (na primer jedna od više kamera)."
+          "ignored_entries": "Pojedinačni unosi integracije koji se nikad ne učitavaju ponovo; ostali unosi njihove integracije i dalje se prate (na primer jedna od više kamera).",
+          "pause_entity": "Dok je ovaj entitet uključen (prekidač za održavanje, raspored za noć…), ništa se ne učitava ponovo; provere i dalje navode nedostupne integracije."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Maks. ponovnih učitavanja"
+          },
+          "paused": {
+            "name": "Pauzirano"
           }
         }
       },

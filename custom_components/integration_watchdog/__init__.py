@@ -33,6 +33,7 @@ from .const import (
     CONF_IGNORED_ENTRIES,
     CONF_MAX_RELOADS,
     CONF_NOTIFY,
+    CONF_PAUSE_ENTITY,
     CONF_SCAN_INTERVAL,
     DEFAULT_GRACE_PERIOD,
     DEFAULT_MAX_RELOADS,
@@ -169,6 +170,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
         # Reload counts and lock, kept in memory until Home Assistant restarts.
         hass.data.setdefault(DOMAIN, {}),
         options.get(CONF_IGNORED_ENTRIES, []),
+        options.get(CONF_PAUSE_ENTITY),
     )
     await watchdog.async_load()
     entry.runtime_data = watchdog

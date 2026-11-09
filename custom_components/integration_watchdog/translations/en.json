@@ -10,7 +10,8 @@
           "max_reloads": "Reloads in a row",
           "ignored_integrations": "Ignored integrations",
           "notify_services": "Notify actions",
-          "ignored_entries": "Ignored entries"
+          "ignored_entries": "Ignored entries",
+          "pause_entity": "Pause entity"
         },
         "data_description": {
           "scan_interval": "Minutes between two checks.",
@@ -18,7 +19,8 @@
           "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
           "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
           "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created.",
-          "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say)."
+          "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say).",
+          "pause_entity": "While this entity is on (an input_boolean for maintenance, a schedule for the night…), nothing is reloaded; the checks still list the unavailable integrations."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Reloads in a row",
           "ignored_integrations": "Ignored integrations",
           "notify_services": "Notify actions",
-          "ignored_entries": "Ignored entries"
+          "ignored_entries": "Ignored entries",
+          "pause_entity": "Pause entity"
         },
         "data_description": {
           "scan_interval": "Minutes between two checks.",
@@ -45,7 +48,8 @@
           "max_reloads": "Reloads of an integration that stays unavailable before giving up on it until it recovers. The delay between two reloads doubles each time: grace period, 2 × grace period…",
           "ignored_integrations": "Integrations never reloaded. Type a domain to add one that isn't set up yet.",
           "notify_services": "Also send each notification with these actions (notify.mobile_app_…). A persistent notification is always created.",
-          "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say)."
+          "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say).",
+          "pause_entity": "While this entity is on (an input_boolean for maintenance, a schedule for the night…), nothing is reloaded; the checks still list the unavailable integrations."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Max reloads"
+          },
+          "paused": {
+            "name": "Paused"
           }
         }
       },

@@ -10,7 +10,8 @@
           "max_reloads": "Omladdningar i rad",
           "ignored_integrations": "Ignorerade integrationer",
           "notify_services": "Aviseringsåtgärder",
-          "ignored_entries": "Ignorerade poster"
+          "ignored_entries": "Ignorerade poster",
+          "pause_entity": "Pausentitet"
         },
         "data_description": {
           "scan_interval": "Minuter mellan två kontroller.",
@@ -18,7 +19,8 @@
           "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
           "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
           "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid.",
-          "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror)."
+          "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror).",
+          "pause_entity": "Så länge denna entitet är på (en input_boolean för underhåll, ett schema för natten…) laddas inget om; kontrollerna listar fortfarande de otillgängliga integrationerna."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Omladdningar i rad",
           "ignored_integrations": "Ignorerade integrationer",
           "notify_services": "Aviseringsåtgärder",
-          "ignored_entries": "Ignorerade poster"
+          "ignored_entries": "Ignorerade poster",
+          "pause_entity": "Pausentitet"
         },
         "data_description": {
           "scan_interval": "Minuter mellan två kontroller.",
@@ -45,7 +48,8 @@
           "max_reloads": "Omladdningar av en integration som förblir otillgänglig innan den överges tills den återhämtar sig. Tiden mellan två omladdningar fördubblas varje gång: respittid, 2 × respittid…",
           "ignored_integrations": "Integrationer som aldrig laddas om. Skriv en domän för att lägga till en som inte är konfigurerad än.",
           "notify_services": "Skicka även varje avisering med dessa åtgärder (notify.mobile_app_…). En beständig avisering skapas alltid.",
-          "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror)."
+          "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror).",
+          "pause_entity": "Så länge denna entitet är på (en input_boolean för underhåll, ett schema för natten…) laddas inget om; kontrollerna listar fortfarande de otillgängliga integrationerna."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Max antal omladdningar"
+          },
+          "paused": {
+            "name": "Pausad"
           }
         }
       },

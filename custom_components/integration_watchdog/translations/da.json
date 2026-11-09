@@ -10,7 +10,8 @@
           "max_reloads": "Genindlæsninger i træk",
           "ignored_integrations": "Ignorerede integrationer",
           "notify_services": "Notifikationshandlinger",
-          "ignored_entries": "Ignorerede poster"
+          "ignored_entries": "Ignorerede poster",
+          "pause_entity": "Pauseentitet"
         },
         "data_description": {
           "scan_interval": "Minutter mellem to kontroller.",
@@ -18,7 +19,8 @@
           "max_reloads": "Genindlæsninger af en integration, der forbliver utilgængelig, før den opgives, indtil den kommer sig. Tiden mellem to genindlæsninger fordobles hver gang: respitperiode, 2 × respitperiode…",
           "ignored_integrations": "Integrationer, der aldrig genindlæses. Skriv et domæne for at tilføje en, der endnu ikke er konfigureret.",
           "notify_services": "Send også hver notifikation med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation.",
-          "ignored_entries": "Enkelte integrationsposter, der aldrig genindlæses; de andre poster i deres integration overvåges stadig (f.eks. ét af flere kameraer)."
+          "ignored_entries": "Enkelte integrationsposter, der aldrig genindlæses; de andre poster i deres integration overvåges stadig (f.eks. ét af flere kameraer).",
+          "pause_entity": "Så længe denne entitet er tændt (en input_boolean til vedligehold, en tidsplan for natten…), genindlæses intet; tjekkene viser stadig de utilgængelige integrationer."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Genindlæsninger i træk",
           "ignored_integrations": "Ignorerede integrationer",
           "notify_services": "Notifikationshandlinger",
-          "ignored_entries": "Ignorerede poster"
+          "ignored_entries": "Ignorerede poster",
+          "pause_entity": "Pauseentitet"
         },
         "data_description": {
           "scan_interval": "Minutter mellem to kontroller.",
@@ -45,7 +48,8 @@
           "max_reloads": "Genindlæsninger af en integration, der forbliver utilgængelig, før den opgives, indtil den kommer sig. Tiden mellem to genindlæsninger fordobles hver gang: respitperiode, 2 × respitperiode…",
           "ignored_integrations": "Integrationer, der aldrig genindlæses. Skriv et domæne for at tilføje en, der endnu ikke er konfigureret.",
           "notify_services": "Send også hver notifikation med disse handlinger (notify.mobile_app_…). Der oprettes altid en vedvarende notifikation.",
-          "ignored_entries": "Enkelte integrationsposter, der aldrig genindlæses; de andre poster i deres integration overvåges stadig (f.eks. ét af flere kameraer)."
+          "ignored_entries": "Enkelte integrationsposter, der aldrig genindlæses; de andre poster i deres integration overvåges stadig (f.eks. ét af flere kameraer).",
+          "pause_entity": "Så længe denne entitet er tændt (en input_boolean til vedligehold, en tidsplan for natten…), genindlæses intet; tjekkene viser stadig de utilgængelige integrationer."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Maks. genindlæsninger"
+          },
+          "paused": {
+            "name": "På pause"
           }
         }
       },

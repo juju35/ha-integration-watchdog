@@ -10,7 +10,8 @@
           "max_reloads": "Pārlādes pēc kārtas",
           "ignored_integrations": "Ignorētās integrācijas",
           "notify_services": "Paziņojumu darbības",
-          "ignored_entries": "Ignorētie ieraksti"
+          "ignored_entries": "Ignorētie ieraksti",
+          "pause_entity": "Pauzes entītija"
         },
         "data_description": {
           "scan_interval": "Minūtes starp divām pārbaudēm.",
@@ -18,7 +19,8 @@
           "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
           "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
           "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
-          "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām)."
+          "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām).",
+          "pause_entity": "Kamēr šī entītija ir ieslēgta (input_boolean apkopei, grafiks naktij…), nekas netiek pārlādēts; pārbaudes joprojām uzskaita nepieejamās integrācijas."
         }
       }
     },
@@ -37,7 +39,8 @@
           "max_reloads": "Pārlādes pēc kārtas",
           "ignored_integrations": "Ignorētās integrācijas",
           "notify_services": "Paziņojumu darbības",
-          "ignored_entries": "Ignorētie ieraksti"
+          "ignored_entries": "Ignorētie ieraksti",
+          "pause_entity": "Pauzes entītija"
         },
         "data_description": {
           "scan_interval": "Minūtes starp divām pārbaudēm.",
@@ -45,7 +48,8 @@
           "max_reloads": "Nepieejamas integrācijas pārlāžu skaits, pirms no tās tiek atteikts līdz tās atjaunošanai. Laiks starp divām pārlādēm katru reizi dubultojas: nogaidīšanas laiks, 2 × nogaidīšanas laiks…",
           "ignored_integrations": "Integrācijas, kas nekad netiek pārlādētas. Ierakstiet domēnu, lai pievienotu integrāciju, kas vēl nav iestatīta.",
           "notify_services": "Sūtīt katru paziņojumu arī ar šīm darbībām (notify.mobile_app_…). Pastāvīgs paziņojums tiek izveidots vienmēr.",
-          "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām)."
+          "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām).",
+          "pause_entity": "Kamēr šī entītija ir ieslēgta (input_boolean apkopei, grafiks naktij…), nekas netiek pārlādēts; pārbaudes joprojām uzskaita nepieejamās integrācijas."
         }
       }
     }
@@ -68,6 +72,9 @@
           },
           "max_reloads": {
             "name": "Maks. pārlādes"
+          },
+          "paused": {
+            "name": "Apturēts"
           }
         }
       },

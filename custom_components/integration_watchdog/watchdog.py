@@ -25,7 +25,7 @@ from typing import Any
 
 from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry, ConfigEntryChange, ConfigEntryState
-from homeassistant.const import STATE_UNAVAILABLE
+from homeassistant.const import STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, CoreState, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
@@ -130,8 +130,11 @@ class IntegrationWatchdog:
         notify_services: Iterable[str] = (),
         shared: dict[str, Any] | None = None,
         ignored_entries: Iterable[str] = (),
+        pause_entity: str | None = None,
     ) -> None:
         self.hass = hass
+        # While this entity is on, nothing is reloaded (the checks still list the unavailable integrations).
+        self.pause_entity = pause_entity
         self.ignored: frozenset[str] = frozenset(ignored) | {DOMAIN}
         # Single config entries never reloaded (one camera of an integration whose others are watched).
         self.ignored_entries: frozenset[str] = frozenset(ignored_entries)
@@ -165,6 +168,11 @@ class IntegrationWatchdog:
         self._listeners: list[CALLBACK_TYPE] = []
         # Set when the watchdog's entry is unloaded: a check still running stops reloading.
         self._stopped = False
+
+    @property
+    def paused(self) -> bool:
+        """The pause entity is on: maintenance, a planned outage, the night."""
+        return bool(self.pause_entity) and self.hass.states.is_state(self.pause_entity, STATE_ON)
 
     @property
     def running(self) -> bool:
@@ -460,6 +468,9 @@ class IntegrationWatchdog:
         now = dt_util.utcnow()
         attempts = self.attempts.setdefault(item.entry_id, Attempts())
         if self.started_at is None or now - item.since < self.grace_period or now - self.started_at < self.grace_period:
+            return
+        if self.paused:
+            _LOGGER.debug("%s (%s) not reloaded: paused by %s", item.title, item.domain, self.pause_entity)
             return
         # The last reload gets its full delay too before giving up.
         if attempts.last is not None and now - attempts.last < self._delay(attempts):

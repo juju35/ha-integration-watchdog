@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0 - 2026-11-09
+
+### Features
+- **Pause entity** (option): while an `input_boolean`, `switch`, `binary_sensor` or `schedule` of your choice is on, nothing is reloaded — maintenance of the network, a planned outage, the night. The checks still list the unavailable integrations, and the *Unavailable integrations* sensor gets a `paused` attribute.
+
 ## 1.5.0 - 2026-11-09
 
 ### Performance
