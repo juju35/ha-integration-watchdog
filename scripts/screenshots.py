@@ -392,6 +392,21 @@ def same_pixels(page, new: bytes, path: Path) -> bool:
     return page.evaluate(SAME_PIXELS, [base64.b64encode(new).decode(), base64.b64encode(old).decode()])
 
 
+def save(page, name: str, width: int, frame: int) -> None:
+    """Shoot #root (`frame` px of background added below it) into screenshots/<name>.png when its pixels changed."""
+    box = page.locator("#root").bounding_box()
+    clip = {"x": 0, "y": 0, "width": width, "height": int(box["height"] + 0.999) + frame}
+    path = ROOT / "screenshots" / f"{name}.png"
+    path.parent.mkdir(exist_ok=True)
+    png = page.screenshot(clip=clip, animations="disabled")
+    if same_pixels(page, png, path):
+        print(f"{path.relative_to(ROOT)} (unchanged)")
+    else:
+        path.write_bytes(png)
+        print(path.relative_to(ROOT))
+    page.close()
+
+
 def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or None)
@@ -408,17 +423,7 @@ def main():
             card = shot.get("card", "integration-watchdog-card")
             page.evaluate(MOUNT, [mock_hass(*shot["hass"]), shot["theme"] == "dark", card, shot.get("zoom", False)])
             page.wait_for_timeout(400)
-            box = page.locator("#root").bounding_box()
-            clip = {"x": 0, "y": 0, "width": width + 32, "height": int(box["height"] + 0.999) + 32}
-            path = ROOT / "screenshots" / f"{shot['file']}.png"
-            path.parent.mkdir(exist_ok=True)
-            png = page.screenshot(clip=clip, animations="disabled")
-            if same_pixels(page, png, path):
-                print(f"{path.relative_to(ROOT)} (unchanged)")
-            else:
-                path.write_bytes(png)
-                print(path.relative_to(ROOT))
-            page.close()
+            save(page, shot["file"], width + 32, 32)
         for shot in PANEL_SHOTS:
             page = browser.new_page(device_scale_factor=2, viewport={"width": PANEL_WIDTH, "height": 1400})
             page.on("pageerror", lambda err, name=shot["file"]: print(f"{name}: page error: {err}"))
@@ -431,16 +436,7 @@ def main():
             hass = mock_hass(INTEGRATIONS, HISTORY, 4)
             page.evaluate(MOUNT_PANEL, [hass, PANEL_SETTINGS, PANEL_STRINGS, shot["tab"], shot["theme"] == "dark"])
             page.wait_for_timeout(500)
-            box = page.locator("#root").bounding_box()
-            clip = {"x": 0, "y": 0, "width": PANEL_WIDTH, "height": int(box["height"] + 0.999)}
-            path = ROOT / "screenshots" / f"{shot['file']}.png"
-            png = page.screenshot(clip=clip, animations="disabled")
-            if same_pixels(page, png, path):
-                print(f"{path.relative_to(ROOT)} (unchanged)")
-            else:
-                path.write_bytes(png)
-                print(path.relative_to(ROOT))
-            page.close()
+            save(page, shot["file"], PANEL_WIDTH, 0)
         browser.close()
 
 
