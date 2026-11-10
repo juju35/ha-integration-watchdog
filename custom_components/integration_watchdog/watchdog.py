@@ -681,7 +681,7 @@ class IntegrationWatchdog:
             states = self._device_states(cycle) if device is not None and not device.disabled else []
             if not states or any(s.state != STATE_UNAVAILABLE for s in states):
                 continue
-            entry_id = getattr(device, "primary_config_entry", None) or next(iter(device.config_entries), "")
+            entry_id = _device_entry_id(device)
             entry = self.hass.config_entries.async_get_entry(entry_id) if entry_id else None
             found.append(
                 (
@@ -922,6 +922,18 @@ class IntegrationWatchdog:
 def issue_id(entry_id: str) -> str:
     """Repairs issue raised when the watchdog gives up on a config entry."""
     return f"gave_up_{entry_id}"
+
+
+def _device_entry_id(device: dr.DeviceEntry) -> str:
+    """The config entry of a device: `config_entry_id` from Home Assistant 2026.11 (one entry per device), before
+    that `primary_config_entry` (deprecated since), then any of `config_entries`."""
+    entry_id = getattr(device, "config_entry_id", _MISSING)
+    if entry_id is not _MISSING:
+        return entry_id or ""
+    return getattr(device, "primary_config_entry", None) or next(iter(device.config_entries), "")
+
+
+_MISSING = object()
 
 
 def device_notification_id(device_id: str) -> str:

@@ -57,7 +57,8 @@ def _device(hass: HomeAssistant, states: list[str]) -> str:
 
 
 def _set_device(hass: HomeAssistant, value: str) -> None:
-    for entity in er.async_entries_for_device(er.async_get(hass), next(iter(dr.async_get(hass).devices))):
+    device = dr.async_get(hass).async_get_device(identifiers={("box", "1")})
+    for entity in er.async_entries_for_device(er.async_get(hass), device.id):
         hass.states.async_set(entity.entity_id, value)
 
 
