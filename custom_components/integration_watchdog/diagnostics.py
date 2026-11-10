@@ -15,6 +15,7 @@ from .const import CONF_NOTIFY
 # action names often a person's name (notify.mobile_app_<phone>). Domains and entry ids are kept.
 TO_REDACT = {
     "title",
+    "switch_name",
     CONF_NOTIFY,
     "username",
     "password",
@@ -48,6 +49,17 @@ async def async_get_config_entry_diagnostics(
             "unavailable": [watchdog.as_dict(item) for item in watchdog.unavailable],
             "attempts": {entry_id: attempts.as_dict() for entry_id, attempts in watchdog.attempts.items()},
             "history": watchdog.history,
+            "power_cycles": [
+                {
+                    "device_id": c.device_id,
+                    "switch": c.switch,
+                    "delay": c.delay.total_seconds(),
+                    "off_time": c.off_time.total_seconds(),
+                }
+                for c in watchdog.power_cycles
+            ],
+            "power_cycle_attempts": {d: a.as_dict() for d, a in watchdog.cycle_attempts.items()},
+            "powered_off": sorted(watchdog.powered_off),
         },
     }
     return async_redact_data(data, TO_REDACT)

@@ -28,16 +28,23 @@ from homeassistant.util import dt as dt_util
 from .const import (
     ATTR_ENTRY_ID,
     CARD_URL,
+    CONF_DELAY,
+    CONF_DEVICE,
     CONF_GRACE_OVERRIDES,
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
     CONF_IGNORED_ENTRIES,
     CONF_MAX_RELOADS,
     CONF_NOTIFY,
+    CONF_OFF_TIME,
     CONF_PAUSE_ENTITY,
+    CONF_POWER_CYCLES,
     CONF_SCAN_INTERVAL,
+    CONF_SWITCH,
+    DEFAULT_CYCLE_DELAY,
     DEFAULT_GRACE_PERIOD,
     DEFAULT_MAX_RELOADS,
+    DEFAULT_OFF_TIME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     SERVICE_CHECK,
@@ -46,7 +53,7 @@ from .const import (
     STORAGE_VERSION,
     VERSION,
 )
-from .watchdog import IntegrationWatchdog, notification_id
+from .watchdog import IntegrationWatchdog, PowerCycle, device_notification_id, notification_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -173,6 +180,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: IntegrationWatchdogConfi
         options.get(CONF_IGNORED_ENTRIES, []),
         options.get(CONF_PAUSE_ENTITY),
         {domain: timedelta(minutes=int(m)) for domain, m in options.get(CONF_GRACE_OVERRIDES, {}).items()},
+        _power_cycles(options.get(CONF_POWER_CYCLES, [])),
     )
     await watchdog.async_load()
     entry.runtime_data = watchdog
@@ -217,6 +225,12 @@ async def async_remove_entry(hass: HomeAssistant, entry: IntegrationWatchdogConf
     if shared is not None:
         for entry_id in {*shared.get("attempts", {}), *(item["entry_id"] for item in shared.get("history", []))}:
             persistent_notification.async_dismiss(hass, notification_id(entry_id))
+        devices = {
+            *shared.get("cycle_attempts", {}),
+            *(i["device_id"] for i in shared.get("history", []) if "device_id" in i),
+        }
+        for device_id in devices:
+            persistent_notification.async_dismiss(hass, device_notification_id(device_id))
     registry = ir.async_get(hass)
     for domain, issue_id in list(registry.issues):
         if domain == DOMAIN:
@@ -245,6 +259,24 @@ async def _async_forget(hass: HomeAssistant, entry: IntegrationWatchdogConfigEnt
         return False
     hass.data.pop(DOMAIN)
     return True
+
+
+def _power_cycles(items: Any) -> list[PowerCycle]:
+    """The power cycles of the options; malformed ones skipped."""
+    cycles = []
+    for item in items if isinstance(items, list) else []:
+        try:
+            cycles.append(
+                PowerCycle(
+                    str(item[CONF_DEVICE]),
+                    str(item[CONF_SWITCH]),
+                    timedelta(minutes=int(item.get(CONF_DELAY, DEFAULT_CYCLE_DELAY))),
+                    timedelta(seconds=int(item.get(CONF_OFF_TIME, DEFAULT_OFF_TIME))),
+                )
+            )
+        except (KeyError, TypeError, ValueError, AttributeError):
+            _LOGGER.warning("Invalid power cycle in the options, skipped: %s", item)
+    return cycles
 
 
 async def _async_reload(hass: HomeAssistant, entry: IntegrationWatchdogConfigEntry) -> None:

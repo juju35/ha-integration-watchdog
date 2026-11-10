@@ -8,7 +8,11 @@ from typing import Any
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
+    DeviceSelector,
+    DeviceSelectorConfig,
     EntitySelector,
     EntitySelectorConfig,
     NumberSelector,
@@ -24,20 +28,28 @@ from homeassistant.helpers.selector import (
 from homeassistant.loader import async_get_integrations
 
 from .const import (
+    CONF_DELAY,
+    CONF_DEVICE,
     CONF_GRACE_OVERRIDES,
     CONF_GRACE_PERIOD,
     CONF_IGNORED,
     CONF_IGNORED_ENTRIES,
     CONF_MAX_RELOADS,
     CONF_NOTIFY,
+    CONF_OFF_TIME,
     CONF_PAUSE_ENTITY,
+    CONF_POWER_CYCLES,
     CONF_SCAN_INTERVAL,
+    CONF_SWITCH,
+    DEFAULT_CYCLE_DELAY,
     DEFAULT_GRACE_PERIOD,
     DEFAULT_MAX_RELOADS,
+    DEFAULT_OFF_TIME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     MAX_MAX_RELOADS,
     MAX_MINUTES,
+    MAX_OFF_TIME,
     PAUSE_DOMAINS,
 )
 
@@ -190,14 +202,101 @@ class IntegrationWatchdogConfigFlow(ConfigFlow, domain=DOMAIN):
         return IntegrationWatchdogOptionsFlow()
 
 
+def _cycle_schema() -> vol.Schema:
+    """A device, the plug that powers it, how long it must be unavailable and how long the plug stays off."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_DEVICE): DeviceSelector(DeviceSelectorConfig()),
+            vol.Required(CONF_SWITCH): EntitySelector(EntitySelectorConfig(domain="switch")),
+            vol.Required(CONF_DELAY, default=DEFAULT_CYCLE_DELAY): _minutes(),
+            vol.Required(CONF_OFF_TIME, default=DEFAULT_OFF_TIME): NumberSelector(
+                NumberSelectorConfig(
+                    min=1, max=MAX_OFF_TIME, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="s"
+                )
+            ),
+        }
+    )
+
+
+def _cycle_errors(hass: HomeAssistant, cycles: list[dict[str, Any]], user_input: dict[str, Any]) -> dict[str, str]:
+    device_id, switch = user_input[CONF_DEVICE], user_input[CONF_SWITCH]
+    if any(c.get(CONF_DEVICE) == device_id for c in cycles):
+        return {CONF_DEVICE: "device_already_cycled"}
+    entities = er.async_get(hass)
+    # Its own plug (a smart plug that reports its power, say) would be unavailable with it: no way to switch it on.
+    if (plug := entities.async_get(switch)) is not None and plug.device_id == device_id:
+        return {CONF_SWITCH: "switch_on_device"}
+    if not any(e.entity_id != switch for e in er.async_entries_for_device(entities, device_id)):
+        return {CONF_DEVICE: "device_without_entities"}
+    return {}
+
+
 class IntegrationWatchdogOptionsFlow(OptionsFlow):
-    """Change the interval, the grace period and the ignored integrations."""
+    """The settings, and the power cycles: devices switched off and on again with their smart plug."""
+
+    def _cycles(self) -> list[dict[str, Any]]:
+        return [dict(c) for c in self.config_entry.options.get(CONF_POWER_CYCLES, []) if isinstance(c, dict)]
+
+    def _save_cycles(self, cycles: list[dict[str, Any]]) -> ConfigFlowResult:
+        options = {k: v for k, v in self.config_entry.options.items() if k != CONF_POWER_CYCLES}
+        return self.async_create_entry(data=options | ({CONF_POWER_CYCLES: cycles} if cycles else {}))
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        menu = ["settings", "add_power_cycle"]
+        if self._cycles():
+            menu.append("remove_power_cycle")
+        return self.async_show_menu(step_id="init", menu_options=menu)
+
+    async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Interval, grace periods, reload limit, ignored integrations, pause entity and notify actions."""
         errors = _errors(user_input) if user_input is not None else {}
         if user_input is not None and not errors:
-            return self.async_create_entry(data=_options(user_input))
+            cycles = self._cycles()
+            return self.async_create_entry(data=_options(user_input) | ({CONF_POWER_CYCLES: cycles} if cycles else {}))
         schema = await _schema(self.hass, dict(self.config_entry.options))
         if user_input is not None:
             schema = self.add_suggested_values_to_schema(schema, user_input)
-        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="settings", data_schema=schema, errors=errors)
+
+    async def async_step_add_power_cycle(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        cycles = self._cycles()
+        errors = _cycle_errors(self.hass, cycles, user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
+            cycles.append(
+                {
+                    CONF_DEVICE: user_input[CONF_DEVICE],
+                    CONF_SWITCH: user_input[CONF_SWITCH],
+                    CONF_DELAY: int(user_input[CONF_DELAY]),
+                    CONF_OFF_TIME: int(user_input[CONF_OFF_TIME]),
+                }
+            )
+            return self._save_cycles(cycles)
+        schema = _cycle_schema()
+        if user_input is not None:
+            schema = self.add_suggested_values_to_schema(schema, user_input)
+        return self.async_show_form(step_id="add_power_cycle", data_schema=schema, errors=errors)
+
+    async def async_step_remove_power_cycle(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        cycles = self._cycles()
+        if user_input is not None:
+            removed = set(user_input.get(CONF_POWER_CYCLES, []))
+            return self._save_cycles([c for c in cycles if c.get(CONF_DEVICE) not in removed])
+        devices = dr.async_get(self.hass)
+        options = []
+        for cycle in cycles:
+            device = devices.async_get(cycle.get(CONF_DEVICE, ""))
+            name = (device.name_by_user or device.name) if device else None
+            state = self.hass.states.get(cycle.get(CONF_SWITCH, ""))
+            plug = state.name if state else cycle.get(CONF_SWITCH)
+            label = (
+                f"{name or cycle.get(CONF_DEVICE)} → {plug} ({cycle.get(CONF_DELAY)} min, {cycle.get(CONF_OFF_TIME)} s)"
+            )
+            options.append(SelectOptionDict(value=cycle.get(CONF_DEVICE, ""), label=label))
+        schema = vol.Schema(
+            {
+                vol.Optional(CONF_POWER_CYCLES, default=[]): SelectSelector(
+                    SelectSelectorConfig(options=options, multiple=True, mode=SelectSelectorMode.LIST)
+                )
+            }
+        )
+        return self.async_show_form(step_id="remove_power_cycle", data_schema=schema)

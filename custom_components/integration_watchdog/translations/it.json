@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Opzioni di Integration Watchdog",
+        "menu_options": {
+          "settings": "Impostazioni",
+          "add_power_cycle": "Aggiungi un riavvio tramite presa",
+          "remove_power_cycle": "Rimuovi riavvii tramite presa"
+        }
+      },
+      "settings": {
+        "title": "Impostazioni",
         "data": {
           "scan_interval": "Intervallo di controllo",
           "grace_period": "Periodo di tolleranza",
@@ -58,10 +66,38 @@
           "ignored_entries": "Singole voci di integrazione mai ricaricate; le altre voci della loro integrazione restano sorvegliate (una telecamera tra tante, ad esempio).",
           "pause_entity": "Finché questa entità è accesa (un input_boolean di manutenzione, una pianificazione per la notte…), non si ricarica nulla; i controlli elencano comunque le integrazioni non disponibili."
         }
+      },
+      "add_power_cycle": {
+        "title": "Riavvia un dispositivo tramite la sua presa",
+        "description": "Quando tutte le entità di un dispositivo restano non disponibili, la presa smart che lo alimenta viene spenta e poi riaccesa. Stessi limiti dei ricaricamenti: ricaricamenti di fila, attesa che raddoppia, entità di pausa, niente durante il periodo di tolleranza dopo un avvio.",
+        "data": {
+          "device_id": "Dispositivo",
+          "switch": "Presa smart",
+          "delay": "Non disponibile da",
+          "off_time": "Spenta per"
+        },
+        "data_description": {
+          "device_id": "Il dispositivo da riavviare: tutte le sue entità attive devono essere non disponibili.",
+          "switch": "L'interruttore che lo alimenta. Spento solo se è acceso: una presa spenta o non disponibile non viene toccata.",
+          "delay": "Minuti in cui tutte le entità del dispositivo devono essere non disponibili prima di spegnere la sua presa. L'attesa tra due riavvii raddoppia ogni volta.",
+          "off_time": "Secondi in cui la presa resta spenta prima di essere riaccesa."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Rimuovi riavvii tramite presa",
+        "data": {
+          "power_cycles": "Riavvii tramite presa"
+        },
+        "data_description": {
+          "power_cycles": "I riavvii tramite presa da rimuovere."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Ogni riga deve essere dominio: minuti, da 1 a 1440 (zha: 30)."
+      "invalid_overrides": "Ogni riga deve essere dominio: minuti, da 1 a 1440 (zha: 30).",
+      "device_already_cycled": "Questo dispositivo ha già un riavvio tramite presa: rimuovilo prima.",
+      "switch_on_device": "La presa non può essere un'entità del dispositivo stesso: sarebbe non disponibile con esso.",
+      "device_without_entities": "Questo dispositivo non ha entità da sorvegliare oltre alla presa."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Ricaricamento di un'integrazione non riuscito",
     "reload_failed": "{title} ({domain}) non è stata ricaricata: tutte le sue entità erano non disponibili da {since}. Ricaricamento {attempt}/{max}, vedi i log.",
     "gave_up_title": "Integrazione ancora non disponibile",
-    "gave_up": "{title} ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti. Non verrà più ricaricata finché una delle sue entità non sarà disponibile."
+    "gave_up": "{title} ({domain}) è ancora non disponibile dopo {attempt} ricaricamenti. Non verrà più ricaricata finché una delle sue entità non sarà disponibile.",
+    "power_cycled_title": "Dispositivo riavviato",
+    "power_cycled": "{title} è stato riavviato con {switch}: tutte le sue entità erano non disponibili dalle {since}. Riavvio {attempt}/{max}.",
+    "power_cycle_failed_title": "Riavvio del dispositivo non riuscito",
+    "power_cycle_failed": "{title} non è stato riavviato con {switch}: tutte le sue entità erano non disponibili dalle {since}. Riavvio {attempt}/{max}, vedi i log.",
+    "power_cycle_gave_up_title": "Dispositivo ancora non disponibile",
+    "power_cycle_gave_up": "{title} è ancora non disponibile dopo {attempt} riavvii. {switch} non verrà più spenta finché una delle sue entità non sarà disponibile."
   },
   "exceptions": {
     "not_loaded": {

@@ -31,6 +31,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Repairs issue** for each integration given up, removed once it recovers, with **Try again** to start over and reload it now
 - **Diagnostics** with personal data redacted
 - **Ignored integrations**, chosen in the integration options among those set up, or typed as a domain, and **ignored entries**: one entry of an integration (a camera of several) left alone while its other entries are still watched
+- **Power cycles**: associate a device with the smart plug that powers it; once all the device's entities have been unavailable for its own delay, the plug is switched off then on again, with the same safeguards as the reloads (limit, doubling delay, pause, nothing during startup)
 - **Pause entity**: while an entity of your choice is on (an `input_boolean` for maintenance, a `schedule` for the night), nothing is reloaded; the checks still list what is unavailable
 - **Reloads in 24 h** sensor: how many reloads the last day, per integration — an unstable integration shows up there
 - **Check now** button and `integration_watchdog.check` action; `integration_watchdog.reset` action to start over on an integration
@@ -84,6 +85,23 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 | Pause entity | none | An `input_boolean`, `switch`, `binary_sensor` or `schedule`: while it is on, nothing is reloaded (maintenance of the network, a planned outage, the night). The checks still run and list the unavailable integrations, and the *Unavailable integrations* sensor has `paused: true`; reloads start again at the first check after it turns off, the grace period counted from when each integration became unavailable |
 | Notify actions | none | Also send each notification with these actions (`notify.mobile_app_phone`…). A persistent notification is always created |
 
+**Configure** opens a menu: **Settings** (the options above), **Add a power cycle** and **Remove power cycles**.
+
+### Power cycles
+
+A device that hangs (a router, a hub, a camera) often only comes back once its power is cut. Associate it with the smart plug that powers it, in **Configure → Add a power cycle**:
+
+| Field | Default | Description |
+|---|---|---|
+| Device | — | The device to restart. All its enabled entities (the plug left out) must be `unavailable` |
+| Smart plug | — | The `switch` that powers it. It can't be an entity of the device itself |
+| Unavailable for | 10 min | Minutes all the device's entities must have been unavailable before its plug is switched off, from 1 to 1440 |
+| Off for | 10 s | Seconds the plug stays off before being switched on again, from 1 to 300 |
+
+The plug is only switched off when it is **on**: a plug you switched off on purpose, or that is unavailable itself, is left alone. Power cycles follow the reload rules: none while Home Assistant starts or during the grace period after it has started, none while the pause entity is on, at most **Reloads in a row** in a row with a delay that doubles each time (10, 10, then 20 minutes…), then the watchdog gives up on the device until one of its entities has been available again for the current delay. Each power cycle, failed power cycle and give-up is notified (one persistent notification per device), recorded in the history shown by the card, and fires the `integration_watchdog_power_cycled` event.
+
+The plug is always switched on again, even when switching it off failed. If Home Assistant stops while it is off, it is switched on at the first check after the next start. The integration of the device is still watched as usual: if all its entities are unavailable too, it is also reloaded after its grace period.
+
 ### What counts as unavailable
 
 An integration (config entry) is reloaded when:
@@ -126,7 +144,7 @@ Opening the issue offers **Try again**: submitting it forgets the reloads of the
 |---|---|
 | `button.integration_watchdog_check_now` | Runs a check now. Unavailable while one is running |
 | `sensor.integration_watchdog_unavailable_integrations` | Number of integrations whose entities are all unavailable. Attributes: `integrations` (list of `domain`, `title`, `entry_id`, `since`, `reloads`, `gave_up`), `ignored`, `max_reloads`, `paused` (the pause entity is on) |
-| `sensor.integration_watchdog_last_reload` | Time of the last reload. Attributes: `domain`, `title`, `entry_id`, `success`, `reloads` (since Home Assistant started), `history` (the last 20 reloads and give-ups, newest first: `kind` = `reloaded` / `reload_failed` / `gave_up`, `at`, `domain`, `title`, `entry_id`, `attempt`, `max_reloads`, `unavailable_since`; kept across restarts, not recorded in the database) |
+| `sensor.integration_watchdog_last_reload` | Time of the last reload. Attributes: `domain`, `title`, `entry_id`, `success`, `reloads` (since Home Assistant started), `history` (the last 20 reloads, power cycles and give-ups, newest first: `kind` = `reloaded` / `reload_failed` / `gave_up` / `power_cycled` / `power_cycle_failed` / `power_cycle_gave_up`, `at`, `domain`, `title`, `entry_id`, `attempt`, `max_reloads`, `unavailable_since`, plus `device_id`, `switch` and `switch_name` for a power cycle, whose `title` is the device name and `entry_id` / `domain` those of its integration; kept across restarts, not recorded in the database) |
 | `sensor.integration_watchdog_last_check` | End of the last check |
 | `sensor.integration_watchdog_reloads_in_24_h` | Reloads and failed reloads of the last 24 hours (from the history). Attributes: `failed`, `integrations` (count per integration) |
 
@@ -178,6 +196,18 @@ actions:
         reloaded {{ trigger.event.data.title }} ({{ trigger.event.data.domain }}),
         attempt {{ trigger.event.data.attempt }}/{{ trigger.event.data.max_reloads }}
 ```
+
+### Event `integration_watchdog_power_cycled`
+
+| Field | Description |
+|---|---|
+| `device_id` | Device power cycled |
+| `name` | Device name |
+| `switch` | Plug switched off and on |
+| `success` | `true` if both went through |
+| `unavailable_since` | When its last entity became unavailable |
+| `attempt` | Power cycle number in a row (1, 2…) |
+| `max_reloads` | Power cycles in a row before giving up |
 
 ## Card
 

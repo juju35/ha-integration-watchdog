@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Možnosti Integration Watchdog",
+        "menu_options": {
+          "settings": "Nastavitve",
+          "add_power_cycle": "Dodaj ponovni zagon prek vtičnice",
+          "remove_power_cycle": "Odstrani ponovne zagone prek vtičnice"
+        }
+      },
+      "settings": {
+        "title": "Nastavitve",
         "data": {
           "scan_interval": "Interval preverjanja",
           "grace_period": "Čakalna doba",
@@ -58,10 +66,38 @@
           "ignored_entries": "Posamezni vnosi integracije, ki se nikoli ne naložijo znova; drugi vnosi njihove integracije ostanejo nadzorovani (npr. ena od več kamer).",
           "pause_entity": "Dokler je ta entiteta vklopljena (input_boolean za vzdrževanje, urnik za noč…), se nič ne naloži znova; preverjanja še vedno navajajo nedosegljive integracije."
         }
+      },
+      "add_power_cycle": {
+        "title": "Ponovni zagon naprave prek njene vtičnice",
+        "description": "Ko vse entitete naprave ostanejo nedosegljive, se pametna vtičnica, ki jo napaja, izklopi in nato znova vklopi. Enake omejitve kot pri ponovnih nalaganjih: nalaganja zapored, čakanje, ki se podvoji, entiteta premora, nič med obdobjem odloga po zagonu.",
+        "data": {
+          "device_id": "Naprava",
+          "switch": "Pametna vtičnica",
+          "delay": "Nedosegljiva",
+          "off_time": "Izklopljena za"
+        },
+        "data_description": {
+          "device_id": "Naprava za ponovni zagon: vse njene omogočene entitete morajo biti nedosegljive.",
+          "switch": "Stikalo, ki jo napaja. Izklopi se le, če je vklopljeno: izklopljena ali nedosegljiva vtičnica ostane nedotaknjena.",
+          "delay": "Minute, ko morajo biti vse entitete naprave nedosegljive, preden se njena vtičnica izklopi. Čakanje med dvema ponovnima zagonoma se vsakič podvoji.",
+          "off_time": "Sekunde, ko vtičnica ostane izklopljena, preden se znova vklopi."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Odstrani ponovne zagone prek vtičnice",
+        "data": {
+          "power_cycles": "Ponovni zagoni prek vtičnice"
+        },
+        "data_description": {
+          "power_cycles": "Ponovni zagoni prek vtičnice za odstranitev."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Vsaka vrstica mora biti domena: minute, od 1 do 1440 (zha: 30)."
+      "invalid_overrides": "Vsaka vrstica mora biti domena: minute, od 1 do 1440 (zha: 30).",
+      "device_already_cycled": "Ta naprava že ima ponovni zagon prek vtičnice: najprej ga odstranite.",
+      "switch_on_device": "Vtičnica ne more biti entiteta same naprave: bila bi nedosegljiva skupaj z njo.",
+      "device_without_entities": "Ta naprava razen vtičnice nima entitete za nadzor."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Ponovno nalaganje integracije ni uspelo",
     "reload_failed": "{title} ({domain}) ni bilo mogoče ponovno naložiti: nobena njena entiteta ni bila na voljo od {since}. Ponovno nalaganje {attempt}/{max}, glejte dnevnike.",
     "gave_up_title": "Integracija še vedno ni na voljo",
-    "gave_up": "{title} ({domain}) še vedno ni na voljo. Število ponovnih nalaganj: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo."
+    "gave_up": "{title} ({domain}) še vedno ni na voljo. Število ponovnih nalaganj: {attempt}. Ne bo se več nalagala ponovno, dokler ena od njenih entitet ne bo na voljo.",
+    "power_cycled_title": "Naprava ponovno zagnana",
+    "power_cycled": "{title} je bila ponovno zagnana s {switch}: vse njene entitete so bile nedosegljive od {since}. Ponovni zagon {attempt}/{max}.",
+    "power_cycle_failed_title": "Ponovni zagon naprave ni uspel",
+    "power_cycle_failed": "{title} ni bilo mogoče ponovno zagnati s {switch}: vse njene entitete so bile nedosegljive od {since}. Ponovni zagon {attempt}/{max}, glejte dnevnike.",
+    "power_cycle_gave_up_title": "Naprava je še vedno nedosegljiva",
+    "power_cycle_gave_up": "{title} je še vedno nedosegljiva po ponovnih zagonih: {attempt}. {switch} se ne bo več izklopila, dokler ena od njenih entitet ne bo dosegljiva."
   },
   "exceptions": {
     "not_loaded": {

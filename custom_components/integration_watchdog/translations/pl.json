@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Opcje Integration Watchdog",
+        "menu_options": {
+          "settings": "Ustawienia",
+          "add_power_cycle": "Dodaj restart przez gniazdko",
+          "remove_power_cycle": "Usuń restarty przez gniazdko"
+        }
+      },
+      "settings": {
+        "title": "Ustawienia",
         "data": {
           "scan_interval": "Interwał sprawdzania",
           "grace_period": "Okres karencji",
@@ -58,10 +66,38 @@
           "ignored_entries": "Pojedyncze wpisy integracji nigdy nie przeładowywane; pozostałe wpisy ich integracji są nadal pilnowane (np. jedna z kilku kamer).",
           "pause_entity": "Gdy ta encja jest włączona (input_boolean na czas konserwacji, harmonogram na noc…), nic nie jest przeładowywane; sprawdzenia nadal wymieniają niedostępne integracje."
         }
+      },
+      "add_power_cycle": {
+        "title": "Restart urządzenia przez jego gniazdko",
+        "description": "Gdy wszystkie encje urządzenia pozostają niedostępne, inteligentne gniazdko, które je zasila, jest wyłączane i ponownie włączane. Te same limity co przy przeładowaniach: przeładowania z rzędu, podwajające się opóźnienie, encja pauzy, nic w okresie karencji po starcie.",
+        "data": {
+          "device_id": "Urządzenie",
+          "switch": "Inteligentne gniazdko",
+          "delay": "Niedostępne przez",
+          "off_time": "Wyłączone przez"
+        },
+        "data_description": {
+          "device_id": "Urządzenie do zrestartowania: wszystkie jego włączone encje muszą być niedostępne.",
+          "switch": "Przełącznik, który je zasila. Wyłączany tylko, gdy jest włączony: wyłączone lub niedostępne gniazdko pozostaje nietknięte.",
+          "delay": "Minuty, przez które wszystkie encje urządzenia muszą być niedostępne, zanim jego gniazdko zostanie wyłączone. Opóźnienie między dwoma restartami za każdym razem się podwaja.",
+          "off_time": "Sekundy, przez które gniazdko pozostaje wyłączone przed ponownym włączeniem."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Usuń restarty przez gniazdko",
+        "data": {
+          "power_cycles": "Restarty przez gniazdko"
+        },
+        "data_description": {
+          "power_cycles": "Restarty przez gniazdko do usunięcia."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Każda linia musi mieć postać domena: minuty, od 1 do 1440 (zha: 30)."
+      "invalid_overrides": "Każda linia musi mieć postać domena: minuty, od 1 do 1440 (zha: 30).",
+      "device_already_cycled": "To urządzenie ma już restart przez gniazdko: najpierw go usuń.",
+      "switch_on_device": "Gniazdko nie może być encją samego urządzenia: byłoby niedostępne razem z nim.",
+      "device_without_entities": "To urządzenie nie ma poza gniazdkiem żadnej encji do obserwowania."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Nie udało się ponownie wczytać integracji",
     "reload_failed": "Nie udało się ponownie wczytać {title} ({domain}): wszystkie jej encje były niedostępne od {since}. Ponowne wczytanie {attempt}/{max}, sprawdź logi.",
     "gave_up_title": "Integracja nadal niedostępna",
-    "gave_up": "{title} ({domain}) jest nadal niedostępna. Liczba ponownych wczytań: {attempt}. Nie zostanie ponownie wczytana, dopóki jedna z jej encji nie będzie dostępna."
+    "gave_up": "{title} ({domain}) jest nadal niedostępna. Liczba ponownych wczytań: {attempt}. Nie zostanie ponownie wczytana, dopóki jedna z jej encji nie będzie dostępna.",
+    "power_cycled_title": "Urządzenie zrestartowane",
+    "power_cycled": "{title} zostało zrestartowane przez {switch}: wszystkie jego encje były niedostępne od {since}. Restart {attempt}/{max}.",
+    "power_cycle_failed_title": "Restart urządzenia nie powiódł się",
+    "power_cycle_failed": "Nie udało się zrestartować {title} przez {switch}: wszystkie jego encje były niedostępne od {since}. Restart {attempt}/{max}, zobacz logi.",
+    "power_cycle_gave_up_title": "Urządzenie nadal niedostępne",
+    "power_cycle_gave_up": "{title} jest nadal niedostępne po {attempt} restartach. {switch} nie zostanie ponownie wyłączone, dopóki któraś z jego encji nie będzie dostępna."
   },
   "exceptions": {
     "not_loaded": {

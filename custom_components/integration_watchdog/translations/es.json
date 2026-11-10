@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Opciones de Integration Watchdog",
+        "menu_options": {
+          "settings": "Ajustes",
+          "add_power_cycle": "Añadir un reinicio por enchufe",
+          "remove_power_cycle": "Quitar reinicios por enchufe"
+        }
+      },
+      "settings": {
+        "title": "Ajustes",
         "data": {
           "scan_interval": "Intervalo de comprobación",
           "grace_period": "Periodo de gracia",
@@ -58,10 +66,38 @@
           "ignored_entries": "Entradas de integración que nunca se recargan; las demás entradas de su integración siguen vigiladas (una cámara entre varias, por ejemplo).",
           "pause_entity": "Mientras esta entidad esté encendida (un input_boolean de mantenimiento, una programación para la noche…), no se recarga nada; las comprobaciones siguen listando las integraciones no disponibles."
         }
+      },
+      "add_power_cycle": {
+        "title": "Reiniciar un dispositivo con su enchufe",
+        "description": "Cuando todas las entidades de un dispositivo siguen no disponibles, el enchufe inteligente que lo alimenta se apaga y se vuelve a encender. Mismos límites que las recargas: recargas seguidas, espera que se duplica, entidad de pausa, nada durante el periodo de gracia tras un arranque.",
+        "data": {
+          "device_id": "Dispositivo",
+          "switch": "Enchufe inteligente",
+          "delay": "No disponible durante",
+          "off_time": "Apagado durante"
+        },
+        "data_description": {
+          "device_id": "El dispositivo que reiniciar: todas sus entidades activas deben estar no disponibles.",
+          "switch": "El interruptor que lo alimenta. Solo se apaga si está encendido: un enchufe apagado o no disponible no se toca.",
+          "delay": "Minutos que todas las entidades del dispositivo deben estar no disponibles antes de apagar su enchufe. La espera entre dos reinicios se duplica cada vez.",
+          "off_time": "Segundos que el enchufe permanece apagado antes de volver a encenderse."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Quitar reinicios por enchufe",
+        "data": {
+          "power_cycles": "Reinicios por enchufe"
+        },
+        "data_description": {
+          "power_cycles": "Los reinicios por enchufe que quitar."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Cada línea debe ser dominio: minutos, de 1 a 1440 (zha: 30)."
+      "invalid_overrides": "Cada línea debe ser dominio: minutos, de 1 a 1440 (zha: 30).",
+      "device_already_cycled": "Este dispositivo ya tiene un reinicio por enchufe: quítalo primero.",
+      "switch_on_device": "El enchufe no puede ser una entidad del propio dispositivo: estaría no disponible con él.",
+      "device_without_entities": "Este dispositivo no tiene ninguna entidad que vigilar aparte del enchufe."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Error al recargar una integración",
     "reload_failed": "{title} ({domain}) no se ha podido recargar: todas sus entidades llevaban sin estar disponibles desde {since}. Recarga {attempt}/{max}, consulta los registros.",
     "gave_up_title": "Integración aún no disponible",
-    "gave_up": "{title} ({domain}) sigue sin estar disponible tras {attempt} recargas. No se volverá a recargar hasta que una de sus entidades esté disponible."
+    "gave_up": "{title} ({domain}) sigue sin estar disponible tras {attempt} recargas. No se volverá a recargar hasta que una de sus entidades esté disponible.",
+    "power_cycled_title": "Dispositivo reiniciado",
+    "power_cycled": "{title} se reinició con {switch}: todas sus entidades estaban no disponibles desde {since}. Reinicio {attempt}/{max}.",
+    "power_cycle_failed_title": "Reinicio del dispositivo fallido",
+    "power_cycle_failed": "{title} no se pudo reiniciar con {switch}: todas sus entidades estaban no disponibles desde {since}. Reinicio {attempt}/{max}, consulta los registros.",
+    "power_cycle_gave_up_title": "Dispositivo aún no disponible",
+    "power_cycle_gave_up": "{title} sigue no disponible tras {attempt} reinicios. {switch} no se volverá a apagar hasta que una de sus entidades esté disponible."
   },
   "exceptions": {
     "not_loaded": {

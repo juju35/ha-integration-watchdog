@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Opțiuni Integration Watchdog",
+        "menu_options": {
+          "settings": "Setări",
+          "add_power_cycle": "Adaugă o repornire prin priză",
+          "remove_power_cycle": "Elimină reporniri prin priză"
+        }
+      },
+      "settings": {
+        "title": "Setări",
         "data": {
           "scan_interval": "Interval de verificare",
           "grace_period": "Perioadă de grație",
@@ -58,10 +66,38 @@
           "ignored_entries": "Intrări de integrare care nu sunt reîncărcate niciodată; celelalte intrări ale integrării lor rămân supravegheate (o cameră dintre mai multe, de exemplu).",
           "pause_entity": "Cât timp această entitate este pornită (un input_boolean pentru mentenanță, un program pentru noapte…), nu se reîncarcă nimic; verificările listează în continuare integrările indisponibile."
         }
+      },
+      "add_power_cycle": {
+        "title": "Repornește un dispozitiv prin priza sa",
+        "description": "Când toate entitățile unui dispozitiv rămân indisponibile, priza inteligentă care îl alimentează este oprită, apoi pornită din nou. Aceleași limite ca la reîncărcări: reîncărcări la rând, așteptare care se dublează, entitate de pauză, nimic în perioada de grație după o pornire.",
+        "data": {
+          "device_id": "Dispozitiv",
+          "switch": "Priză inteligentă",
+          "delay": "Indisponibil timp de",
+          "off_time": "Oprită timp de"
+        },
+        "data_description": {
+          "device_id": "Dispozitivul de repornit: toate entitățile sale activate trebuie să fie indisponibile.",
+          "switch": "Comutatorul care îl alimentează. Oprit doar dacă este pornit: o priză oprită sau indisponibilă nu este atinsă.",
+          "delay": "Minute în care toate entitățile dispozitivului trebuie să fie indisponibile înainte de oprirea prizei sale. Așteptarea dintre două reporniri se dublează de fiecare dată.",
+          "off_time": "Secunde în care priza rămâne oprită înainte de a fi pornită din nou."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Elimină reporniri prin priză",
+        "data": {
+          "power_cycles": "Reporniri prin priză"
+        },
+        "data_description": {
+          "power_cycles": "Repornirile prin priză de eliminat."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Fiecare linie trebuie să fie domeniu: minute, de la 1 la 1440 (zha: 30)."
+      "invalid_overrides": "Fiecare linie trebuie să fie domeniu: minute, de la 1 la 1440 (zha: 30).",
+      "device_already_cycled": "Acest dispozitiv are deja o repornire prin priză: elimin-o mai întâi.",
+      "switch_on_device": "Priza nu poate fi o entitate a dispozitivului însuși: ar fi indisponibilă odată cu el.",
+      "device_without_entities": "Acest dispozitiv nu are nicio entitate de supravegheat în afară de priză."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Reîncărcarea integrării a eșuat",
     "reload_failed": "{title} ({domain}) nu a putut fi reîncărcată: toate entitățile sale erau indisponibile din {since}. Reîncărcarea {attempt}/{max}, consultați jurnalele.",
     "gave_up_title": "Integrare încă indisponibilă",
-    "gave_up": "{title} ({domain}) este încă indisponibilă. Reîncărcări efectuate: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă."
+    "gave_up": "{title} ({domain}) este încă indisponibilă. Reîncărcări efectuate: {attempt}. Nu va mai fi reîncărcată până când una dintre entitățile sale nu devine disponibilă.",
+    "power_cycled_title": "Dispozitiv repornit",
+    "power_cycled": "{title} a fost repornit cu {switch}: toate entitățile sale erau indisponibile din {since}. Repornirea {attempt}/{max}.",
+    "power_cycle_failed_title": "Repornirea dispozitivului a eșuat",
+    "power_cycle_failed": "{title} nu a putut fi repornit cu {switch}: toate entitățile sale erau indisponibile din {since}. Repornirea {attempt}/{max}, vezi jurnalele.",
+    "power_cycle_gave_up_title": "Dispozitiv încă indisponibil",
+    "power_cycle_gave_up": "{title} este încă indisponibil după {attempt} reporniri. {switch} nu va mai fi oprită până când una dintre entitățile sale nu este disponibilă."
   },
   "exceptions": {
     "not_loaded": {

@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Možnosti Integration Watchdog",
+        "menu_options": {
+          "settings": "Nastavenia",
+          "add_power_cycle": "Pridať reštart cez zásuvku",
+          "remove_power_cycle": "Odstrániť reštarty cez zásuvku"
+        }
+      },
+      "settings": {
+        "title": "Nastavenia",
         "data": {
           "scan_interval": "Interval kontroly",
           "grace_period": "Ochranná lehota",
@@ -58,10 +66,38 @@
           "ignored_entries": "Jednotlivé položky integrácie, ktoré sa nikdy neobnovia; ostatné položky ich integrácie zostávajú sledované (napr. jedna z viacerých kamier).",
           "pause_entity": "Kým je táto entita zapnutá (input_boolean na údržbu, plán na noc…), nič sa neobnovuje; kontroly naďalej uvádzajú nedostupné integrácie."
         }
+      },
+      "add_power_cycle": {
+        "title": "Reštart zariadenia cez jeho zásuvku",
+        "description": "Keď všetky entity zariadenia zostávajú nedostupné, inteligentná zásuvka, ktorá ho napája, sa vypne a potom znova zapne. Rovnaké limity ako pri opätovných načítaniach: načítania za sebou, zdvojnásobujúce sa čakanie, entita pozastavenia, nič počas ochrannej lehoty po spustení.",
+        "data": {
+          "device_id": "Zariadenie",
+          "switch": "Inteligentná zásuvka",
+          "delay": "Nedostupné počas",
+          "off_time": "Vypnutá na"
+        },
+        "data_description": {
+          "device_id": "Zariadenie na reštart: všetky jeho povolené entity musia byť nedostupné.",
+          "switch": "Spínač, ktorý ho napája. Vypne sa, len ak je zapnutý: vypnutá alebo nedostupná zásuvka zostane nedotknutá.",
+          "delay": "Minúty, počas ktorých musia byť všetky entity zariadenia nedostupné, kým sa jeho zásuvka vypne. Čakanie medzi dvoma reštartmi sa zakaždým zdvojnásobí.",
+          "off_time": "Sekundy, počas ktorých zásuvka zostane vypnutá, kým sa znova zapne."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Odstrániť reštarty cez zásuvku",
+        "data": {
+          "power_cycles": "Reštarty cez zásuvku"
+        },
+        "data_description": {
+          "power_cycles": "Reštarty cez zásuvku na odstránenie."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Každý riadok musí mať tvar doména: minúty, od 1 do 1440 (zha: 30)."
+      "invalid_overrides": "Každý riadok musí mať tvar doména: minúty, od 1 do 1440 (zha: 30).",
+      "device_already_cycled": "Toto zariadenie už má reštart cez zásuvku: najprv ho odstráňte.",
+      "switch_on_device": "Zásuvka nemôže byť entitou samotného zariadenia: bola by nedostupná spolu s ním.",
+      "device_without_entities": "Toto zariadenie nemá okrem zásuvky žiadnu entitu na sledovanie."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Opätovné načítanie integrácie zlyhalo",
     "reload_failed": "{title} ({domain}) sa nepodarilo znovu načítať: všetky jej entity boli nedostupné od {since}. Opätovné načítanie {attempt}/{max}, pozrite si záznamy.",
     "gave_up_title": "Integrácia je stále nedostupná",
-    "gave_up": "{title} ({domain}) je stále nedostupná. Počet opätovných načítaní: {attempt}. Znovu sa nenačíta, kým niektorá z jej entít nebude dostupná."
+    "gave_up": "{title} ({domain}) je stále nedostupná. Počet opätovných načítaní: {attempt}. Znovu sa nenačíta, kým niektorá z jej entít nebude dostupná.",
+    "power_cycled_title": "Zariadenie reštartované",
+    "power_cycled": "{title} bolo reštartované cez {switch}: všetky jeho entity boli nedostupné od {since}. Reštart {attempt}/{max}.",
+    "power_cycle_failed_title": "Reštart zariadenia zlyhal",
+    "power_cycle_failed": "{title} sa nepodarilo reštartovať cez {switch}: všetky jeho entity boli nedostupné od {since}. Reštart {attempt}/{max}, pozrite si záznamy.",
+    "power_cycle_gave_up_title": "Zariadenie je stále nedostupné",
+    "power_cycle_gave_up": "{title} je stále nedostupné po reštartoch: {attempt}. {switch} sa už nevypne, kým nebude dostupná niektorá z jeho entít."
   },
   "exceptions": {
     "not_loaded": {

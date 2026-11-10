@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Opções do Integration Watchdog",
+        "menu_options": {
+          "settings": "Definições",
+          "add_power_cycle": "Adicionar um reinício por tomada",
+          "remove_power_cycle": "Remover reinícios por tomada"
+        }
+      },
+      "settings": {
+        "title": "Definições",
         "data": {
           "scan_interval": "Intervalo de verificação",
           "grace_period": "Período de tolerância",
@@ -58,10 +66,38 @@
           "ignored_entries": "Entradas de integração nunca recarregadas; as outras entradas da sua integração continuam vigiadas (uma câmara entre várias, por exemplo).",
           "pause_entity": "Enquanto esta entidade estiver ligada (um input_boolean de manutenção, um horário para a noite…), nada é recarregado; as verificações continuam a listar as integrações indisponíveis."
         }
+      },
+      "add_power_cycle": {
+        "title": "Reiniciar um dispositivo pela sua tomada",
+        "description": "Quando todas as entidades de um dispositivo continuam indisponíveis, a tomada inteligente que o alimenta é desligada e depois ligada de novo. Os mesmos limites dos recarregamentos: recarregamentos seguidos, espera que duplica, entidade de pausa, nada durante o período de tolerância após um arranque.",
+        "data": {
+          "device_id": "Dispositivo",
+          "switch": "Tomada inteligente",
+          "delay": "Indisponível durante",
+          "off_time": "Desligada durante"
+        },
+        "data_description": {
+          "device_id": "O dispositivo a reiniciar: todas as suas entidades ativas têm de estar indisponíveis.",
+          "switch": "O interruptor que o alimenta. Só é desligado se estiver ligado: uma tomada desligada ou indisponível não é tocada.",
+          "delay": "Minutos em que todas as entidades do dispositivo têm de estar indisponíveis antes de desligar a sua tomada. A espera entre dois reinícios duplica de cada vez.",
+          "off_time": "Segundos em que a tomada fica desligada antes de ser ligada de novo."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Remover reinícios por tomada",
+        "data": {
+          "power_cycles": "Reinícios por tomada"
+        },
+        "data_description": {
+          "power_cycles": "Os reinícios por tomada a remover."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Cada linha deve ser domínio: minutos, de 1 a 1440 (zha: 30)."
+      "invalid_overrides": "Cada linha deve ser domínio: minutos, de 1 a 1440 (zha: 30).",
+      "device_already_cycled": "Este dispositivo já tem um reinício por tomada: remova-o primeiro.",
+      "switch_on_device": "A tomada não pode ser uma entidade do próprio dispositivo: ficaria indisponível com ele.",
+      "device_without_entities": "Este dispositivo não tem nenhuma entidade a vigiar além da tomada."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Falha ao recarregar uma integração",
     "reload_failed": "Não foi possível recarregar {title} ({domain}): todas as suas entidades estavam indisponíveis desde {since}. Recarregamento {attempt}/{max}, consulte os registos.",
     "gave_up_title": "Integração ainda indisponível",
-    "gave_up": "{title} ({domain}) continua indisponível após {attempt} recarregamentos. Não voltará a ser recarregada até que uma das suas entidades esteja disponível."
+    "gave_up": "{title} ({domain}) continua indisponível após {attempt} recarregamentos. Não voltará a ser recarregada até que uma das suas entidades esteja disponível.",
+    "power_cycled_title": "Dispositivo reiniciado",
+    "power_cycled": "{title} foi reiniciado com {switch}: todas as suas entidades estavam indisponíveis desde {since}. Reinício {attempt}/{max}.",
+    "power_cycle_failed_title": "Falha ao reiniciar o dispositivo",
+    "power_cycle_failed": "{title} não pôde ser reiniciado com {switch}: todas as suas entidades estavam indisponíveis desde {since}. Reinício {attempt}/{max}, veja os registos.",
+    "power_cycle_gave_up_title": "Dispositivo ainda indisponível",
+    "power_cycle_gave_up": "{title} continua indisponível após {attempt} reinícios. {switch} não voltará a ser desligada até uma das suas entidades estar disponível."
   },
   "exceptions": {
     "not_loaded": {

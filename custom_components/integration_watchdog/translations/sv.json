@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Alternativ för Integration Watchdog",
+        "menu_options": {
+          "settings": "Inställningar",
+          "add_power_cycle": "Lägg till omstart via uttag",
+          "remove_power_cycle": "Ta bort omstarter via uttag"
+        }
+      },
+      "settings": {
+        "title": "Inställningar",
         "data": {
           "scan_interval": "Kontrollintervall",
           "grace_period": "Respittid",
@@ -58,10 +66,38 @@
           "ignored_entries": "Enskilda integrationsposter som aldrig laddas om; integrationens övriga poster bevakas fortfarande (t.ex. en av flera kameror).",
           "pause_entity": "Så länge denna entitet är på (en input_boolean för underhåll, ett schema för natten…) laddas inget om; kontrollerna listar fortfarande de otillgängliga integrationerna."
         }
+      },
+      "add_power_cycle": {
+        "title": "Starta om en enhet via dess uttag",
+        "description": "När alla en enhets entiteter förblir otillgängliga stängs det smarta uttaget som driver den av och slås sedan på igen. Samma gränser som för omladdningar: omladdningar i rad, väntetid som fördubblas, pausentitet, inget under respitperioden efter en start.",
+        "data": {
+          "device_id": "Enhet",
+          "switch": "Smart uttag",
+          "delay": "Otillgänglig i",
+          "off_time": "Avstängt i"
+        },
+        "data_description": {
+          "device_id": "Enheten som ska startas om: alla dess aktiverade entiteter måste vara otillgängliga.",
+          "switch": "Brytaren som driver den. Stängs bara av när den är på: ett uttag som är av eller otillgängligt lämnas orört.",
+          "delay": "Minuter som alla enhetens entiteter måste ha varit otillgängliga innan dess uttag stängs av. Väntetiden mellan två omstarter fördubblas varje gång.",
+          "off_time": "Sekunder som uttaget förblir avstängt innan det slås på igen."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Ta bort omstarter via uttag",
+        "data": {
+          "power_cycles": "Omstarter via uttag"
+        },
+        "data_description": {
+          "power_cycles": "Omstarterna via uttag som ska tas bort."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Varje rad måste vara domän: minuter, från 1 till 1440 (zha: 30)."
+      "invalid_overrides": "Varje rad måste vara domän: minuter, från 1 till 1440 (zha: 30).",
+      "device_already_cycled": "Den här enheten har redan en omstart via uttag: ta bort den först.",
+      "switch_on_device": "Uttaget kan inte vara en entitet i själva enheten: det skulle vara otillgängligt tillsammans med den.",
+      "device_without_entities": "Den här enheten har ingen entitet att övervaka förutom uttaget."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Omladdning av integration misslyckades",
     "reload_failed": "{title} ({domain}) kunde inte laddas om: alla dess entiteter hade varit otillgängliga sedan {since}. Omladdning {attempt}/{max}, se loggarna.",
     "gave_up_title": "Integration fortfarande otillgänglig",
-    "gave_up": "{title} ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar. Den laddas inte om igen förrän någon av dess entiteter är tillgänglig."
+    "gave_up": "{title} ({domain}) är fortfarande otillgänglig efter {attempt} omladdningar. Den laddas inte om igen förrän någon av dess entiteter är tillgänglig.",
+    "power_cycled_title": "Enhet omstartad",
+    "power_cycled": "{title} startades om med {switch}: alla dess entiteter var otillgängliga sedan {since}. Omstart {attempt}/{max}.",
+    "power_cycle_failed_title": "Omstart av enhet misslyckades",
+    "power_cycle_failed": "{title} kunde inte startas om med {switch}: alla dess entiteter var otillgängliga sedan {since}. Omstart {attempt}/{max}, se loggarna.",
+    "power_cycle_gave_up_title": "Enhet fortfarande otillgänglig",
+    "power_cycle_gave_up": "{title} är fortfarande otillgänglig efter {attempt} omstarter. {switch} stängs inte av igen förrän en av dess entiteter är tillgänglig."
   },
   "exceptions": {
     "not_loaded": {

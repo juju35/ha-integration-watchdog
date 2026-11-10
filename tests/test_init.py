@@ -66,6 +66,13 @@ async def _setup(hass: HomeAssistant, **options) -> MockConfigEntry:
     return entry
 
 
+async def _settings_flow(hass: HomeAssistant, entry: MockConfigEntry):
+    """The options flow, past its menu: the settings form."""
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] is FlowResultType.MENU
+    return await hass.config_entries.options.async_configure(result["flow_id"], {"next_step_id": "settings"})
+
+
 async def _check(hass: HomeAssistant) -> None:
     await hass.services.async_call(DOMAIN, "check", {}, blocking=True)
     await hass.async_block_till_done()
@@ -103,7 +110,7 @@ async def test_single_instance(hass):
 
 async def test_options_flow(hass):
     entry = await _setup(hass)
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _settings_flow(hass, entry)
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
@@ -122,7 +129,7 @@ async def test_options_flow(hass):
     assert hass.states.get(UNAVAILABLE).attributes["ignored"] == ["mqtt"]
 
     # A pause entity is kept only when chosen.
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _settings_flow(hass, entry)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_MAX_RELOADS: 3, "pause_entity": "input_boolean.maintenance"},
@@ -206,7 +213,7 @@ async def test_grace_overrides_per_integration(hass: HomeAssistant, freezer: Fro
 async def test_options_flow_grace_overrides(hass):
     entry = await _setup(hass)
     base = {CONF_SCAN_INTERVAL: 2, CONF_GRACE_PERIOD: 5, CONF_MAX_RELOADS: 3}
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _settings_flow(hass, entry)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {**base, "grace_overrides": "zha: 30\nfoo"}
     )
@@ -221,7 +228,7 @@ async def test_options_flow_grace_overrides(hass):
     assert entry.runtime_data.grace("zha") == timedelta(minutes=30)
     assert entry.runtime_data.grace("mqtt") == timedelta(minutes=5)
     # Shown back one per line; emptied, the option goes away.
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _settings_flow(hass, entry)
     key = next(k for k in result["data_schema"].schema if k == "grace_overrides")
     assert key.description["suggested_value"] == "tuya: 90\nzha: 30"
     result = await hass.config_entries.options.async_configure(result["flow_id"], {**base, "grace_overrides": ""})
@@ -590,7 +597,7 @@ async def test_options_change_keeps_the_grace_from_the_states(hass: HomeAssistan
         return True if entry_id == dead.entry_id else await real_reload(entry_id)
 
     with patch.object(hass.config_entries, "async_reload", AsyncMock(side_effect=reload_side_effect)) as reload:
-        result = await hass.config_entries.options.async_init(entry.entry_id)
+        result = await _settings_flow(hass, entry)
         await hass.config_entries.options.async_configure(
             result["flow_id"],
             {CONF_SCAN_INTERVAL: 5, CONF_GRACE_PERIOD: 1, CONF_MAX_RELOADS: 3, CONF_IGNORED: []},
@@ -615,7 +622,7 @@ async def test_setup_retry_and_error_are_watched(hass: HomeAssistant, freezer: F
 
 
 async def _change_options(hass: HomeAssistant, entry: MockConfigEntry, block: bool = True, **options) -> None:
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await _settings_flow(hass, entry)
     await hass.config_entries.options.async_configure(
         result["flow_id"],
         {k: v for k, v in {**OPTIONS, **options}.items() if k != CONF_NOTIFY},

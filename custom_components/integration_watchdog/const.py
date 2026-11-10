@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "integration_watchdog"
 # Same as manifest.json and the card: the card URL carries it, so that browsers load a new release.
-VERSION: Final = "1.7.1"
+VERSION: Final = "1.8.0"
 
 CONF_SCAN_INTERVAL: Final = "scan_interval"
 CONF_GRACE_PERIOD: Final = "grace_period"
@@ -19,6 +19,16 @@ CONF_PAUSE_ENTITY: Final = "pause_entity"
 # Grace period per integration domain, in minutes ({"zha": 30}), instead of the global one.
 CONF_GRACE_OVERRIDES: Final = "grace_overrides"
 PAUSE_DOMAINS: Final = ["input_boolean", "switch", "binary_sensor", "schedule"]
+# Devices powered by a smart plug: switched off then on again when all their entities stay unavailable.
+# A list of {"device_id", "switch", "delay" (minutes), "off_time" (seconds)}.
+CONF_POWER_CYCLES: Final = "power_cycles"
+CONF_DEVICE: Final = "device_id"
+CONF_SWITCH: Final = "switch"
+CONF_DELAY: Final = "delay"
+CONF_OFF_TIME: Final = "off_time"
+DEFAULT_CYCLE_DELAY: Final = 10
+DEFAULT_OFF_TIME: Final = 10
+MAX_OFF_TIME: Final = 300
 
 # Minutes between two checks.
 DEFAULT_SCAN_INTERVAL: Final = 5
@@ -34,6 +44,7 @@ SERVICE_CHECK: Final = "check"
 SERVICE_RESET: Final = "reset"
 ATTR_ENTRY_ID: Final = "entry_id"
 EVENT_RELOADED: Final = f"{DOMAIN}_reloaded"
+EVENT_POWER_CYCLED: Final = f"{DOMAIN}_power_cycled"
 
 # The card bundled with the integration, served by Home Assistant and added to the dashboard resources.
 CARD_URL: Final = f"/{DOMAIN}/integration-watchdog-card.js"

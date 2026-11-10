@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.0 - 2026-11-10
+
+### Features
+- **Power cycles**: associate a device with the smart plug that powers it (**Configure → Add a power cycle**: device, plug, *Unavailable for* in minutes, *Off for* in seconds). Once all the device's enabled entities have been unavailable for that delay, the plug is switched off, then on again. Only when the plug is on (one switched off on purpose or unavailable is left alone), never during startup or the grace period after it, nor while the pause entity is on; at most *Reloads in a row* in a row, the delay doubling each time, then given up until the device recovers. Each power cycle, failure and give-up is notified, shown in the card's history with the plug used, and fires the `integration_watchdog_power_cycled` event. The plug is always switched on again, also after a restart of Home Assistant during the power cycle.
+- **Configure** now opens a menu: *Settings*, *Add a power cycle*, *Remove power cycles*.
+
 ## 1.7.1 - 2026-11-09
 
 ### Maintenance
