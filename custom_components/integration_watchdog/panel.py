@@ -182,7 +182,12 @@ def _device_options(hass: HomeAssistant, own: str | None) -> list[dict[str, str]
     entities = er.async_get(hass)
     with_entities = {e.device_id for e in entities.entities.values() if e.device_id and not e.disabled}
     options = []
-    for device in dr.async_get(hass).devices.values():
+    registry = dr.async_get(hass)
+    # Iterating the devices gives the entries from Home Assistant 2026.11 (`.values()` is deprecated), their ids before.
+    for item in registry.devices:
+        device = registry.async_get(item) if isinstance(item, str) else item
+        if device is None:
+            continue
         if device.id == own or device.disabled or device.id not in with_entities:
             continue
         platforms = {e.platform for e in er.async_entries_for_device(entities, device.id)}
