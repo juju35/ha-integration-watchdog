@@ -32,10 +32,21 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.panel = { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides };`,
+  `${source}\nthis.panel = { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, IW_PANEL_PICK_MAX, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides, iwPanelMatch, iwPanelGroups };`,
   context,
 );
-const { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides } = context.panel;
+const {
+  IntegrationWatchdogPanel,
+  IntegrationWatchdogPanelI18n,
+  IW_PANEL_TABS,
+  IW_PANEL_PICK_MAX,
+  iwPanelT,
+  iwPanelEsc,
+  iwPanelTone,
+  iwPanelOverrides,
+  iwPanelMatch,
+  iwPanelGroups,
+} = context.panel;
 
 const LANGUAGES = [
   'bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'hu', 'it', 'lv', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr', 'sr-Latn', 'sv', 'uk',
@@ -198,6 +209,48 @@ test('add form: devices already cycled and the plugs of the chosen device are no
   });
   assert.equal(panel._status.cycle.text, 'Power cycle added');
   assert.deepEqual(plain(panel._cycle), {});
+});
+
+test('pickers: search without case nor accents on every word, grouped by area, outlets first', () => {
+  const options = [
+    { value: 'switch.a', label: 'Lampe', area: 'Salón', detail: 'Hue' },
+    { value: 'switch.b', label: 'Prise box', area: 'Bureau', detail: 'Tapo', outlet: true },
+    { value: 'switch.c', label: 'Ventilo', area: 'Bureau', detail: 'Tuya' },
+    { value: 'switch.d', label: 'Garage', area: '', detail: '' },
+  ];
+  assert.deepEqual(plain(iwPanelMatch(options, 'SALON')).map((o) => o.value), ['switch.a']);
+  assert.deepEqual(plain(iwPanelMatch(options, 'bureau tapo')).map((o) => o.value), ['switch.b']);
+  assert.equal(iwPanelMatch(options, '  ').length, 4);
+  const groups = (first) => plain(iwPanelGroups(options, first)).map(([area, items]) => [area, items.map((o) => o.value)]);
+  assert.deepEqual(groups(''), [['Bureau', ['switch.b', 'switch.c']], ['Salón', ['switch.a']], ['', ['switch.d']]]);
+  assert.deepEqual(groups('Salón')[0], ['Salón', ['switch.a']]);
+});
+
+test('pickers: the plugs of the device area first, a bounded list, Change and a choice that drops the own plug', () => {
+  const data = settings();
+  data.device_options[1].area = 'Hall';
+  data.switch_options.push({ value: 'switch.hall', label: 'Hall plug', detail: 'Plug', area: 'Hall', device_id: 'plug2', outlet: true });
+  for (let i = 0; i < IW_PANEL_PICK_MAX + 5; i++) data.switch_options.push({ value: `switch.x${i}`, label: `Plug ${i}`, area: 'Attic' });
+  const panel = panelWith(data);
+  panel._cycle.device_id = 'hub';
+  const list = panel._pickListHtml('switch');
+  assert.equal(list.count, IW_PANEL_PICK_MAX);
+  assert.match(list.html, /^<div class="pick-group" role="presentation">Hall · same area as the device<\/div>/);
+  assert.match(list.html, /id="pick-switch-0" data-pick-value="switch.hall"/);
+  assert.match(list.html, /\d+ more: type to narrow down/);
+  panel._pick.switch.q = 'nothing like it';
+  assert.equal(panel._pickListHtml('switch').count, 0);
+  assert.match(panel._pickListHtml('switch').html, /No match/);
+  // The device chosen shows with a Change button instead of its search
+  assert.match(panel._pickHtml('device_id', 'Device', '', ''), /data-pick-clear="device_id"/);
+  assert.doesNotMatch(panel._pickHtml('device_id', 'Device', '', ''), /data-pick="device_id"/);
+  // Choosing the hub drops a plug of its own picked before
+  panel._cycle = { switch: 'switch.hub_led' };
+  panel._choose('device_id', 'hub');
+  assert.equal(panel._cycle.switch, '');
+  assert.equal(panel._pick.switch.q, 'nothing like it');
+  panel._choose('switch', 'switch.box');
+  assert.deepEqual(plain(panel._pick.switch), { q: '', active: 0 });
 });
 
 test('errors: the panel text, else the options flow error of the same key, else the message', () => {

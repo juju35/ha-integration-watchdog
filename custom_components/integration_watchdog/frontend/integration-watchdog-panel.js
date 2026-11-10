@@ -11,7 +11,10 @@
  *
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.8.1';
+var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.9.0';
+
+// Rows shown at most by a device or plug picker: the search narrows the rest down
+var IW_PANEL_PICK_MAX = 50;
 
 var IntegrationWatchdogPanelI18n = {
   en: {
@@ -35,8 +38,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Add',
     adding: 'Adding…',
     added: 'Power cycle added',
-    pick_device: 'Choose a device…',
-    pick_switch: 'Choose a plug…',
+    pick_device: 'Search a device: name, area, integration…',
+    pick_switch: 'Search a plug: name, area, device…',
+    change: 'Change',
+    no_match: 'No match',
+    pick_more: '{n} more: type to narrow down',
+    no_area: 'No area',
+    same_area: '{area} · same area as the device',
     pc_line: 'unavailable for {delay} min · off for {off} s',
     pc_count: 'power cycles: {n}/{max}',
     pc_gave_up: 'Given up',
@@ -82,8 +90,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Ajouter',
     adding: 'Ajout…',
     added: 'Redémarrage par prise ajouté',
-    pick_device: 'Choisir un appareil…',
-    pick_switch: 'Choisir une prise…',
+    pick_device: 'Rechercher un appareil : nom, pièce, intégration…',
+    pick_switch: 'Rechercher une prise : nom, pièce, appareil…',
+    change: 'Changer',
+    no_match: 'Aucun résultat',
+    pick_more: '{n} de plus : tapez pour affiner',
+    no_area: 'Sans pièce',
+    same_area: '{area} · même pièce que l’appareil',
     pc_line: 'indisponible depuis {delay} min · éteinte {off} s',
     pc_count: 'redémarrages : {n}/{max}',
     pc_gave_up: 'Abandonné',
@@ -129,8 +142,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Hinzufügen',
     adding: 'Wird hinzugefügt…',
     added: 'Neustart per Steckdose hinzugefügt',
-    pick_device: 'Gerät wählen…',
-    pick_switch: 'Steckdose wählen…',
+    pick_device: 'Gerät suchen: Name, Bereich, Integration…',
+    pick_switch: 'Steckdose suchen: Name, Bereich, Gerät…',
+    change: 'Ändern',
+    no_match: 'Keine Treffer',
+    pick_more: '{n} weitere: zum Eingrenzen tippen',
+    no_area: 'Kein Bereich',
+    same_area: '{area} · gleicher Bereich wie das Gerät',
     pc_line: '{delay} min nicht verfügbar · {off} s aus',
     pc_count: 'Neustarts: {n}/{max}',
     pc_gave_up: 'Aufgegeben',
@@ -176,8 +194,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Añadir',
     adding: 'Añadiendo…',
     added: 'Reinicio por enchufe añadido',
-    pick_device: 'Elige un dispositivo…',
-    pick_switch: 'Elige un enchufe…',
+    pick_device: 'Buscar un dispositivo: nombre, área, integración…',
+    pick_switch: 'Buscar un enchufe: nombre, área, dispositivo…',
+    change: 'Cambiar',
+    no_match: 'Sin resultados',
+    pick_more: '{n} más: escribe para afinar',
+    no_area: 'Sin área',
+    same_area: '{area} · misma área que el dispositivo',
     pc_line: 'no disponible {delay} min · apagado {off} s',
     pc_count: 'reinicios: {n}/{max}',
     pc_gave_up: 'Abandonado',
@@ -223,8 +246,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Aggiungi',
     adding: 'Aggiunta…',
     added: 'Riavvio tramite presa aggiunto',
-    pick_device: 'Scegli un dispositivo…',
-    pick_switch: 'Scegli una presa…',
+    pick_device: 'Cerca un dispositivo: nome, area, integrazione…',
+    pick_switch: 'Cerca una presa: nome, area, dispositivo…',
+    change: 'Cambia',
+    no_match: 'Nessun risultato',
+    pick_more: 'altri {n}: digita per restringere',
+    no_area: 'Nessuna area',
+    same_area: '{area} · stessa area del dispositivo',
     pc_line: 'non disponibile per {delay} min · spenta {off} s',
     pc_count: 'riavvii: {n}/{max}',
     pc_gave_up: 'Abbandonato',
@@ -270,8 +298,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Toevoegen',
     adding: 'Toevoegen…',
     added: 'Herstart via stekker toegevoegd',
-    pick_device: 'Kies een apparaat…',
-    pick_switch: 'Kies een stekker…',
+    pick_device: 'Zoek een apparaat: naam, ruimte, integratie…',
+    pick_switch: 'Zoek een stekker: naam, ruimte, apparaat…',
+    change: 'Wijzigen',
+    no_match: 'Geen resultaten',
+    pick_more: 'nog {n}: typ om te verfijnen',
+    no_area: 'Geen ruimte',
+    same_area: '{area} · zelfde ruimte als het apparaat',
     pc_line: '{delay} min onbeschikbaar · {off} s uit',
     pc_count: 'herstarts: {n}/{max}',
     pc_gave_up: 'Opgegeven',
@@ -317,8 +350,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Adicionar',
     adding: 'A adicionar…',
     added: 'Reinício por tomada adicionado',
-    pick_device: 'Escolher um dispositivo…',
-    pick_switch: 'Escolher uma tomada…',
+    pick_device: 'Procurar um dispositivo: nome, área, integração…',
+    pick_switch: 'Procurar uma tomada: nome, área, dispositivo…',
+    change: 'Alterar',
+    no_match: 'Sem resultados',
+    pick_more: 'mais {n}: escreva para filtrar',
+    no_area: 'Sem área',
+    same_area: '{area} · mesma área do dispositivo',
     pc_line: 'indisponível {delay} min · desligada {off} s',
     pc_count: 'reinícios: {n}/{max}',
     pc_gave_up: 'Desistiu',
@@ -364,8 +402,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Dodaj',
     adding: 'Dodawanie…',
     added: 'Dodano restart przez gniazdko',
-    pick_device: 'Wybierz urządzenie…',
-    pick_switch: 'Wybierz gniazdko…',
+    pick_device: 'Szukaj urządzenia: nazwa, obszar, integracja…',
+    pick_switch: 'Szukaj gniazdka: nazwa, obszar, urządzenie…',
+    change: 'Zmień',
+    no_match: 'Brak wyników',
+    pick_more: 'jeszcze {n}: pisz, aby zawęzić',
+    no_area: 'Brak obszaru',
+    same_area: '{area} · ten sam obszar co urządzenie',
     pc_line: 'niedostępne {delay} min · wyłączone {off} s',
     pc_count: 'restarty: {n}/{max}',
     pc_gave_up: 'Porzucone',
@@ -411,8 +454,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Додај',
     adding: 'Додавање…',
     added: 'Рестарт преко утичнице додат',
-    pick_device: 'Изаберите уређај…',
-    pick_switch: 'Изаберите утичницу…',
+    pick_device: 'Претражите уређај: назив, простор, интеграција…',
+    pick_switch: 'Претражите утичницу: назив, простор, уређај…',
+    change: 'Промени',
+    no_match: 'Нема резултата',
+    pick_more: 'још {n}: куцајте да сузите',
+    no_area: 'Без простора',
+    same_area: '{area} · исти простор као уређај',
     pc_line: 'недоступан {delay} мин · искључена {off} с',
     pc_count: 'рестарти: {n}/{max}',
     pc_gave_up: 'Одустато',
@@ -458,8 +506,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Dodaj',
     adding: 'Dodavanje…',
     added: 'Restart preko utičnice dodat',
-    pick_device: 'Izaberite uređaj…',
-    pick_switch: 'Izaberite utičnicu…',
+    pick_device: 'Pretražite uređaj: naziv, prostor, integracija…',
+    pick_switch: 'Pretražite utičnicu: naziv, prostor, uređaj…',
+    change: 'Promeni',
+    no_match: 'Nema rezultata',
+    pick_more: 'još {n}: kucajte da suzite',
+    no_area: 'Bez prostora',
+    same_area: '{area} · isti prostor kao uređaj',
     pc_line: 'nedostupan {delay} min · isključena {off} s',
     pc_count: 'restarti: {n}/{max}',
     pc_gave_up: 'Odustato',
@@ -505,8 +558,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Adaugă',
     adding: 'Se adaugă…',
     added: 'Repornire prin priză adăugată',
-    pick_device: 'Alege un dispozitiv…',
-    pick_switch: 'Alege o priză…',
+    pick_device: 'Căutați un dispozitiv: nume, zonă, integrare…',
+    pick_switch: 'Căutați o priză: nume, zonă, dispozitiv…',
+    change: 'Schimbă',
+    no_match: 'Niciun rezultat',
+    pick_more: 'încă {n}: tastați pentru a restrânge',
+    no_area: 'Fără zonă',
+    same_area: '{area} · aceeași zonă ca dispozitivul',
     pc_line: 'indisponibil {delay} min · oprită {off} s',
     pc_count: 'reporniri: {n}/{max}',
     pc_gave_up: 'Abandonat',
@@ -552,8 +610,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Tilføj',
     adding: 'Tilføjer…',
     added: 'Genstart via stik tilføjet',
-    pick_device: 'Vælg en enhed…',
-    pick_switch: 'Vælg et stik…',
+    pick_device: 'Søg efter en enhed: navn, område, integration…',
+    pick_switch: 'Søg efter et stik: navn, område, enhed…',
+    change: 'Skift',
+    no_match: 'Ingen resultater',
+    pick_more: '{n} mere: skriv for at indsnævre',
+    no_area: 'Intet område',
+    same_area: '{area} · samme område som enheden',
     pc_line: 'utilgængelig {delay} min · slukket {off} s',
     pc_count: 'genstarter: {n}/{max}',
     pc_gave_up: 'Opgivet',
@@ -599,8 +662,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Lägg till',
     adding: 'Lägger till…',
     added: 'Omstart via uttag tillagd',
-    pick_device: 'Välj en enhet…',
-    pick_switch: 'Välj ett uttag…',
+    pick_device: 'Sök en enhet: namn, område, integration…',
+    pick_switch: 'Sök ett uttag: namn, område, enhet…',
+    change: 'Ändra',
+    no_match: 'Inga träffar',
+    pick_more: '{n} till: skriv för att begränsa',
+    no_area: 'Inget område',
+    same_area: '{area} · samma område som enheten',
     pc_line: 'otillgänglig {delay} min · av {off} s',
     pc_count: 'omstarter: {n}/{max}',
     pc_gave_up: 'Uppgiven',
@@ -646,8 +714,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Добавяне',
     adding: 'Добавяне…',
     added: 'Рестартът чрез контакт е добавен',
-    pick_device: 'Изберете устройство…',
-    pick_switch: 'Изберете контакт…',
+    pick_device: 'Търсене на устройство: име, зона, интеграция…',
+    pick_switch: 'Търсене на контакт: име, зона, устройство…',
+    change: 'Промяна',
+    no_match: 'Няма резултати',
+    pick_more: 'още {n}: пишете, за да стесните',
+    no_area: 'Без зона',
+    same_area: '{area} · същата зона като устройството',
     pc_line: 'недостъпно {delay} мин · изключен {off} с',
     pc_count: 'рестарти: {n}/{max}',
     pc_gave_up: 'Отказано',
@@ -693,8 +766,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Добавить',
     adding: 'Добавление…',
     added: 'Перезапуск через розетку добавлен',
-    pick_device: 'Выберите устройство…',
-    pick_switch: 'Выберите розетку…',
+    pick_device: 'Поиск устройства: имя, пространство, интеграция…',
+    pick_switch: 'Поиск розетки: имя, пространство, устройство…',
+    change: 'Изменить',
+    no_match: 'Ничего не найдено',
+    pick_more: 'ещё {n}: уточните поиск',
+    no_area: 'Без пространства',
+    same_area: '{area} · то же пространство, что и устройство',
     pc_line: 'недоступно {delay} мин · выключена {off} с',
     pc_count: 'перезапуски: {n}/{max}',
     pc_gave_up: 'Отказ',
@@ -740,8 +818,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Додати',
     adding: 'Додавання…',
     added: 'Перезапуск через розетку додано',
-    pick_device: 'Виберіть пристрій…',
-    pick_switch: 'Виберіть розетку…',
+    pick_device: 'Пошук пристрою: назва, простір, інтеграція…',
+    pick_switch: 'Пошук розетки: назва, простір, пристрій…',
+    change: 'Змінити',
+    no_match: 'Нічого не знайдено',
+    pick_more: 'ще {n}: уточніть пошук',
+    no_area: 'Без простору',
+    same_area: '{area} · той самий простір, що й пристрій',
     pc_line: 'недоступний {delay} хв · вимкнена {off} с',
     pc_count: 'перезапуски: {n}/{max}',
     pc_gave_up: 'Відмова',
@@ -787,8 +870,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Hozzáadás',
     adding: 'Hozzáadás…',
     added: 'Konnektoros újraindítás hozzáadva',
-    pick_device: 'Válasszon eszközt…',
-    pick_switch: 'Válasszon konnektort…',
+    pick_device: 'Eszköz keresése: név, terület, integráció…',
+    pick_switch: 'Konnektor keresése: név, terület, eszköz…',
+    change: 'Módosítás',
+    no_match: 'Nincs találat',
+    pick_more: 'még {n}: gépeljen a szűkítéshez',
+    no_area: 'Nincs terület',
+    same_area: '{area} · ugyanaz a terület, mint az eszközé',
     pc_line: 'elérhetetlen {delay} perc · kikapcsolva {off} mp',
     pc_count: 'újraindítások: {n}/{max}',
     pc_gave_up: 'Feladva',
@@ -834,8 +922,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Pridať',
     adding: 'Pridáva sa…',
     added: 'Reštart cez zásuvku pridaný',
-    pick_device: 'Vyberte zariadenie…',
-    pick_switch: 'Vyberte zásuvku…',
+    pick_device: 'Hľadať zariadenie: názov, oblasť, integrácia…',
+    pick_switch: 'Hľadať zásuvku: názov, oblasť, zariadenie…',
+    change: 'Zmeniť',
+    no_match: 'Žiadne výsledky',
+    pick_more: 'ďalších {n}: píšte na zúženie',
+    no_area: 'Bez oblasti',
+    same_area: '{area} · rovnaká oblasť ako zariadenie',
     pc_line: 'nedostupné {delay} min · vypnutá {off} s',
     pc_count: 'reštarty: {n}/{max}',
     pc_gave_up: 'Vzdané',
@@ -881,8 +974,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Přidat',
     adding: 'Přidávání…',
     added: 'Restart přes zásuvku přidán',
-    pick_device: 'Vyberte zařízení…',
-    pick_switch: 'Vyberte zásuvku…',
+    pick_device: 'Hledat zařízení: název, oblast, integrace…',
+    pick_switch: 'Hledat zásuvku: název, oblast, zařízení…',
+    change: 'Změnit',
+    no_match: 'Žádné výsledky',
+    pick_more: 'dalších {n}: pište pro zúžení',
+    no_area: 'Bez oblasti',
+    same_area: '{area} · stejná oblast jako zařízení',
     pc_line: 'nedostupné {delay} min · vypnutá {off} s',
     pc_count: 'restarty: {n}/{max}',
     pc_gave_up: 'Vzdáno',
@@ -928,8 +1026,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Dodaj',
     adding: 'Dodajanje…',
     added: 'Ponovni zagon prek vtičnice dodan',
-    pick_device: 'Izberite napravo…',
-    pick_switch: 'Izberite vtičnico…',
+    pick_device: 'Iskanje naprave: ime, območje, integracija…',
+    pick_switch: 'Iskanje vtičnice: ime, območje, naprava…',
+    change: 'Spremeni',
+    no_match: 'Ni zadetkov',
+    pick_more: 'še {n}: tipkajte za zožitev',
+    no_area: 'Brez območja',
+    same_area: '{area} · isto območje kot naprava',
     pc_line: 'nedosegljiva {delay} min · izklopljena {off} s',
     pc_count: 'ponovni zagoni: {n}/{max}',
     pc_gave_up: 'Opuščeno',
@@ -975,8 +1078,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Pievienot',
     adding: 'Pievieno…',
     added: 'Restartēšana ar kontaktligzdu pievienota',
-    pick_device: 'Izvēlieties ierīci…',
-    pick_switch: 'Izvēlieties kontaktligzdu…',
+    pick_device: 'Meklēt ierīci: nosaukums, zona, integrācija…',
+    pick_switch: 'Meklēt kontaktligzdu: nosaukums, zona, ierīce…',
+    change: 'Mainīt',
+    no_match: 'Nav rezultātu',
+    pick_more: 'vēl {n}: rakstiet, lai sašaurinātu',
+    no_area: 'Bez zonas',
+    same_area: '{area} · tā pati zona kā ierīcei',
     pc_line: 'nepieejama {delay} min · izslēgta {off} s',
     pc_count: 'restartēšanas: {n}/{max}',
     pc_gave_up: 'Atmests',
@@ -1022,8 +1130,13 @@ var IntegrationWatchdogPanelI18n = {
     add: 'Προσθήκη',
     adding: 'Προσθήκη…',
     added: 'Η επανεκκίνηση μέσω πρίζας προστέθηκε',
-    pick_device: 'Επιλέξτε συσκευή…',
-    pick_switch: 'Επιλέξτε πρίζα…',
+    pick_device: 'Αναζήτηση συσκευής: όνομα, περιοχή, ενσωμάτωση…',
+    pick_switch: 'Αναζήτηση πρίζας: όνομα, περιοχή, συσκευή…',
+    change: 'Αλλαγή',
+    no_match: 'Κανένα αποτέλεσμα',
+    pick_more: 'ακόμη {n}: πληκτρολογήστε για περιορισμό',
+    no_area: 'Χωρίς περιοχή',
+    same_area: '{area} · ίδια περιοχή με τη συσκευή',
     pc_line: 'μη διαθέσιμη {delay} λεπ. · κλειστή {off} δ',
     pc_count: 'επανεκκινήσεις: {n}/{max}',
     pc_gave_up: 'Εγκαταλείφθηκε',
@@ -1070,6 +1183,39 @@ function iwPanelEsc(value) {
 }
 
 // Tone of the config entry state, for its pill
+// Lower case without accents, so "salon" finds "Salón" and "é" finds "e"
+function iwPanelFold(text) {
+  return String(text ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+// The options matching every word of the search (name, area, detail or id)
+function iwPanelMatch(options, query) {
+  var words = iwPanelFold(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return options;
+  return options.filter((o) => {
+    var text = iwPanelFold([o.label, o.area, o.detail, o.value].join(' '));
+    return words.every((w) => text.includes(w));
+  });
+}
+
+// Options grouped by area (areas in alphabetical order, those without one last); `first` (an area) leads.
+// Within a group, outlets come before the other switches.
+function iwPanelGroups(options, first) {
+  var groups = new Map();
+  for (const o of options) {
+    var area = o.area || '';
+    if (!groups.has(area)) groups.set(area, []);
+    groups.get(area).push(o);
+  }
+  var rank = (area) => (area === first && first ? 0 : area ? 1 : 2);
+  return [...groups.entries()]
+    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+    .map(([area, items]) => [area, items.sort((x, y) => Number(!!y.outlet) - Number(!!x.outlet))]);
+}
+
 function iwPanelTone(state) {
   if (state === 'loaded') return 'good';
   if (state === 'setup_retry' || state === 'not_loaded') return 'warn';
@@ -1157,6 +1303,22 @@ class IntegrationWatchdogPanel extends HTMLElement {
     .act:hover:not([disabled]) { background:color-mix(in srgb, var(--primary-color) 22%, transparent); }
     .act.quiet { color:var(--primary-text-color); background:var(--secondary-background-color, rgba(127,127,127,.12)); }
     .act[disabled] { opacity:.5; cursor:default; }
+    /* Device and plug pickers: side by side when there is room, a search over a short scrolling list grouped by area */
+    .pair { grid-column:1 / -1; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px 14px; }
+    .pick .box > ha-icon { --mdc-icon-size:18px; color:var(--secondary-text-color); padding-left:10px; flex:none; }
+    .pick .box.picked { min-height:52px; gap:10px; padding-right:2px; }
+    .pick .who { display:flex; flex-direction:column; min-width:0; flex:1; }
+    .pick .who .n { font-size:14px; font-weight:400; }
+    .pick-list { max-height:min(280px, 40vh); overflow-y:auto; overscroll-behavior:contain; border-radius:8px;
+                 border:1px solid var(--divider-color, rgba(127,127,127,.3)); }
+    .pick-group { position:sticky; top:0; z-index:1; font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.04em;
+                  color:var(--secondary-text-color); padding:6px 10px 4px; background:var(--card-background-color, var(--primary-background-color)); }
+    .pick-option { display:flex; align-items:center; gap:10px; padding:6px 10px; cursor:pointer; --mdc-icon-size:18px; }
+    .pick-option > ha-icon { color:var(--secondary-text-color); flex:none; }
+    .pick-option:hover { background:var(--secondary-background-color, rgba(127,127,127,.08)); }
+    .pick-option.active { background:color-mix(in srgb, var(--primary-color) 14%, transparent); }
+    .pick-option .n { font-size:14px; }
+    .pick-empty, .pick-more { font-size:12px; color:var(--secondary-text-color); padding:10px; }
     .icon-btn { border:0; background:none; cursor:pointer; color:var(--secondary-text-color); padding:8px; border-radius:50%; display:flex; --mdc-icon-size:20px; }
     .icon-btn:hover:not([disabled]) { background:var(--secondary-background-color); color:var(--error-color, #db4437); }
     .icon-btn[disabled] { opacity:.5; cursor:default; }
@@ -1172,6 +1334,8 @@ class IntegrationWatchdogPanel extends HTMLElement {
     // Fields the user edited: the rest of the form always shows the stored values
     this._drafts = {};
     this._cycle = {};
+    // The device and plug pickers: what is typed in the search and the option highlighted (keyboard)
+    this._pick = { device_id: { q: '', active: 0 }, switch: { q: '', active: 0 } };
     this._status = {};
     this._busy = null;
     this._tab = 'status';
@@ -1586,15 +1750,84 @@ class IntegrationWatchdogPanel extends HTMLElement {
     return !!f.device_id && !!f.switch && this._ok('delay', f.delay) && this._ok('off_time', f.off_time);
   }
 
+  // The options of a picker: the devices not power-cycled yet, or the plugs (not the chosen device's own: they would go
+  // unavailable with it)
+  _pickOptions(key) {
+    var f = this._cycleForm();
+    if (key === 'device_id') {
+      var taken = new Set((this._settings.power_cycles || []).map((c) => c.device_id));
+      return (this._settings.device_options || []).filter((o) => !taken.has(o.value));
+    }
+    return (this._settings.switch_options || []).filter((o) => !f.device_id || o.device_id !== f.device_id);
+  }
+
+  // The area to list first: for the plugs, the chosen device's (a plug is usually next to what it powers)
+  _pickFirstArea(key) {
+    if (key !== 'switch') return '';
+    var device = (this._settings.device_options || []).find((o) => o.value === this._cycleForm().device_id);
+    return device?.area || '';
+  }
+
+  // The matching options, grouped by area, as listbox rows; at most IW_PANEL_PICK_MAX (the search narrows them down)
+  _pickListHtml(key) {
+    var esc = iwPanelEsc;
+    var pick = this._pick[key];
+    var matches = iwPanelMatch(this._pickOptions(key), pick.q);
+    if (!matches.length) return { html: `<div class="pick-empty">${esc(this._t('no_match'))}</div>`, count: 0 };
+    var first = this._pickFirstArea(key);
+    var shown = 0;
+    var rows = [];
+    for (const [area, items] of iwPanelGroups(matches, first)) {
+      if (shown >= IW_PANEL_PICK_MAX) break;
+      var title = area && area === first ? this._t('same_area', { area }) : area || this._t('no_area');
+      rows.push(`<div class="pick-group" role="presentation">${esc(title)}</div>`);
+      for (const o of items) {
+        if (shown >= IW_PANEL_PICK_MAX) break;
+        var index = shown++;
+        var icon = key === 'device_id' ? 'mdi:devices' : o.outlet ? 'mdi:power-socket-eu' : 'mdi:toggle-switch-outline';
+        var active = index === pick.active && (pick.q || pick.nav);
+        rows.push(`<div class="pick-option${active ? ' active' : ''}" role="option" id="pick-${key}-${index}" data-pick-value="${esc(o.value)}" data-index="${index}" aria-selected="${!!active}" title="${esc(o.value)}">
+            <ha-icon icon="${icon}"></ha-icon>
+            <span class="who"><span class="n">${esc(o.label)}</span>${o.detail ? `<span class="s">${esc(o.detail)}</span>` : ''}</span>
+          </div>`);
+      }
+    }
+    if (matches.length > shown) rows.push(`<div class="pick-more">${esc(this._t('pick_more', { n: matches.length - shown }))}</div>`);
+    return { html: rows.join(''), count: shown };
+  }
+
+  // A device or plug field: the choice with a Change button, else a search over a short scrolling list grouped by area
+  _pickHtml(key, label, hint, placeholder) {
+    var esc = iwPanelEsc;
+    var chosen = this._cycleForm()[key];
+    var option = chosen && (key === 'device_id' ? this._settings.device_options : this._settings.switch_options)?.find((o) => o.value === chosen);
+    var field;
+    if (chosen) {
+      var icon = key === 'device_id' ? 'mdi:devices' : option?.outlet ? 'mdi:power-socket-eu' : 'mdi:toggle-switch-outline';
+      var sub = [option?.area, option?.detail].filter(Boolean).join(' · ');
+      field = `<div class="box picked">
+          <ha-icon icon="${icon}"></ha-icon>
+          <span class="who"><span class="n">${esc(option?.label || chosen)}</span>${sub ? `<span class="s">${esc(sub)}</span>` : ''}</span>
+          <button class="icon-btn" data-pick-clear="${key}" title="${esc(this._t('change'))}" aria-label="${esc(`${this._t('change')} — ${label}`)}"><ha-icon icon="mdi:close"></ha-icon></button>
+        </div>`;
+    } else {
+      var list = this._pickListHtml(key);
+      var pick = this._pick[key];
+      var active = list.count && (pick.q || pick.nav) ? ` aria-activedescendant="pick-${key}-${this._pick[key].active}"` : '';
+      field = `<div class="box search"><ha-icon icon="mdi:magnify"></ha-icon><input type="search" data-pick="${key}" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="pick-list-${key}" aria-labelledby="pick-label-${key}"${active} placeholder="${esc(placeholder)}" value="${esc(this._pick[key].q)}" autocomplete="off" spellcheck="false"></div>
+        <div class="pick-list" role="listbox" id="pick-list-${key}" data-pick-list="${key}" aria-labelledby="pick-label-${key}">${list.html}</div>`;
+    }
+    return `
+      <div class="ctl pick">
+        <span id="pick-label-${key}">${esc(label)}</span>
+        ${field}
+        <small>${esc(hint)}</small>
+      </div>`;
+  }
+
   _addHtml() {
     var esc = iwPanelEsc;
     var f = this._cycleForm();
-    var taken = new Set((this._settings.power_cycles || []).map((c) => c.device_id));
-    var devices = (this._settings.device_options || []).filter((o) => !taken.has(o.value));
-    // A plug of the device itself would go unavailable with it: not offered
-    var switches = (this._settings.switch_options || []).filter((o) => !f.device_id || o.device_id !== f.device_id);
-    var opt = (o, chosen) =>
-      `<option value="${esc(o.value)}"${o.value === chosen ? ' selected' : ''}>${esc(o.label)}${o.detail ? ` — ${esc(o.detail)}` : ''}</option>`;
     var status = this._status.cycle;
     var device = this._s('step.add_power_cycle.data.device_id', 'device_id');
     var plug = this._s('step.add_power_cycle.data.switch', 'switch');
@@ -1606,16 +1839,10 @@ class IntegrationWatchdogPanel extends HTMLElement {
         </div>
         <p class="intro">${esc(this._s('step.add_power_cycle.description'))}</p>
         <div class="grid">
-          <label class="ctl">
-            <span>${esc(device)}</span>
-            <div class="box"><select data-cycle="device_id" aria-label="${esc(device)}"><option value="">${esc(this._t('pick_device'))}</option>${devices.map((o) => opt(o, f.device_id)).join('')}</select></div>
-            <small>${esc(this._s('step.add_power_cycle.data_description.device_id'))}</small>
-          </label>
-          <label class="ctl">
-            <span>${esc(plug)}</span>
-            <div class="box"><select data-cycle="switch" aria-label="${esc(plug)}"><option value="">${esc(this._t('pick_switch'))}</option>${switches.map((o) => opt(o, f.switch)).join('')}</select></div>
-            <small>${esc(this._s('step.add_power_cycle.data_description.switch'))}</small>
-          </label>
+          <div class="pair">
+            ${this._pickHtml('device_id', device, this._s('step.add_power_cycle.data_description.device_id'), this._t('pick_device'))}
+            ${this._pickHtml('switch', plug, this._s('step.add_power_cycle.data_description.switch'), this._t('pick_switch'))}
+          </div>
           ${this._number('delay', f.delay, 'u_min', 'cycle')}
           ${this._number('off_time', f.off_time, 'u_s', 'cycle')}
         </div>
@@ -1624,6 +1851,77 @@ class IntegrationWatchdogPanel extends HTMLElement {
           <button class="act" data-do="add"${!this._busy && this._cycleValid() ? '' : ' disabled'}><ha-icon icon="mdi:plus"></ha-icon>${esc(this._t(this._busy === 'add' ? 'adding' : 'add'))}</button>
         </div>
       </ha-card>`;
+  }
+
+  // Chooses an option of a picker; the plug of the device itself is dropped (no longer offered). The focus moves on to
+  // the next empty picker, else to the delay.
+  _choose(key, value) {
+    this._cycle[key] = value;
+    this._pick[key] = { q: '', active: 0 };
+    if (key === 'device_id') {
+      var own = (this._settings.switch_options || []).find((o) => o.value === this._cycle.switch);
+      if (own && own.device_id === value) this._cycle.switch = '';
+    }
+    delete this._status.cycle;
+    this._renderTabs();
+    var root = this.shadowRoot;
+    var next = !value ? root.querySelector(`[data-pick="${key}"]`) : root.querySelector('[data-pick="switch"]') || root.querySelector('input[data-cycle="delay"]');
+    next?.focus({ preventScroll: true });
+  }
+
+  // The search changed or the highlight moved: only the list is redrawn, so typing keeps the focus and the caret
+  _refreshPick(box, key, scroll) {
+    var list = box.querySelector(`[data-pick-list="${key}"]`);
+    var input = box.querySelector(`[data-pick="${key}"]`);
+    if (!list || !input) return;
+    var { html, count } = this._pickListHtml(key);
+    list.innerHTML = html;
+    var pick = this._pick[key];
+    if (count && (pick.q || pick.nav)) input.setAttribute('aria-activedescendant', `pick-${key}-${this._pick[key].active}`);
+    else input.removeAttribute('aria-activedescendant');
+    if (scroll) list.querySelector('.pick-option.active')?.scrollIntoView?.({ block: 'nearest' });
+  }
+
+  _bindPick(box) {
+    box.querySelectorAll('input[data-pick]').forEach((input) => {
+      var key = input.dataset.pick;
+      input.addEventListener('input', () => {
+        this._pick[key] = { q: input.value, active: 0 };
+        this._refreshPick(box, key);
+        box.querySelector(`[data-pick-list="${key}"]`)?.scrollTo?.(0, 0);
+      });
+      input.addEventListener('keydown', (ev) => {
+        var count = box.querySelectorAll(`[data-pick-list="${key}"] .pick-option`).length;
+        var pick = this._pick[key];
+        if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && count) {
+          ev.preventDefault();
+          // The first arrow press highlights the first option; then it moves
+          if (pick.q || pick.nav) pick.active = (pick.active + (ev.key === 'ArrowDown' ? 1 : count - 1)) % count;
+          pick.nav = true;
+          this._refreshPick(box, key, true);
+        } else if (ev.key === 'Enter' && count && (pick.q || pick.nav)) {
+          ev.preventDefault();
+          var option = box.querySelector(`#pick-${key}-${Math.min(pick.active, count - 1)}`);
+          if (option) this._choose(key, option.dataset.pickValue);
+        } else if (ev.key === 'Escape' && pick.q) {
+          ev.preventDefault();
+          input.value = '';
+          this._pick[key] = { q: '', active: 0 };
+          this._refreshPick(box, key);
+        }
+      });
+    });
+    box.querySelectorAll('[data-pick-list]').forEach((list) => {
+      // mousedown: chosen before the search loses the focus
+      list.addEventListener('mousedown', (ev) => ev.preventDefault());
+      list.addEventListener('click', (ev) => {
+        var option = ev.target.closest?.('[data-pick-value]');
+        if (option) this._choose(list.dataset.pickList, option.dataset.pickValue);
+      });
+    });
+    box.querySelectorAll('[data-pick-clear]').forEach((button) => {
+      button.addEventListener('click', () => this._choose(button.dataset.pickClear, ''));
+    });
   }
 
   _cyclesHtml() {
@@ -1680,7 +1978,7 @@ class IntegrationWatchdogPanel extends HTMLElement {
       var pending = this._pendingFocus;
       return pending && !el ? pending : null;
     }
-    var attr = ['key', 'cycle', 'do', 'remove'].find((a) => el.dataset?.[a] != null);
+    var attr = ['key', 'cycle', 'pick', 'do', 'remove'].find((a) => el.dataset?.[a] != null);
     if (!attr) return null;
     var focus = { attr: `data-${attr}`, value: el.dataset[attr], range: null };
     try {
@@ -1745,18 +2043,7 @@ class IntegrationWatchdogPanel extends HTMLElement {
         if (ev.key === 'Enter' && !box.querySelector('[data-do="add"]').disabled) this._add();
       });
     });
-    box.querySelectorAll('select[data-cycle]').forEach((select) => {
-      select.addEventListener('change', () => {
-        this._cycle[select.dataset.cycle] = select.value;
-        // The plug chosen may be one of the new device's own: dropped from the list, so chosen again
-        if (select.dataset.cycle === 'device_id') {
-          var own = (this._settings.switch_options || []).find((o) => o.value === this._cycle.switch);
-          if (own && own.device_id === select.value) this._cycle.switch = '';
-        }
-        delete this._status.cycle;
-        this._renderTabs();
-      });
-    });
+    this._bindPick(box);
     box.querySelectorAll('select[data-key]').forEach((select) => {
       select.addEventListener('change', () => {
         var key = select.dataset.key;
