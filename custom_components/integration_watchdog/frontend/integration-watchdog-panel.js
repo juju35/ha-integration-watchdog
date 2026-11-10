@@ -11,7 +11,7 @@
  *
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.8.0';
+var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.8.1';
 
 var IntegrationWatchdogPanelI18n = {
   en: {
@@ -1301,19 +1301,32 @@ class IntegrationWatchdogPanel extends HTMLElement {
     return table[`component.integration_watchdog.options.${path}`] || fallback || '';
   }
 
-  async _start() {
+  // The settings and labels load at once, the card alongside: its bundle and language file take up to a few seconds,
+  // and the other tabs don't need it. The card goes into its slot whenever it's defined.
+  _start() {
     this._render();
-    var version = this._panel?.config?.version || INTEGRATION_WATCHDOG_PANEL_VERSION;
-    try {
-      if (!customElements.get('integration-watchdog-card')) await import(`/integration_watchdog/integration-watchdog-card.js?v=${version}`);
-    } catch (err) {
-      console.error('Integration Watchdog panel: could not load the card', err);
-    }
-    this._mountCard();
     this._subscribe();
     this._watchConnection(this.isConnected);
     this._load();
     this._loadStrings();
+    return this._loadCard();
+  }
+
+  async _loadCard() {
+    try {
+      if (!customElements.get('integration-watchdog-card')) await this._importCard();
+      // Defined only once its language file is in, after the import resolved
+      await customElements.whenDefined('integration-watchdog-card');
+    } catch (err) {
+      console.error('Integration Watchdog panel: could not load the card', err);
+      return;
+    }
+    this._mountCard();
+  }
+
+  _importCard() {
+    var version = this._panel?.config?.version || INTEGRATION_WATCHDOG_PANEL_VERSION;
+    return import(`/integration_watchdog/integration-watchdog-card.js?v=${version}`);
   }
 
   async _loadStrings() {
@@ -1397,7 +1410,7 @@ class IntegrationWatchdogPanel extends HTMLElement {
   }
 
   _mountCard() {
-    if (!customElements.get('integration-watchdog-card')) return;
+    if (this._card || !customElements.get('integration-watchdog-card')) return;
     this._card = document.createElement('integration-watchdog-card');
     // The whole history; no `language`: the card follows hass.language, so it switches language with the panel.
     this._card.setConfig({ history_count: 20 });
