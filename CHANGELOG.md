@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0 - 2026-11-10
+
+### Improvements
+- Panel, **Status** tab: drawn by the panel itself instead of embedding the card, so it shows at the first opening. A summary (unavailable and given-up integrations, last check with **Check now**, reloads since start, ignored integrations), the unavailable integrations (since when, reloads, **Try again** on one given up) and the last 50 reloads and power cycles, side by side on a wide screen and one under the other on a phone. Each line opens its integration.
+- Panel shown at once: the release keeps its languages in the panel file instead of a separate file to wait for.
+
 ## 1.9.1 - 2026-11-10
 
 ### Fixes

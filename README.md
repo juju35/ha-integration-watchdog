@@ -92,7 +92,7 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 
 **Integration Watchdog** in the sidebar, for administrators only, has three tabs under its toolbar (the tab is in the address, `/integration-watchdog/settings`):
 
-- **Status**: the bundled card with the last 20 reloads and power cycles, its **Check now** and **Try again** buttons
+- **Status**: drawn by the panel itself, at once — a summary (unavailable and given-up integrations, last check with **Check now**, reloads since start, ignored integrations), the unavailable integrations (since when, reloads, **Try again** on one given up) and the last 50 reloads and power cycles side by side on a wide screen, one under the other on a phone; each line opens its integration
 - **Power cycles**: each device with its plug and delays, whether it is available, unavailable or given up, a warning when its plug is off or unavailable, a link to the device and **Remove**; below, the form to add one (the devices already cycled and the plugs of the chosen device are not offered)
 - **Settings**: every option of **Configure** → **Settings**, saved at once
 
