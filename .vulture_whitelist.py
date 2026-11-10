@@ -23,3 +23,6 @@ _.native_value  # unused property (custom_components/integration_watchdog/sensor
 async_get_config_entry_diagnostics  # unused function (custom_components/integration_watchdog/diagnostics.py)
 async_remove_entry  # unused function (custom_components/integration_watchdog/__init__.py:90)
 async_create_fix_flow  # unused function (custom_components/integration_watchdog/repairs.py)
+_.async_step_settings  # options flow step, called by Home Assistant
+_.async_step_add_power_cycle  # options flow step, called by Home Assistant
+_.async_step_remove_power_cycle  # options flow step, called by Home Assistant

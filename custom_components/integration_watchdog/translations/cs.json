@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Možnosti Integration Watchdog",
+        "menu_options": {
+          "settings": "Nastavení",
+          "add_power_cycle": "Přidat restart přes zásuvku",
+          "remove_power_cycle": "Odebrat restarty přes zásuvku"
+        }
+      },
+      "settings": {
+        "title": "Nastavení",
         "data": {
           "scan_interval": "Interval kontroly",
           "grace_period": "Ochranná lhůta",
@@ -58,10 +66,38 @@
           "ignored_entries": "Jednotlivé položky integrace, které se nikdy znovu nenačtou; ostatní položky jejich integrace zůstávají sledované (např. jedna z několika kamer).",
           "pause_entity": "Dokud je tato entita zapnutá (input_boolean pro údržbu, plán na noc…), nic se nenačítá znovu; kontroly dál vypisují nedostupné integrace."
         }
+      },
+      "add_power_cycle": {
+        "title": "Restart zařízení přes jeho zásuvku",
+        "description": "Když všechny entity zařízení zůstávají nedostupné, chytrá zásuvka, která ho napájí, se vypne a poté znovu zapne. Stejné limity jako u opětovných načtení: načtení za sebou, zdvojnásobující se čekání, entita pozastavení, nic během ochranné lhůty po spuštění.",
+        "data": {
+          "device_id": "Zařízení",
+          "switch": "Chytrá zásuvka",
+          "delay": "Nedostupné po dobu",
+          "off_time": "Vypnutá na"
+        },
+        "data_description": {
+          "device_id": "Zařízení k restartu: všechny jeho povolené entity musí být nedostupné.",
+          "switch": "Spínač, který ho napájí. Vypne se, jen když je zapnutý: vypnutá nebo nedostupná zásuvka zůstane nedotčená.",
+          "delay": "Minuty, po které musí být všechny entity zařízení nedostupné, než se jeho zásuvka vypne. Čekání mezi dvěma restarty se pokaždé zdvojnásobí.",
+          "off_time": "Sekundy, po které zásuvka zůstane vypnutá, než se znovu zapne."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Odebrat restarty přes zásuvku",
+        "data": {
+          "power_cycles": "Restarty přes zásuvku"
+        },
+        "data_description": {
+          "power_cycles": "Restarty přes zásuvku k odebrání."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Každý řádek musí mít tvar doména: minuty, od 1 do 1440 (zha: 30)."
+      "invalid_overrides": "Každý řádek musí mít tvar doména: minuty, od 1 do 1440 (zha: 30).",
+      "device_already_cycled": "Toto zařízení už má restart přes zásuvku: nejprve ho odeberte.",
+      "switch_on_device": "Zásuvka nemůže být entitou samotného zařízení: byla by nedostupná spolu s ním.",
+      "device_without_entities": "Toto zařízení nemá kromě zásuvky žádnou entitu ke sledování."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Opětovné načtení integrace selhalo",
     "reload_failed": "{title} ({domain}) se nepodařilo znovu načíst: všechny její entity byly nedostupné od {since}. Opětovné načtení {attempt}/{max}, viz protokoly.",
     "gave_up_title": "Integrace je stále nedostupná",
-    "gave_up": "{title} ({domain}) je stále nedostupná. Počet opětovných načtení: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná."
+    "gave_up": "{title} ({domain}) je stále nedostupná. Počet opětovných načtení: {attempt}. Znovu se nenačte, dokud nebude některá z jejích entit dostupná.",
+    "power_cycled_title": "Zařízení restartováno",
+    "power_cycled": "{title} bylo restartováno přes {switch}: všechny jeho entity byly nedostupné od {since}. Restart {attempt}/{max}.",
+    "power_cycle_failed_title": "Restart zařízení selhal",
+    "power_cycle_failed": "{title} se nepodařilo restartovat přes {switch}: všechny jeho entity byly nedostupné od {since}. Restart {attempt}/{max}, viz protokoly.",
+    "power_cycle_gave_up_title": "Zařízení je stále nedostupné",
+    "power_cycle_gave_up": "{title} je stále nedostupné po restartech: {attempt}. {switch} se už nevypne, dokud nebude dostupná některá z jeho entit."
   },
   "exceptions": {
     "not_loaded": {

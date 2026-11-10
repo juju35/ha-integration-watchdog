@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Options d'Integration Watchdog",
+        "menu_options": {
+          "settings": "Réglages",
+          "add_power_cycle": "Ajouter un redémarrage par prise",
+          "remove_power_cycle": "Retirer des redémarrages par prise"
+        }
+      },
+      "settings": {
+        "title": "Réglages",
         "data": {
           "scan_interval": "Intervalle de vérification",
           "grace_period": "Délai de grâce",
@@ -58,10 +66,38 @@
           "ignored_entries": "Entrées d'intégration jamais rechargées, les autres entrées de leur intégration restant surveillées (une caméra parmi plusieurs, par exemple).",
           "pause_entity": "Tant que cette entité est allumée (un input_boolean de maintenance, un planning pour la nuit…), rien n'est rechargé ; les vérifications listent toujours les intégrations indisponibles."
         }
+      },
+      "add_power_cycle": {
+        "title": "Redémarrer un appareil par sa prise",
+        "description": "Quand toutes les entités d'un appareil restent indisponibles, la prise connectée qui l'alimente est éteinte puis rallumée. Mêmes limites que les rechargements : rechargements d'affilée, délai qui double, entité de pause, rien pendant le délai de grâce après un démarrage.",
+        "data": {
+          "device_id": "Appareil",
+          "switch": "Prise connectée",
+          "delay": "Indisponible depuis",
+          "off_time": "Éteinte pendant"
+        },
+        "data_description": {
+          "device_id": "L'appareil à redémarrer : toutes ses entités actives doivent être indisponibles.",
+          "switch": "Le switch qui l'alimente. Éteint seulement s'il est allumé : une prise éteinte ou indisponible n'est pas touchée.",
+          "delay": "Minutes pendant lesquelles toutes les entités de l'appareil doivent être indisponibles avant d'éteindre sa prise. Le délai entre deux redémarrages double à chaque fois.",
+          "off_time": "Secondes pendant lesquelles la prise reste éteinte avant d'être rallumée."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Retirer des redémarrages par prise",
+        "data": {
+          "power_cycles": "Redémarrages par prise"
+        },
+        "data_description": {
+          "power_cycles": "Les redémarrages par prise à retirer."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Chaque ligne doit être domaine: minutes, de 1 à 1440 (zha: 30)."
+      "invalid_overrides": "Chaque ligne doit être domaine: minutes, de 1 à 1440 (zha: 30).",
+      "device_already_cycled": "Cet appareil a déjà un redémarrage par prise : retirez-le d'abord.",
+      "switch_on_device": "La prise ne peut pas être une entité de l'appareil lui-même : elle serait indisponible avec lui.",
+      "device_without_entities": "Cet appareil n'a aucune entité à surveiller en dehors de la prise."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Échec du rechargement d'une intégration",
     "reload_failed": "{title} ({domain}) n'a pas pu être rechargée : toutes ses entités étaient indisponibles depuis {since}. Rechargement {attempt}/{max}, voir les journaux.",
     "gave_up_title": "Intégration toujours indisponible",
-    "gave_up": "{title} ({domain}) est toujours indisponible après {attempt} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible."
+    "gave_up": "{title} ({domain}) est toujours indisponible après {attempt} rechargements. Elle ne sera plus rechargée tant qu'aucune de ses entités ne sera disponible.",
+    "power_cycled_title": "Appareil redémarré",
+    "power_cycled": "{title} a été redémarré avec {switch} : toutes ses entités étaient indisponibles depuis {since}. Redémarrage {attempt}/{max}.",
+    "power_cycle_failed_title": "Échec du redémarrage de l'appareil",
+    "power_cycle_failed": "{title} n'a pas pu être redémarré avec {switch} : toutes ses entités étaient indisponibles depuis {since}. Redémarrage {attempt}/{max}, voir les journaux.",
+    "power_cycle_gave_up_title": "Appareil toujours indisponible",
+    "power_cycle_gave_up": "{title} est toujours indisponible après {attempt} redémarrages. {switch} ne sera plus éteinte tant qu'aucune de ses entités n'est disponible."
   },
   "exceptions": {
     "not_loaded": {

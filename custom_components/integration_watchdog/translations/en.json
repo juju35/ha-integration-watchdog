@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Integration Watchdog options",
+        "menu_options": {
+          "settings": "Settings",
+          "add_power_cycle": "Add a power cycle",
+          "remove_power_cycle": "Remove power cycles"
+        }
+      },
+      "settings": {
+        "title": "Settings",
         "data": {
           "scan_interval": "Check interval",
           "grace_period": "Grace period",
@@ -58,10 +66,38 @@
           "ignored_entries": "Single integration entries never reloaded, the other entries of their integration still watched (one camera of several, say).",
           "pause_entity": "While this entity is on (an input_boolean for maintenance, a schedule for the night…), nothing is reloaded; the checks still list the unavailable integrations."
         }
+      },
+      "add_power_cycle": {
+        "title": "Power cycle a device",
+        "description": "When all the entities of a device stay unavailable, the smart plug that powers it is switched off, then on again. Same limits as the reloads: reloads in a row, doubling delay, pause entity, nothing during the grace period after a start.",
+        "data": {
+          "device_id": "Device",
+          "switch": "Smart plug",
+          "delay": "Unavailable for",
+          "off_time": "Off for"
+        },
+        "data_description": {
+          "device_id": "The device to restart: all its enabled entities must be unavailable.",
+          "switch": "The switch that powers it. Only switched off when it is on: a plug that is off or unavailable is left alone.",
+          "delay": "Minutes all the device's entities must have been unavailable before its plug is switched off. The delay between two power cycles doubles each time.",
+          "off_time": "Seconds the plug stays off before being switched on again."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Remove power cycles",
+        "data": {
+          "power_cycles": "Power cycles"
+        },
+        "data_description": {
+          "power_cycles": "The power cycles to remove."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Each line must be domain: minutes, from 1 to 1440 (zha: 30)."
+      "invalid_overrides": "Each line must be domain: minutes, from 1 to 1440 (zha: 30).",
+      "device_already_cycled": "This device already has a power cycle: remove it first.",
+      "switch_on_device": "The plug can't be an entity of the device itself: it would be unavailable with it.",
+      "device_without_entities": "This device has no entity to watch besides the plug."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Integration reload failed",
     "reload_failed": "{title} ({domain}) could not be reloaded: all its entities were unavailable since {since}. Reload {attempt}/{max}, see the logs.",
     "gave_up_title": "Integration still unavailable",
-    "gave_up": "{title} ({domain}) is still unavailable after {attempt} reloads. It won't be reloaded again until one of its entities is available."
+    "gave_up": "{title} ({domain}) is still unavailable after {attempt} reloads. It won't be reloaded again until one of its entities is available.",
+    "power_cycled_title": "Device power cycled",
+    "power_cycled": "{title} was restarted with {switch}: all its entities were unavailable since {since}. Power cycle {attempt}/{max}.",
+    "power_cycle_failed_title": "Device power cycle failed",
+    "power_cycle_failed": "{title} could not be restarted with {switch}: all its entities were unavailable since {since}. Power cycle {attempt}/{max}, see the logs.",
+    "power_cycle_gave_up_title": "Device still unavailable",
+    "power_cycle_gave_up": "{title} is still unavailable after {attempt} power cycles. {switch} won't be switched off again until one of its entities is available."
   },
   "exceptions": {
     "not_loaded": {

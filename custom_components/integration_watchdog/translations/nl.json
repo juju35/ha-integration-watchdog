@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Opties van Integration Watchdog",
+        "menu_options": {
+          "settings": "Instellingen",
+          "add_power_cycle": "Herstart via stekker toevoegen",
+          "remove_power_cycle": "Herstarts via stekker verwijderen"
+        }
+      },
+      "settings": {
+        "title": "Instellingen",
         "data": {
           "scan_interval": "Controle-interval",
           "grace_period": "Wachttijd",
@@ -58,10 +66,38 @@
           "ignored_entries": "Afzonderlijke integratie-items die nooit herladen worden; de andere items van hun integratie blijven bewaakt (bijvoorbeeld één camera van meerdere).",
           "pause_entity": "Zolang deze entiteit aan staat (een input_boolean voor onderhoud, een schema voor de nacht…), wordt niets herladen; de controles tonen nog steeds de onbeschikbare integraties."
         }
+      },
+      "add_power_cycle": {
+        "title": "Apparaat herstarten via zijn stekker",
+        "description": "Als alle entiteiten van een apparaat onbeschikbaar blijven, wordt de slimme stekker die het voedt uit- en weer ingeschakeld. Dezelfde grenzen als bij het herladen: herlaadpogingen op rij, verdubbelende wachttijd, pauze-entiteit, niets tijdens de respijtperiode na een start.",
+        "data": {
+          "device_id": "Apparaat",
+          "switch": "Slimme stekker",
+          "delay": "Onbeschikbaar gedurende",
+          "off_time": "Uit gedurende"
+        },
+        "data_description": {
+          "device_id": "Het te herstarten apparaat: al zijn ingeschakelde entiteiten moeten onbeschikbaar zijn.",
+          "switch": "De schakelaar die het voedt. Alleen uitgeschakeld als die aan staat: een stekker die uit of onbeschikbaar is, blijft onaangeroerd.",
+          "delay": "Minuten dat alle entiteiten van het apparaat onbeschikbaar moeten zijn voordat zijn stekker wordt uitgeschakeld. De wachttijd tussen twee herstarts verdubbelt telkens.",
+          "off_time": "Seconden dat de stekker uit blijft voordat hij weer wordt ingeschakeld."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Herstarts via stekker verwijderen",
+        "data": {
+          "power_cycles": "Herstarts via stekker"
+        },
+        "data_description": {
+          "power_cycles": "De te verwijderen herstarts via stekker."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Elke regel moet domein: minuten zijn, van 1 tot 1440 (zha: 30)."
+      "invalid_overrides": "Elke regel moet domein: minuten zijn, van 1 tot 1440 (zha: 30).",
+      "device_already_cycled": "Dit apparaat heeft al een herstart via stekker: verwijder die eerst.",
+      "switch_on_device": "De stekker kan geen entiteit van het apparaat zelf zijn: hij zou er samen mee onbeschikbaar zijn.",
+      "device_without_entities": "Dit apparaat heeft naast de stekker geen entiteit om te bewaken."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Herladen van integratie mislukt",
     "reload_failed": "{title} ({domain}) kon niet worden herladen: al zijn entiteiten waren niet beschikbaar sinds {since}. Herlaadpoging {attempt}/{max}, zie de logboeken.",
     "gave_up_title": "Integratie nog steeds niet beschikbaar",
-    "gave_up": "{title} ({domain}) is nog steeds niet beschikbaar na {attempt} herlaadpogingen. Deze wordt niet opnieuw herladen totdat een van zijn entiteiten beschikbaar is."
+    "gave_up": "{title} ({domain}) is nog steeds niet beschikbaar na {attempt} herlaadpogingen. Deze wordt niet opnieuw herladen totdat een van zijn entiteiten beschikbaar is.",
+    "power_cycled_title": "Apparaat herstart",
+    "power_cycled": "{title} is herstart met {switch}: al zijn entiteiten waren onbeschikbaar sinds {since}. Herstart {attempt}/{max}.",
+    "power_cycle_failed_title": "Herstarten van apparaat mislukt",
+    "power_cycle_failed": "{title} kon niet worden herstart met {switch}: al zijn entiteiten waren onbeschikbaar sinds {since}. Herstart {attempt}/{max}, zie de logboeken.",
+    "power_cycle_gave_up_title": "Apparaat nog steeds onbeschikbaar",
+    "power_cycle_gave_up": "{title} is na {attempt} herstarts nog steeds onbeschikbaar. {switch} wordt niet meer uitgeschakeld tot een van zijn entiteiten beschikbaar is."
   },
   "exceptions": {
     "not_loaded": {

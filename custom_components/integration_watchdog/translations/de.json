@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Optionen von Integration Watchdog",
+        "menu_options": {
+          "settings": "Einstellungen",
+          "add_power_cycle": "Neustart per Steckdose hinzufügen",
+          "remove_power_cycle": "Neustarts per Steckdose entfernen"
+        }
+      },
+      "settings": {
+        "title": "Einstellungen",
         "data": {
           "scan_interval": "Prüfintervall",
           "grace_period": "Karenzzeit",
@@ -58,10 +66,38 @@
           "ignored_entries": "Einzelne Integrationseinträge, die nie neu geladen werden; die anderen Einträge ihrer Integration bleiben überwacht (z. B. eine von mehreren Kameras).",
           "pause_entity": "Solange diese Entität an ist (ein input_boolean für Wartung, ein Zeitplan für die Nacht…), wird nichts neu geladen; die Prüfungen listen weiterhin die nicht verfügbaren Integrationen."
         }
+      },
+      "add_power_cycle": {
+        "title": "Gerät per Steckdose neu starten",
+        "description": "Wenn alle Entitäten eines Geräts nicht verfügbar bleiben, wird die smarte Steckdose, die es versorgt, aus- und wieder eingeschaltet. Gleiche Grenzen wie bei den Neuladungen: Neuladungen in Folge, sich verdoppelnde Wartezeit, Pausen-Entität, nichts während der Karenzzeit nach einem Start.",
+        "data": {
+          "device_id": "Gerät",
+          "switch": "Smarte Steckdose",
+          "delay": "Nicht verfügbar seit",
+          "off_time": "Aus für"
+        },
+        "data_description": {
+          "device_id": "Das neu zu startende Gerät: alle seine aktivierten Entitäten müssen nicht verfügbar sein.",
+          "switch": "Der Schalter, der es versorgt. Nur ausgeschaltet, wenn er an ist: eine ausgeschaltete oder nicht verfügbare Steckdose bleibt unberührt.",
+          "delay": "Minuten, die alle Entitäten des Geräts nicht verfügbar sein müssen, bevor seine Steckdose ausgeschaltet wird. Die Wartezeit zwischen zwei Neustarts verdoppelt sich jedes Mal.",
+          "off_time": "Sekunden, die die Steckdose aus bleibt, bevor sie wieder eingeschaltet wird."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Neustarts per Steckdose entfernen",
+        "data": {
+          "power_cycles": "Neustarts per Steckdose"
+        },
+        "data_description": {
+          "power_cycles": "Die zu entfernenden Neustarts per Steckdose."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Jede Zeile muss Domain: Minuten sein, von 1 bis 1440 (zha: 30)."
+      "invalid_overrides": "Jede Zeile muss Domain: Minuten sein, von 1 bis 1440 (zha: 30).",
+      "device_already_cycled": "Dieses Gerät hat bereits einen Neustart per Steckdose: zuerst entfernen.",
+      "switch_on_device": "Die Steckdose darf keine Entität des Geräts selbst sein: sie wäre mit ihm nicht verfügbar.",
+      "device_without_entities": "Dieses Gerät hat außer der Steckdose keine zu überwachende Entität."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Neuladen einer Integration fehlgeschlagen",
     "reload_failed": "{title} ({domain}) konnte nicht neu geladen werden: Alle ihre Entitäten waren seit {since} nicht verfügbar. Neuladen {attempt}/{max}, siehe Protokolle.",
     "gave_up_title": "Integration weiterhin nicht verfügbar",
-    "gave_up": "{title} ({domain}) ist nach {attempt} Neuladevorgängen weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist."
+    "gave_up": "{title} ({domain}) ist nach {attempt} Neuladevorgängen weiterhin nicht verfügbar. Sie wird erst wieder neu geladen, wenn eine ihrer Entitäten verfügbar ist.",
+    "power_cycled_title": "Gerät neu gestartet",
+    "power_cycled": "{title} wurde mit {switch} neu gestartet: alle seine Entitäten waren seit {since} nicht verfügbar. Neustart {attempt}/{max}.",
+    "power_cycle_failed_title": "Neustart des Geräts fehlgeschlagen",
+    "power_cycle_failed": "{title} konnte mit {switch} nicht neu gestartet werden: alle seine Entitäten waren seit {since} nicht verfügbar. Neustart {attempt}/{max}, siehe Protokolle.",
+    "power_cycle_gave_up_title": "Gerät weiterhin nicht verfügbar",
+    "power_cycle_gave_up": "{title} ist nach {attempt} Neustarts weiterhin nicht verfügbar. {switch} wird nicht mehr ausgeschaltet, bis eine seiner Entitäten verfügbar ist."
   },
   "exceptions": {
     "not_loaded": {

@@ -4,7 +4,7 @@
  * Served and added to the dashboard resources by the integration.
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_CARD_VERSION = '1.7.1';
+var INTEGRATION_WATCHDOG_CARD_VERSION = '1.8.0';
 
 const IW_I18N = {
   en: {
@@ -38,6 +38,10 @@ const IW_I18N = {
     reload_failed: 'Failed',
     gave_up_event: 'Given up',
     gave_up_after: 'after {n} reloads',
+    power_cycled: 'Power cycled',
+    power_cycle_failed: 'Power cycle failed',
+    cycle_attempt: 'power cycle {n}/{max}',
+    cycle_gave_up_after: 'after {n} power cycles',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -94,6 +98,10 @@ const IW_I18N = {
     reload_failed: 'Échec',
     gave_up_event: 'Abandon',
     gave_up_after: 'après {n} rechargements',
+    power_cycled: 'Redémarré par la prise',
+    power_cycle_failed: 'Échec du redémarrage',
+    cycle_attempt: 'redémarrage {n}/{max}',
+    cycle_gave_up_after: 'après {n} redémarrages',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} j',
@@ -150,6 +158,10 @@ const IW_I18N = {
     reload_failed: 'Fehlgeschlagen',
     gave_up_event: 'Aufgegeben',
     gave_up_after: 'nach {n} Neuladungen',
+    power_cycled: 'Per Steckdose neu gestartet',
+    power_cycle_failed: 'Neustart fehlgeschlagen',
+    cycle_attempt: 'Neustart {n}/{max}',
+    cycle_gave_up_after: 'nach {n} Neustarts',
     minutes: '{n} Min.',
     hours: '{n} Std.',
     days: '{n} Tg.',
@@ -206,6 +218,10 @@ const IW_I18N = {
     reload_failed: 'Fallida',
     gave_up_event: 'Abandono',
     gave_up_after: 'tras {n} recargas',
+    power_cycled: 'Reiniciado por enchufe',
+    power_cycle_failed: 'Reinicio fallido',
+    cycle_attempt: 'reinicio {n}/{max}',
+    cycle_gave_up_after: 'tras {n} reinicios',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -262,6 +278,10 @@ const IW_I18N = {
     reload_failed: 'Fallito',
     gave_up_event: 'Abbandono',
     gave_up_after: 'dopo {n} ricaricamenti',
+    power_cycled: 'Riavviato dalla presa',
+    power_cycle_failed: 'Riavvio non riuscito',
+    cycle_attempt: 'riavvio {n}/{max}',
+    cycle_gave_up_after: 'dopo {n} riavvii',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} g',
@@ -318,6 +338,10 @@ const IW_I18N = {
     reload_failed: 'Mislukt',
     gave_up_event: 'Opgegeven',
     gave_up_after: 'na {n} herlaadpogingen',
+    power_cycled: 'Herstart via stekker',
+    power_cycle_failed: 'Herstart mislukt',
+    cycle_attempt: 'herstart {n}/{max}',
+    cycle_gave_up_after: 'na {n} herstarts',
     minutes: '{n} min',
     hours: '{n} u',
     days: '{n} d',
@@ -374,6 +398,10 @@ const IW_I18N = {
     reload_failed: 'Falhou',
     gave_up_event: 'Abandono',
     gave_up_after: 'após {n} recarregamentos',
+    power_cycled: 'Reiniciado pela tomada',
+    power_cycle_failed: 'Falha no reinício',
+    cycle_attempt: 'reinício {n}/{max}',
+    cycle_gave_up_after: 'após {n} reinícios',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -432,6 +460,10 @@ const IW_I18N = {
     reload_failed: 'Błąd',
     gave_up_event: 'Porzucenie',
     gave_up_after: 'ponowne wczytania: {n}',
+    power_cycled: 'Zrestartowane przez gniazdko',
+    power_cycle_failed: 'Restart nieudany',
+    cycle_attempt: 'restart {n}/{max}',
+    cycle_gave_up_after: 'po {n} restartach',
     minutes: '{n} min',
     hours: '{n} godz.',
     days: '{n} dni',
@@ -490,6 +522,10 @@ const IW_I18N = {
     reload_failed: 'Неуспело',
     gave_up_event: 'Напуштена',
     gave_up_after: 'после {n} поновних учитавања',
+    power_cycled: 'Рестартован преко утичнице',
+    power_cycle_failed: 'Рестарт није успео',
+    cycle_attempt: 'рестарт {n}/{max}',
+    cycle_gave_up_after: 'после {n} рестарта',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -548,6 +584,10 @@ const IW_I18N = {
     reload_failed: 'Neuspelo',
     gave_up_event: 'Napuštena',
     gave_up_after: 'posle {n} ponovnih učitavanja',
+    power_cycled: 'Restartovan preko utičnice',
+    power_cycle_failed: 'Restart nije uspeo',
+    cycle_attempt: 'restart {n}/{max}',
+    cycle_gave_up_after: 'posle {n} restarta',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -604,6 +644,10 @@ const IW_I18N = {
     reload_failed: 'Eșuată',
     gave_up_event: 'Abandon',
     gave_up_after: 'reîncărcări: {n}',
+    power_cycled: 'Repornit prin priză',
+    power_cycle_failed: 'Repornire eșuată',
+    cycle_attempt: 'repornirea {n}/{max}',
+    cycle_gave_up_after: 'după {n} reporniri',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} z',
@@ -660,6 +704,10 @@ const IW_I18N = {
     reload_failed: 'Mislykkedes',
     gave_up_event: 'Opgivet',
     gave_up_after: 'efter {n} genindlæsninger',
+    power_cycled: 'Genstartet via stik',
+    power_cycle_failed: 'Genstart mislykkedes',
+    cycle_attempt: 'genstart {n}/{max}',
+    cycle_gave_up_after: 'efter {n} genstarter',
     minutes: '{n} min',
     hours: '{n} t',
     days: '{n} d',
@@ -716,6 +764,10 @@ const IW_I18N = {
     reload_failed: 'Misslyckades',
     gave_up_event: 'Övergiven',
     gave_up_after: 'efter {n} omladdningar',
+    power_cycled: 'Omstartad via uttag',
+    power_cycle_failed: 'Omstart misslyckades',
+    cycle_attempt: 'omstart {n}/{max}',
+    cycle_gave_up_after: 'efter {n} omstarter',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -772,6 +824,10 @@ const IW_I18N = {
     reload_failed: 'Неуспешно',
     gave_up_event: 'Изоставена',
     gave_up_after: 'презареждания: {n}',
+    power_cycled: 'Рестартирано чрез контакт',
+    power_cycle_failed: 'Неуспешен рестарт',
+    cycle_attempt: 'рестарт {n}/{max}',
+    cycle_gave_up_after: 'след {n} рестарта',
     minutes: '{n} мин',
     hours: '{n} ч',
     days: '{n} д',
@@ -828,6 +884,10 @@ const IW_I18N = {
     reload_failed: 'Ошибка',
     gave_up_event: 'Прекращено',
     gave_up_after: 'перезагрузок: {n}',
+    power_cycled: 'Перезапущено розеткой',
+    power_cycle_failed: 'Перезапуск не удался',
+    cycle_attempt: 'перезапуск {n}/{max}',
+    cycle_gave_up_after: 'после {n} перезапусков',
     minutes: '{n} мин',
     hours: '{n} ч',
     days: '{n} д',
@@ -884,6 +944,10 @@ const IW_I18N = {
     reload_failed: 'Помилка',
     gave_up_event: 'Припинено',
     gave_up_after: 'перезавантажень: {n}',
+    power_cycled: 'Перезапущено розеткою',
+    power_cycle_failed: 'Перезапуск не вдався',
+    cycle_attempt: 'перезапуск {n}/{max}',
+    cycle_gave_up_after: 'після {n} перезапусків',
     minutes: '{n} хв',
     hours: '{n} год',
     days: '{n} д',
@@ -940,6 +1004,10 @@ const IW_I18N = {
     reload_failed: 'Sikertelen',
     gave_up_event: 'Feladva',
     gave_up_after: '{n} újratöltés után',
+    power_cycled: 'Újraindítva konnektorral',
+    power_cycle_failed: 'Sikertelen újraindítás',
+    cycle_attempt: 'újraindítás {n}/{max}',
+    cycle_gave_up_after: '{n} újraindítás után',
     minutes: '{n} perc',
     hours: '{n} óra',
     days: '{n} nap',
@@ -996,6 +1064,10 @@ const IW_I18N = {
     reload_failed: 'Zlyhalo',
     gave_up_event: 'Vzdaná',
     gave_up_after: 'opätovné načítania: {n}',
+    power_cycled: 'Reštartované cez zásuvku',
+    power_cycle_failed: 'Reštart zlyhal',
+    cycle_attempt: 'reštart {n}/{max}',
+    cycle_gave_up_after: 'reštarty: {n}',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -1052,6 +1124,10 @@ const IW_I18N = {
     reload_failed: 'Selhalo',
     gave_up_event: 'Vzdaná',
     gave_up_after: 'opětovná načtení: {n}',
+    power_cycled: 'Restartováno přes zásuvku',
+    power_cycle_failed: 'Restart selhal',
+    cycle_attempt: 'restart {n}/{max}',
+    cycle_gave_up_after: 'restarty: {n}',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -1108,6 +1184,10 @@ const IW_I18N = {
     reload_failed: 'Neuspešno',
     gave_up_event: 'Opuščena',
     gave_up_after: 'ponovna nalaganja: {n}',
+    power_cycled: 'Ponovno zagnano prek vtičnice',
+    power_cycle_failed: 'Ponovni zagon ni uspel',
+    cycle_attempt: 'ponovni zagon {n}/{max}',
+    cycle_gave_up_after: 'ponovni zagoni: {n}',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d',
@@ -1164,6 +1244,10 @@ const IW_I18N = {
     reload_failed: 'Neizdevās',
     gave_up_event: 'Atmesta',
     gave_up_after: 'pārlādes: {n}',
+    power_cycled: 'Restartēta ar kontaktligzdu',
+    power_cycle_failed: 'Restartēšana neizdevās',
+    cycle_attempt: 'restartēšana {n}/{max}',
+    cycle_gave_up_after: 'restartēšanas: {n}',
     minutes: '{n} min',
     hours: '{n} h',
     days: '{n} d.',
@@ -1220,6 +1304,10 @@ const IW_I18N = {
     reload_failed: 'Απέτυχε',
     gave_up_event: 'Εγκατάλειψη',
     gave_up_after: 'μετά από {n} επαναφορτώσεις',
+    power_cycled: 'Επανεκκίνηση μέσω πρίζας',
+    power_cycle_failed: 'Η επανεκκίνηση απέτυχε',
+    cycle_attempt: 'επανεκκίνηση {n}/{max}',
+    cycle_gave_up_after: 'μετά από {n} επανεκκινήσεις',
     minutes: '{n} λεπ.',
     hours: '{n} ώρ.',
     days: '{n} ημ.',
@@ -1283,7 +1371,8 @@ const IW_MAX_HISTORY = 20;
 const iwLatestPerIntegration = (history) => {
   const seen = new Set();
   return history.filter((h) => {
-    const key = h?.entry_id || `${h?.domain}:${h?.title}`;
+    // A power cycle is per device, apart from the reloads of the device's integration.
+    const key = h?.device_id ? `device:${h.device_id}` : h?.entry_id || `${h?.domain}:${h?.title}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -1313,6 +1402,17 @@ function iwDevices(registry) {
 
 // The "Unavailable integrations" sensor among `candidates`: the one whose state carries the integration list.
 const iwPick = (hass, candidates) => candidates.find((id) => Array.isArray(hass?.states?.[id]?.attributes?.integrations));
+
+// History item kinds: reloads and power cycles (a device switched off and on with its plug), done, failed or given up.
+function iwHistoryKind(kind) {
+  if (kind === 'reloaded' || kind === 'power_cycled') return 'ok';
+  if (kind === 'reload_failed' || kind === 'power_cycle_failed') return 'warn';
+  return 'alert';
+}
+
+function iwHistoryLabel(kind) {
+  return kind === 'gave_up' || kind === 'power_cycle_gave_up' ? 'gave_up_event' : kind;
+}
 
 class IntegrationWatchdogCard extends HTMLElement {
   static getConfigElement() {
@@ -1649,16 +1749,17 @@ class IntegrationWatchdogCard extends HTMLElement {
   }
 
   _historyRow(h) {
-    const kind = h.kind === 'reloaded' ? 'ok' : h.kind === 'reload_failed' ? 'warn' : 'alert';
+    const kind = iwHistoryKind(h.kind);
     const icon = { ok: 'mdi:check-circle', warn: 'mdi:alert-circle', alert: 'mdi:cancel' }[kind];
-    const label = this._t(h.kind === 'gave_up' ? 'gave_up_event' : h.kind);
-    const detail =
-      h.kind === 'gave_up'
-        ? this._t('gave_up_after', { n: h.attempt })
-        : h.max_reloads
-          ? this._t('attempt', { n: h.attempt, max: h.max_reloads })
-          : '';
-    const sub = [h.domain, detail].filter(Boolean).join(' · ');
+    const label = this._t(iwHistoryLabel(h.kind));
+    // A power cycle: the plug used, instead of the integration's domain.
+    const cycle = h.kind.startsWith('power_cycle');
+    const detail = h.kind.endsWith('gave_up')
+      ? this._t(cycle ? 'cycle_gave_up_after' : 'gave_up_after', { n: h.attempt })
+      : h.max_reloads
+        ? this._t(cycle ? 'cycle_attempt' : 'attempt', { n: h.attempt, max: h.max_reloads })
+        : '';
+    const sub = [cycle ? h.switch_name || h.switch : h.domain, detail].filter(Boolean).join(' · ');
     return this._row(
       `row hist ${kind}`,
       h.domain,
@@ -1933,8 +2034,8 @@ class IntegrationWatchdogMiniCard extends IntegrationWatchdogCard {
     // Everything available: the last reload, failed reload or give-up, plain with its coloured icon.
     const last = !items.length && history[0];
     if (last) {
-      const kind = last.kind === 'reloaded' ? 'ok' : last.kind === 'reload_failed' ? 'warn' : 'alert';
-      const label = this._t(last.kind === 'gave_up' ? 'gave_up_event' : last.kind);
+      const kind = iwHistoryKind(last.kind);
+      const label = this._t(iwHistoryLabel(last.kind));
       chips.push(
         this._chip(
           kind,

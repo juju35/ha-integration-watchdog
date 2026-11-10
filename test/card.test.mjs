@@ -342,6 +342,30 @@ test('recent reloads: newest first, limited by history_count, with their outcome
   assert.match(html(render({}, makeHass({ history }))), /Hue/);
 });
 
+test('recent reloads: power cycles, with their plug, apart from the reloads of the same integration', () => {
+  const cycle = (kind, attempt, at) => ({
+    ...event(kind, 'Box', attempt, at),
+    device_id: 'dev1',
+    switch: 'switch.box_plug',
+    switch_name: 'Box plug',
+  });
+  const history = [
+    cycle('power_cycled', 1, minutesAgo(5)),
+    event('reloaded', 'Box', 1, minutesAgo(20)),
+    cycle('power_cycle_failed', 2, minutesAgo(40)),
+  ];
+  const out = html(render({}, makeHass({ history })));
+  assert.equal((out.match(/class="row hist/g) || []).length, 2);
+  assert.match(out, /Power cycled/);
+  assert.match(out, /Box plug · power cycle 1\/3/);
+  assert.doesNotMatch(out, /Power cycle failed/);
+  assert.match(out, /box · reload 1\/3/);
+  const gaveUp = html(render({}, makeHass({ history: [cycle('power_cycle_gave_up', 3, minutesAgo(5))] })));
+  assert.match(gaveUp, /Given up/);
+  assert.match(gaveUp, /after 3 power cycles/);
+  assert.match(gaveUp, /class="row hist alert/);
+});
+
 test('recent reloads: only the last attempt of each integration', () => {
   const history = [
     event('gave_up', 'Zigbee', 3, minutesAgo(10)),

@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Integration Watchdog beállítások",
+        "menu_options": {
+          "settings": "Beállítások",
+          "add_power_cycle": "Újraindítás hozzáadása konnektorral",
+          "remove_power_cycle": "Konnektoros újraindítások eltávolítása"
+        }
+      },
+      "settings": {
+        "title": "Beállítások",
         "data": {
           "scan_interval": "Ellenőrzési időköz",
           "grace_period": "Türelmi idő",
@@ -58,10 +66,38 @@
           "ignored_entries": "Soha újra nem töltött egyes integrációs bejegyzések; integrációjuk többi bejegyzése továbbra is figyelve marad (például több kamera közül egy).",
           "pause_entity": "Amíg ez az entitás be van kapcsolva (karbantartási input_boolean, éjszakai ütemezés…), semmi sem töltődik újra; az ellenőrzések továbbra is listázzák a nem elérhető integrációkat."
         }
+      },
+      "add_power_cycle": {
+        "title": "Eszköz újraindítása a konnektorával",
+        "description": "Ha egy eszköz összes entitása elérhetetlen marad, az azt tápláló okoskonnektor kikapcsol, majd újra bekapcsol. Ugyanazok a korlátok, mint az újratöltéseknél: egymás utáni újratöltések, duplázódó várakozás, szüneteltető entitás, semmi a türelmi idő alatt indítás után.",
+        "data": {
+          "device_id": "Eszköz",
+          "switch": "Okoskonnektor",
+          "delay": "Elérhetetlen ennyi ideje",
+          "off_time": "Kikapcsolva ennyi ideig"
+        },
+        "data_description": {
+          "device_id": "Az újraindítandó eszköz: minden engedélyezett entitásának elérhetetlennek kell lennie.",
+          "switch": "Az azt tápláló kapcsoló. Csak bekapcsolt állapotban kapcsol ki: a kikapcsolt vagy elérhetetlen konnektor érintetlen marad.",
+          "delay": "Percek, ameddig az eszköz összes entitásának elérhetetlennek kell lennie, mielőtt a konnektora kikapcsol. A két újraindítás közötti várakozás minden alkalommal duplázódik.",
+          "off_time": "Másodpercek, ameddig a konnektor kikapcsolva marad, mielőtt újra bekapcsol."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Konnektoros újraindítások eltávolítása",
+        "data": {
+          "power_cycles": "Konnektoros újraindítások"
+        },
+        "data_description": {
+          "power_cycles": "Az eltávolítandó konnektoros újraindítások."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Minden sor tartomány: perc formájú legyen, 1 és 1440 között (zha: 30)."
+      "invalid_overrides": "Minden sor tartomány: perc formájú legyen, 1 és 1440 között (zha: 30).",
+      "device_already_cycled": "Ennek az eszköznek már van konnektoros újraindítása: előbb távolítsa el.",
+      "switch_on_device": "A konnektor nem lehet magának az eszköznek az entitása: vele együtt elérhetetlen lenne.",
+      "device_without_entities": "Ennek az eszköznek a konnektoron kívül nincs figyelendő entitása."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Az integráció újratöltése sikertelen",
     "reload_failed": "{title} ({domain}) nem tölthető újra: minden entitása nem volt elérhető {since} óta. Újratöltés: {attempt}/{max}, lásd a naplókat.",
     "gave_up_title": "Az integráció továbbra sem elérhető",
-    "gave_up": "{title} ({domain}) {attempt} újratöltés után továbbra sem elérhető. Addig nem töltődik újra, amíg valamelyik entitása elérhetővé nem válik."
+    "gave_up": "{title} ({domain}) {attempt} újratöltés után továbbra sem elérhető. Addig nem töltődik újra, amíg valamelyik entitása elérhetővé nem válik.",
+    "power_cycled_title": "Eszköz újraindítva",
+    "power_cycled": "{title} újraindult a következővel: {switch}. Minden entitása elérhetetlen volt ekkor óta: {since}. Újraindítás {attempt}/{max}.",
+    "power_cycle_failed_title": "Az eszköz újraindítása sikertelen",
+    "power_cycle_failed": "{title} nem indítható újra a következővel: {switch}. Minden entitása elérhetetlen volt ekkor óta: {since}. Újraindítás {attempt}/{max}, lásd a naplókat.",
+    "power_cycle_gave_up_title": "Az eszköz továbbra is elérhetetlen",
+    "power_cycle_gave_up": "{title} {attempt} újraindítás után is elérhetetlen. {switch} nem kapcsol ki újra, amíg valamelyik entitása elérhetővé nem válik."
   },
   "exceptions": {
     "not_loaded": {

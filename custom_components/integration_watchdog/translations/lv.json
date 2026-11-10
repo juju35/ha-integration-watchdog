@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Integration Watchdog opcijas",
+        "menu_options": {
+          "settings": "Iestatījumi",
+          "add_power_cycle": "Pievienot restartēšanu ar kontaktligzdu",
+          "remove_power_cycle": "Noņemt restartēšanas ar kontaktligzdu"
+        }
+      },
+      "settings": {
+        "title": "Iestatījumi",
         "data": {
           "scan_interval": "Pārbaudes intervāls",
           "grace_period": "Nogaidīšanas laiks",
@@ -58,10 +66,38 @@
           "ignored_entries": "Atsevišķi integrācijas ieraksti, kas nekad netiek pārlādēti; pārējie to integrācijas ieraksti joprojām tiek uzraudzīti (piem., viena no vairākām kamerām).",
           "pause_entity": "Kamēr šī entītija ir ieslēgta (input_boolean apkopei, grafiks naktij…), nekas netiek pārlādēts; pārbaudes joprojām uzskaita nepieejamās integrācijas."
         }
+      },
+      "add_power_cycle": {
+        "title": "Restartēt ierīci ar tās kontaktligzdu",
+        "description": "Kad visas ierīces entītijas paliek nepieejamas, viedā kontaktligzda, kas to baro, tiek izslēgta un pēc tam atkal ieslēgta. Tie paši ierobežojumi kā pārlādēm: pārlādes pēc kārtas, gaidīšana, kas dubultojas, pauzes entītija, nekas labvēlības periodā pēc palaišanas.",
+        "data": {
+          "device_id": "Ierīce",
+          "switch": "Viedā kontaktligzda",
+          "delay": "Nepieejama",
+          "off_time": "Izslēgta uz"
+        },
+        "data_description": {
+          "device_id": "Restartējamā ierīce: visām tās iespējotajām entītijām jābūt nepieejamām.",
+          "switch": "Slēdzis, kas to baro. Tiek izslēgts tikai tad, ja ir ieslēgts: izslēgta vai nepieejama kontaktligzda netiek aiztikta.",
+          "delay": "Minūtes, cik ilgi visām ierīces entītijām jābūt nepieejamām, pirms tās kontaktligzda tiek izslēgta. Gaidīšana starp divām restartēšanām katru reizi dubultojas.",
+          "off_time": "Sekundes, cik ilgi kontaktligzda paliek izslēgta, pirms tiek atkal ieslēgta."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Noņemt restartēšanas ar kontaktligzdu",
+        "data": {
+          "power_cycles": "Restartēšanas ar kontaktligzdu"
+        },
+        "data_description": {
+          "power_cycles": "Noņemamās restartēšanas ar kontaktligzdu."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Katrai rindai jābūt domēns: minūtes, no 1 līdz 1440 (zha: 30)."
+      "invalid_overrides": "Katrai rindai jābūt domēns: minūtes, no 1 līdz 1440 (zha: 30).",
+      "device_already_cycled": "Šai ierīcei jau ir restartēšana ar kontaktligzdu: vispirms noņemiet to.",
+      "switch_on_device": "Kontaktligzda nevar būt pašas ierīces entītija: tā būtu nepieejama kopā ar to.",
+      "device_without_entities": "Šai ierīcei nav uzraugāmas entītijas, izņemot kontaktligzdu."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Integrācijas pārlāde neizdevās",
     "reload_failed": "{title} ({domain}) neizdevās pārlādēt: visas tās vienības nebija pieejamas kopš {since}. Pārlāde {attempt}/{max}, skatiet žurnālus.",
     "gave_up_title": "Integrācija joprojām nav pieejama",
-    "gave_up": "{title} ({domain}) joprojām nav pieejama. Veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama."
+    "gave_up": "{title} ({domain}) joprojām nav pieejama. Veiktās pārlādes: {attempt}. Tā netiks pārlādēta, kamēr kāda no tās vienībām nebūs pieejama.",
+    "power_cycled_title": "Ierīce restartēta",
+    "power_cycled": "{title} tika restartēta ar {switch}: visas tās entītijas bija nepieejamas kopš {since}. Restartēšana {attempt}/{max}.",
+    "power_cycle_failed_title": "Ierīces restartēšana neizdevās",
+    "power_cycle_failed": "{title} neizdevās restartēt ar {switch}: visas tās entītijas bija nepieejamas kopš {since}. Restartēšana {attempt}/{max}, skatiet žurnālus.",
+    "power_cycle_gave_up_title": "Ierīce joprojām nepieejama",
+    "power_cycle_gave_up": "{title} joprojām ir nepieejama pēc restartēšanām: {attempt}. {switch} vairs netiks izslēgta, līdz kāda no tās entītijām būs pieejama."
   },
   "exceptions": {
     "not_loaded": {

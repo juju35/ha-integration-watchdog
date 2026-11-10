@@ -38,6 +38,14 @@
     "step": {
       "init": {
         "title": "Indstillinger for Integration Watchdog",
+        "menu_options": {
+          "settings": "Indstillinger",
+          "add_power_cycle": "Tilføj genstart via stik",
+          "remove_power_cycle": "Fjern genstarter via stik"
+        }
+      },
+      "settings": {
+        "title": "Indstillinger",
         "data": {
           "scan_interval": "Kontrolinterval",
           "grace_period": "Respitperiode",
@@ -58,10 +66,38 @@
           "ignored_entries": "Enkelte integrationsposter, der aldrig genindlæses; de andre poster i deres integration overvåges stadig (f.eks. ét af flere kameraer).",
           "pause_entity": "Så længe denne entitet er tændt (en input_boolean til vedligehold, en tidsplan for natten…), genindlæses intet; tjekkene viser stadig de utilgængelige integrationer."
         }
+      },
+      "add_power_cycle": {
+        "title": "Genstart en enhed via dens stik",
+        "description": "Når alle en enheds entiteter forbliver utilgængelige, slukkes det smarte stik, der forsyner den, og tændes igen. Samme grænser som for genindlæsninger: genindlæsninger i træk, ventetid der fordobles, pauseentitet, intet i henstandsperioden efter en start.",
+        "data": {
+          "device_id": "Enhed",
+          "switch": "Smart stik",
+          "delay": "Utilgængelig i",
+          "off_time": "Slukket i"
+        },
+        "data_description": {
+          "device_id": "Enheden, der skal genstartes: alle dens aktiverede entiteter skal være utilgængelige.",
+          "switch": "Kontakten, der forsyner den. Slukkes kun, når den er tændt: et stik, der er slukket eller utilgængeligt, røres ikke.",
+          "delay": "Minutter, alle enhedens entiteter skal have været utilgængelige, før dens stik slukkes. Ventetiden mellem to genstarter fordobles hver gang.",
+          "off_time": "Sekunder, stikket forbliver slukket, før det tændes igen."
+        }
+      },
+      "remove_power_cycle": {
+        "title": "Fjern genstarter via stik",
+        "data": {
+          "power_cycles": "Genstarter via stik"
+        },
+        "data_description": {
+          "power_cycles": "De genstarter via stik, der skal fjernes."
+        }
       }
     },
     "error": {
-      "invalid_overrides": "Hver linje skal være domæne: minutter, fra 1 til 1440 (zha: 30)."
+      "invalid_overrides": "Hver linje skal være domæne: minutter, fra 1 til 1440 (zha: 30).",
+      "device_already_cycled": "Denne enhed har allerede en genstart via stik: fjern den først.",
+      "switch_on_device": "Stikket kan ikke være en entitet i selve enheden: det ville være utilgængeligt sammen med den.",
+      "device_without_entities": "Denne enhed har ingen entitet at overvåge ud over stikket."
     }
   },
   "entity": {
@@ -149,7 +185,13 @@
     "reload_failed_title": "Genindlæsning af integration mislykkedes",
     "reload_failed": "{title} ({domain}) kunne ikke genindlæses: alle dens enheder havde været utilgængelige siden {since}. Genindlæsning {attempt}/{max}, se loggene.",
     "gave_up_title": "Integration stadig utilgængelig",
-    "gave_up": "{title} ({domain}) er stadig utilgængelig efter {attempt} genindlæsninger. Den genindlæses ikke igen, før en af dens enheder er tilgængelig."
+    "gave_up": "{title} ({domain}) er stadig utilgængelig efter {attempt} genindlæsninger. Den genindlæses ikke igen, før en af dens enheder er tilgængelig.",
+    "power_cycled_title": "Enhed genstartet",
+    "power_cycled": "{title} blev genstartet med {switch}: alle dens entiteter var utilgængelige siden {since}. Genstart {attempt}/{max}.",
+    "power_cycle_failed_title": "Genstart af enhed mislykkedes",
+    "power_cycle_failed": "{title} kunne ikke genstartes med {switch}: alle dens entiteter var utilgængelige siden {since}. Genstart {attempt}/{max}, se logfilerne.",
+    "power_cycle_gave_up_title": "Enhed stadig utilgængelig",
+    "power_cycle_gave_up": "{title} er stadig utilgængelig efter {attempt} genstarter. {switch} slukkes ikke igen, før en af dens entiteter er tilgængelig."
   },
   "exceptions": {
     "not_loaded": {
