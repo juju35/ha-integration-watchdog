@@ -178,7 +178,7 @@ def _pause_options(hass: HomeAssistant, chosen: str | None) -> list[dict[str, st
 
 
 def _device_options(hass: HomeAssistant, own: str | None) -> list[dict[str, str]]:
-    """Devices with at least one enabled entity, the watchdog's own one left out: name, area and integration."""
+    """Devices with at least one enabled entity, the watchdog's own one left out: name, area and integrations."""
     entities = er.async_get(hass)
     with_entities = {e.device_id for e in entities.entities.values() if e.device_id and not e.disabled}
     options = []
@@ -191,26 +191,40 @@ def _device_options(hass: HomeAssistant, own: str | None) -> list[dict[str, str]
         if device.id == own or device.disabled or device.id not in with_entities:
             continue
         platforms = {e.platform for e in er.async_entries_for_device(entities, device.id)}
-        detail = [_area_name(hass, device.area_id), ", ".join(sorted(platforms))]
-        options.append({"value": device.id, "label": _device_label(device), "detail": " · ".join(filter(None, detail))})
+        options.append(
+            {
+                "value": device.id,
+                "label": _device_label(device),
+                "detail": ", ".join(sorted(platforms)),
+                "area": _area_name(hass, device.area_id) or "",
+            }
+        )
     return sorted(options, key=lambda o: (o["label"].casefold(), o["value"]))
 
 
 def _switch_options(hass: HomeAssistant) -> list[dict[str, Any]]:
-    """Every switch, with its device (the panel leaves out the plugs of the device chosen)."""
+    """The switches that can power a device, with their device and area (the panel leaves out the chosen device's own).
+
+    Configuration and diagnostic switches (child lock, LED, an integration's options) never are a power plug: left out.
+    """
     entities = er.async_get(hass)
     devices = dr.async_get(hass)
     options = []
     for state in hass.states.async_all("switch"):
         entry = entities.async_get(state.entity_id)
+        if entry is not None and entry.entity_category is not None:
+            continue
         device = devices.async_get(entry.device_id) if entry and entry.device_id else None
+        device_class = (entry.device_class or entry.original_device_class) if entry else None
         options.append(
             {
                 "value": state.entity_id,
                 "label": state.name,
-                "detail": _area_name(hass, (entry.area_id if entry else None) or (device.area_id if device else None))
+                "detail": _device_label(device) if device else "",
+                "area": _area_name(hass, (entry.area_id if entry else None) or (device.area_id if device else None))
                 or "",
                 "device_id": device.id if device else None,
+                "outlet": (device_class or state.attributes.get("device_class")) == "outlet",
             }
         )
     return sorted(options, key=lambda o: (o["label"].casefold(), o["value"]))

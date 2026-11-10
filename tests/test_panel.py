@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from homeassistant.components import frontend
-from homeassistant.const import STATE_ON, STATE_UNAVAILABLE
+from homeassistant.const import STATE_ON, STATE_UNAVAILABLE, EntityCategory
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -90,10 +91,11 @@ async def test_settings_and_update(hass: HomeAssistant, hass_ws_client):
             "gave_up": False,
         }
     ]
-    assert {"value": device_id, "label": "Internet box", "detail": "box"} in result["device_options"]
+    assert {"value": device_id, "label": "Internet box", "detail": "box", "area": ""} in result["device_options"]
     # The watchdog's own service device is not offered.
     assert all(o["label"] != "Integration Watchdog" for o in result["device_options"])
     assert result["switch_options"][0]["value"] == "switch.box_plug"
+    assert result["switch_options"][0]["outlet"] is False
     assert {"value": "input_boolean.maintenance", "label": "Maintenance"} in result["pause_options"]
     assert {"value": "box", "label": "box"} in result["integration_options"]
 
@@ -162,3 +164,36 @@ async def test_commands_need_an_admin(hass: HomeAssistant, hass_ws_client, hass_
     response = await client.receive_json()
     assert not response["success"]
     assert response["error"]["code"] == "unauthorized"
+
+
+async def test_switch_options_leave_out_config_switches(hass: HomeAssistant, hass_ws_client):
+    """A configuration or diagnostic switch is never a power plug; an outlet is flagged, with its device and area."""
+    await _setup(hass)
+    plugs = MockConfigEntry(domain="plugs", title="Plugs")
+    plugs.add_to_hass(hass)
+    area = ar.async_get(hass).async_create("Office")
+    device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=plugs.entry_id, identifiers={("plugs", "1")}, name="Smart plug"
+    )
+    dr.async_get(hass).async_update_device(device.id, area_id=area.id)
+    registry = er.async_get(hass)
+    outlet = registry.async_get_or_create(
+        "switch", "plugs", "outlet", config_entry=plugs, device_id=device.id, original_device_class="outlet"
+    )
+    lock = registry.async_get_or_create(
+        "switch", "plugs", "lock", config_entry=plugs, device_id=device.id, entity_category=EntityCategory.CONFIG
+    )
+    hass.states.async_set(outlet.entity_id, STATE_ON, {"friendly_name": "Office plug"})
+    hass.states.async_set(lock.entity_id, STATE_ON, {"friendly_name": "Child lock"})
+    client = await hass_ws_client(hass)
+
+    options = (await _ws(client, type=f"{DOMAIN}/settings"))["switch_options"]
+    assert [o["value"] for o in options] == [outlet.entity_id]
+    assert options[0] == {
+        "value": outlet.entity_id,
+        "label": "Office plug",
+        "detail": "Smart plug",
+        "area": "Office",
+        "device_id": device.id,
+        "outlet": True,
+    }

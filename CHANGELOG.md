@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0 - 2026-11-10
+
+### Improvements
+- **Panel, Power cycles tab: device and plug pickers you can search.** The two long drop-down lists are replaced by a search field over a short scrolling list grouped by area (accents and case ignored, every word must match the name, area, integration or entity ID). Arrow keys and Enter choose, Escape clears the search; the choice shows with its area and a *Change* button, and the focus moves on to the plug, then the delay. The plugs in the chosen device's area are listed first, outlets before the other switches. At most 50 rows are shown: type to narrow down the rest.
+- **Fewer plugs offered**: configuration and diagnostic switches (child lock, LED, an integration's options) are no longer offered as a power plug.
+
 ## 1.8.1 - 2026-11-10
 
 ### Performance
