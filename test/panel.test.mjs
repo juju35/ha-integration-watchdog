@@ -32,7 +32,7 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext(
-  `${source}\nthis.panel = { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, IW_PANEL_PICK_MAX, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides, iwPanelMatch, iwPanelGroups };`,
+  `${source}\nthis.panel = { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, IW_PANEL_PICK_MAX, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides, iwPanelMatch, iwPanelGroups, iwPanelEntities, iwPanelEvent };`,
   context,
 );
 const {
@@ -46,6 +46,8 @@ const {
   iwPanelOverrides,
   iwPanelMatch,
   iwPanelGroups,
+  iwPanelEntities,
+  iwPanelEvent,
 } = context.panel;
 
 const LANGUAGES = [
@@ -269,54 +271,60 @@ test('labels come from the options flow translations, with the key as fallback',
   assert.match(panel._number('scan_interval', 5, 'u_min'), /<span>Check interval<\/span>/);
 });
 
-test('start: the settings and labels are requested before the card has loaded, the card mounted once it is in', async () => {
+test('start: the settings and labels are requested at once, without loading the card', () => {
   const calls = [];
   const panel = panelWith(null, calls);
   panel._settings = null;
   panel._strings = {};
   panel._render = () => {}; // the stub shadow root has no elements
-  let release;
-  const imported = new Promise((resolve) => {
-    release = resolve;
-  });
-  const mounted = [];
-  context.customElements.defined.delete('integration-watchdog-card');
-  panel._importCard = () => imported.then(() => context.customElements.defined.add('integration-watchdog-card'));
-  panel._mountCard = () => mounted.push(true);
-  try {
-    const started = panel._start();
-    await Promise.resolve();
-    assert.deepEqual(
-      calls.map((msg) => msg.type),
-      ['integration_watchdog/settings', 'frontend/get_translations'],
-    );
-    assert.equal(mounted.length, 0);
-    release();
-    await started;
-    assert.equal(mounted.length, 1);
-  } finally {
-    context.customElements.defined.add('integration-watchdog-card');
-  }
+  panel._start();
+  assert.deepEqual(
+    calls.map((msg) => msg.type),
+    ['integration_watchdog/settings', 'frontend/get_translations'],
+  );
+  assert.ok(!/integration-watchdog-card/.test(source.slice(source.indexOf('class IntegrationWatchdogPanel'))), 'no card in the panel');
 });
 
-test('start: a card that fails to load is logged, the settings still load', async () => {
-  const calls = [];
-  const panel = panelWith(null, calls);
-  panel._strings = {};
-  panel._render = () => {}; // the stub shadow root has no elements
-  context.customElements.defined.delete('integration-watchdog-card');
-  panel._importCard = () => Promise.reject(new Error('404'));
-  let mounted = false;
-  panel._mountCard = () => {
-    mounted = true;
+test('status: the watchdog entities are found by translation key or id, on the device that lists the integrations', () => {
+  const hass = {
+    entities: {
+      'sensor.iw_unavailable_integrations': { platform: 'integration_watchdog', device_id: 'd1' },
+      'sensor.iw_last_reload': { platform: 'integration_watchdog', device_id: 'd1', translation_key: 'last_reload' },
+      'sensor.iw_last_check': { platform: 'integration_watchdog', device_id: 'd1' },
+      'button.iw_check_now': { platform: 'integration_watchdog', device_id: 'd1' },
+      'sensor.old_unavailable_integrations': { platform: 'integration_watchdog', device_id: 'd0' },
+      'sensor.other_last_reload': { platform: 'zha', device_id: 'd1' },
+    },
+    states: { 'sensor.iw_unavailable_integrations': { attributes: { integrations: [] } }, 'sensor.old_unavailable_integrations': { state: 'unavailable', attributes: {} } },
   };
-  try {
-    await panel._start();
-    assert.ok(!mounted);
-    assert.ok(calls.some((msg) => msg.type === 'integration_watchdog/settings'));
-  } finally {
-    context.customElements.defined.add('integration-watchdog-card');
-  }
+  assert.deepEqual(plain(iwPanelEntities(hass)), {
+    unavailable: 'sensor.iw_unavailable_integrations',
+    last_reload: 'sensor.iw_last_reload',
+    last_check: 'sensor.iw_last_check',
+    check: 'button.iw_check_now',
+  });
+  assert.equal(iwPanelEntities({ entities: {}, states: {} }), null);
+  assert.deepEqual(plain(iwPanelEvent('reloaded')), { tone: 'good', label: 'w_reloaded', cycle: false });
+  assert.deepEqual(plain(iwPanelEvent('power_cycle_failed')), { tone: 'warn', label: 'w_power_cycle_failed', cycle: true });
+  assert.deepEqual(plain(iwPanelEvent('power_cycle_gave_up')), { tone: 'bad', label: 'w_gave_up_event', cycle: true });
+});
+
+test('status: an unavailable integration links to its entry, says since when and its reloads; given up gets Try again', () => {
+  const panel = panelWith(null);
+  const since = new Date(Date.now() - 3 * 3600000).toISOString();
+  const waiting = panel._unavailableItem({ title: '<Hue>', domain: 'hue', entry_id: 'e1', since, reloads: 1 }, 3);
+  assert.match(waiting, /href="\/config\/integrations\/integration\/hue#config_entry=e1"/);
+  assert.match(waiting, /&#60;Hue&#62;/);
+  assert.match(waiting, /unavailable for 3 hours/);
+  assert.match(waiting, /reload 1\/3|1\/3 reloads/);
+  assert.doesNotMatch(waiting, /data-reset/);
+  const givenUp = panel._unavailableItem({ title: 'Hue', domain: 'hue', entry_id: 'e1', gave_up: true }, 3);
+  assert.match(givenUp, /class="item bad"/);
+  assert.match(givenUp, /data-reset="e1"/);
+  const cycle = panel._historyItem({ kind: 'power_cycled', title: 'Printer', domain: 'ipp', switch_name: 'Plug', attempt: 1, max_reloads: 3, at: since });
+  assert.match(cycle, /Power cycled/);
+  assert.match(cycle, /Plug · power cycle 1\/3/);
+  assert.match(cycle, /3 hours ago/);
 });
 
 test('panel, narrow, route and hass set before the element was defined go through the setters once it is', () => {

@@ -1,8 +1,8 @@
 /*
  * Integration Watchdog sidebar panel — the status, the power cycles and the settings on one page (administrators only).
  *
- * Three tabs under the toolbar, as in Smart Comfort: Status (the bundled integration-watchdog-card with the whole
- * history), Power cycles (the devices switched off and on with their smart plug: list, add, remove) and Settings
+ * Three tabs under the toolbar, as in Smart Comfort: Status (drawn by the panel itself from the watchdog's sensors:
+ * a summary, the unavailable integrations and the reload history), Power cycles (the devices switched off and on with their smart plug: list, add, remove) and Settings
  * (the options of Configure). Backed by the integration_watchdog/settings, update_settings, add_power_cycle and
  * remove_power_cycle WebSocket commands. The form labels and hints are the integration's own translations (options
  * flow, fetched with frontend/get_translations); the strings below are the panel's own. The page follows the config
@@ -11,7 +11,7 @@
  *
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.9.1';
+var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.10.0';
 
 // Rows shown at most by a device or plug picker: the search narrows the rest down
 var IW_PANEL_PICK_MAX = 50;
@@ -68,6 +68,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Setup failed',
     st_not_loaded: 'Stopped',
     st_other: 'Unavailable',
+    w_all_ok: 'All available',
+    w_unavailable_one: '{n} unavailable',
+    w_unavailable_many: '{n} unavailable',
+    w_gave_up_one: '{n} given up',
+    w_gave_up_many: '{n} given up',
+    w_checking: 'Checking…',
+    w_never_checked: 'Not checked yet',
+    w_checked: 'Checked {d}',
+    w_check_now: 'Check now',
+    w_check_failed: 'Check failed: {error}',
+    w_retry: 'Try again',
+    w_retry_failed: 'Try again failed: {error}',
+    w_stat_unavailable: 'Unavailable',
+    w_stat_reloads: 'Reloads',
+    w_stat_reloads_hint: 'Since Home Assistant started',
+    w_stat_ignored: 'Ignored',
+    w_unavailable_title: 'Unavailable integrations',
+    w_history_title: 'Recent reloads',
+    w_no_history: 'No reload yet',
+    w_since: 'unavailable for {d}',
+    w_attempts: '{n}/{max} reloads',
+    w_attempt: 'reload {n}/{max}',
+    w_waiting: 'Grace period',
+    w_gave_up: 'Given up',
+    w_reloaded: 'Reloaded',
+    w_reload_failed: 'Failed',
+    w_gave_up_event: 'Given up',
+    w_gave_up_after: 'after {n} reloads',
+    w_power_cycled: 'Power cycled',
+    w_power_cycle_failed: 'Power cycle failed',
+    w_cycle_attempt: 'power cycle {n}/{max}',
+    w_cycle_gave_up_after: 'after {n} power cycles',
+    w_not_loaded: 'Not set up',
   },
   fr: {
     title: 'Integration Watchdog',
@@ -120,6 +153,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Échec du démarrage',
     st_not_loaded: 'Arrêtée',
     st_other: 'Indisponible',
+    w_all_ok: 'Tout est disponible',
+    w_unavailable_one: '{n} indisponible',
+    w_unavailable_many: '{n} indisponibles',
+    w_gave_up_one: '{n} abandonnée',
+    w_gave_up_many: '{n} abandonnées',
+    w_checking: 'Vérification…',
+    w_never_checked: 'Pas encore vérifié',
+    w_checked: 'Vérifié {d}',
+    w_check_now: 'Vérifier maintenant',
+    w_check_failed: 'Échec de la vérification : {error}',
+    w_retry: 'Réessayer',
+    w_retry_failed: 'Échec de la nouvelle tentative : {error}',
+    w_stat_unavailable: 'Indisponibles',
+    w_stat_reloads: 'Rechargements',
+    w_stat_reloads_hint: 'Depuis le démarrage de Home Assistant',
+    w_stat_ignored: 'Ignorées',
+    w_unavailable_title: 'Intégrations indisponibles',
+    w_history_title: 'Derniers rechargements',
+    w_no_history: 'Aucun rechargement pour l’instant',
+    w_since: 'indisponible depuis {d}',
+    w_attempts: '{n}/{max} rechargements',
+    w_attempt: 'rechargement {n}/{max}',
+    w_waiting: 'Délai de grâce',
+    w_gave_up: 'Abandonnée',
+    w_reloaded: 'Rechargée',
+    w_reload_failed: 'Échec',
+    w_gave_up_event: 'Abandon',
+    w_gave_up_after: 'après {n} rechargements',
+    w_power_cycled: 'Redémarré par la prise',
+    w_power_cycle_failed: 'Échec du redémarrage',
+    w_cycle_attempt: 'redémarrage {n}/{max}',
+    w_cycle_gave_up_after: 'après {n} redémarrages',
+    w_not_loaded: 'Non configuré',
   },
   de: {
     title: 'Integration Watchdog',
@@ -172,6 +238,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Einrichtung fehlgeschlagen',
     st_not_loaded: 'Gestoppt',
     st_other: 'Nicht verfügbar',
+    w_all_ok: 'Alles verfügbar',
+    w_unavailable_one: '{n} nicht verfügbar',
+    w_unavailable_many: '{n} nicht verfügbar',
+    w_gave_up_one: '{n} aufgegeben',
+    w_gave_up_many: '{n} aufgegeben',
+    w_checking: 'Prüfung läuft…',
+    w_never_checked: 'Noch nicht geprüft',
+    w_checked: 'Geprüft {d}',
+    w_check_now: 'Jetzt prüfen',
+    w_check_failed: 'Prüfung fehlgeschlagen: {error}',
+    w_retry: 'Erneut versuchen',
+    w_retry_failed: 'Erneuter Versuch fehlgeschlagen: {error}',
+    w_stat_unavailable: 'Nicht verfügbar',
+    w_stat_reloads: 'Neuladungen',
+    w_stat_reloads_hint: 'Seit dem Start von Home Assistant',
+    w_stat_ignored: 'Ignoriert',
+    w_unavailable_title: 'Nicht verfügbare Integrationen',
+    w_history_title: 'Letzte Neuladungen',
+    w_no_history: 'Noch keine Neuladung',
+    w_since: 'nicht verfügbar seit {d}',
+    w_attempts: '{n}/{max} Neuladungen',
+    w_attempt: 'Neuladung {n}/{max}',
+    w_waiting: 'Karenzzeit',
+    w_gave_up: 'Aufgegeben',
+    w_reloaded: 'Neu geladen',
+    w_reload_failed: 'Fehlgeschlagen',
+    w_gave_up_event: 'Aufgegeben',
+    w_gave_up_after: 'nach {n} Neuladungen',
+    w_power_cycled: 'Per Steckdose neu gestartet',
+    w_power_cycle_failed: 'Neustart fehlgeschlagen',
+    w_cycle_attempt: 'Neustart {n}/{max}',
+    w_cycle_gave_up_after: 'nach {n} Neustarts',
+    w_not_loaded: 'Nicht eingerichtet',
   },
   es: {
     title: 'Integration Watchdog',
@@ -224,6 +323,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Error de configuración',
     st_not_loaded: 'Detenida',
     st_other: 'No disponible',
+    w_all_ok: 'Todo disponible',
+    w_unavailable_one: '{n} no disponible',
+    w_unavailable_many: '{n} no disponibles',
+    w_gave_up_one: '{n} abandonada',
+    w_gave_up_many: '{n} abandonadas',
+    w_checking: 'Comprobando…',
+    w_never_checked: 'Aún sin comprobar',
+    w_checked: 'Comprobado {d}',
+    w_check_now: 'Comprobar ahora',
+    w_check_failed: 'La comprobación ha fallado: {error}',
+    w_retry: 'Reintentar',
+    w_retry_failed: 'El reintento ha fallado: {error}',
+    w_stat_unavailable: 'No disponibles',
+    w_stat_reloads: 'Recargas',
+    w_stat_reloads_hint: 'Desde que se inició Home Assistant',
+    w_stat_ignored: 'Ignoradas',
+    w_unavailable_title: 'Integraciones no disponibles',
+    w_history_title: 'Últimas recargas',
+    w_no_history: 'Aún no hay recargas',
+    w_since: 'no disponible desde hace {d}',
+    w_attempts: '{n}/{max} recargas',
+    w_attempt: 'recarga {n}/{max}',
+    w_waiting: 'Periodo de gracia',
+    w_gave_up: 'Abandonada',
+    w_reloaded: 'Recargada',
+    w_reload_failed: 'Fallida',
+    w_gave_up_event: 'Abandono',
+    w_gave_up_after: 'tras {n} recargas',
+    w_power_cycled: 'Reiniciado por enchufe',
+    w_power_cycle_failed: 'Reinicio fallido',
+    w_cycle_attempt: 'reinicio {n}/{max}',
+    w_cycle_gave_up_after: 'tras {n} reinicios',
+    w_not_loaded: 'No configurado',
   },
   it: {
     title: 'Integration Watchdog',
@@ -276,6 +408,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Configurazione non riuscita',
     st_not_loaded: 'Ferma',
     st_other: 'Non disponibile',
+    w_all_ok: 'Tutto disponibile',
+    w_unavailable_one: '{n} non disponibile',
+    w_unavailable_many: '{n} non disponibili',
+    w_gave_up_one: '{n} abbandonata',
+    w_gave_up_many: '{n} abbandonate',
+    w_checking: 'Controllo in corso…',
+    w_never_checked: 'Non ancora controllato',
+    w_checked: 'Controllato {d}',
+    w_check_now: 'Controlla ora',
+    w_check_failed: 'Controllo non riuscito: {error}',
+    w_retry: 'Riprova',
+    w_retry_failed: 'Nuovo tentativo non riuscito: {error}',
+    w_stat_unavailable: 'Non disponibili',
+    w_stat_reloads: 'Ricaricamenti',
+    w_stat_reloads_hint: 'Dall’avvio di Home Assistant',
+    w_stat_ignored: 'Ignorate',
+    w_unavailable_title: 'Integrazioni non disponibili',
+    w_history_title: 'Ricaricamenti recenti',
+    w_no_history: 'Ancora nessun ricaricamento',
+    w_since: 'non disponibile da {d}',
+    w_attempts: '{n}/{max} ricaricamenti',
+    w_attempt: 'ricaricamento {n}/{max}',
+    w_waiting: 'In attesa',
+    w_gave_up: 'Abbandonata',
+    w_reloaded: 'Ricaricata',
+    w_reload_failed: 'Fallito',
+    w_gave_up_event: 'Abbandono',
+    w_gave_up_after: 'dopo {n} ricaricamenti',
+    w_power_cycled: 'Riavviato dalla presa',
+    w_power_cycle_failed: 'Riavvio non riuscito',
+    w_cycle_attempt: 'riavvio {n}/{max}',
+    w_cycle_gave_up_after: 'dopo {n} riavvii',
+    w_not_loaded: 'Non configurato',
   },
   nl: {
     title: 'Integration Watchdog',
@@ -328,6 +493,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Instellen mislukt',
     st_not_loaded: 'Gestopt',
     st_other: 'Niet beschikbaar',
+    w_all_ok: 'Alles beschikbaar',
+    w_unavailable_one: '{n} niet beschikbaar',
+    w_unavailable_many: '{n} niet beschikbaar',
+    w_gave_up_one: '{n} opgegeven',
+    w_gave_up_many: '{n} opgegeven',
+    w_checking: 'Controleren…',
+    w_never_checked: 'Nog niet gecontroleerd',
+    w_checked: 'Gecontroleerd {d}',
+    w_check_now: 'Nu controleren',
+    w_check_failed: 'Controle mislukt: {error}',
+    w_retry: 'Opnieuw proberen',
+    w_retry_failed: 'Opnieuw proberen mislukt: {error}',
+    w_stat_unavailable: 'Niet beschikbaar',
+    w_stat_reloads: 'Herladen',
+    w_stat_reloads_hint: 'Sinds Home Assistant is gestart',
+    w_stat_ignored: 'Genegeerd',
+    w_unavailable_title: 'Niet-beschikbare integraties',
+    w_history_title: 'Recente herlaadpogingen',
+    w_no_history: 'Nog geen herlaadpogingen',
+    w_since: '{d} niet beschikbaar',
+    w_attempts: '{n}/{max} herlaadpogingen',
+    w_attempt: 'herlaadpoging {n}/{max}',
+    w_waiting: 'Wachttijd',
+    w_gave_up: 'Opgegeven',
+    w_reloaded: 'Herladen',
+    w_reload_failed: 'Mislukt',
+    w_gave_up_event: 'Opgegeven',
+    w_gave_up_after: 'na {n} herlaadpogingen',
+    w_power_cycled: 'Herstart via stekker',
+    w_power_cycle_failed: 'Herstart mislukt',
+    w_cycle_attempt: 'herstart {n}/{max}',
+    w_cycle_gave_up_after: 'na {n} herstarts',
+    w_not_loaded: 'Niet ingesteld',
   },
   pt: {
     title: 'Integration Watchdog',
@@ -380,6 +578,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Configuração falhou',
     st_not_loaded: 'Parada',
     st_other: 'Indisponível',
+    w_all_ok: 'Tudo disponível',
+    w_unavailable_one: '{n} indisponível',
+    w_unavailable_many: '{n} indisponíveis',
+    w_gave_up_one: '{n} abandonada',
+    w_gave_up_many: '{n} abandonadas',
+    w_checking: 'A verificar…',
+    w_never_checked: 'Ainda não verificado',
+    w_checked: 'Verificado {d}',
+    w_check_now: 'Verificar agora',
+    w_check_failed: 'A verificação falhou: {error}',
+    w_retry: 'Tentar novamente',
+    w_retry_failed: 'A nova tentativa falhou: {error}',
+    w_stat_unavailable: 'Indisponíveis',
+    w_stat_reloads: 'Recarregamentos',
+    w_stat_reloads_hint: 'Desde o arranque do Home Assistant',
+    w_stat_ignored: 'Ignoradas',
+    w_unavailable_title: 'Integrações indisponíveis',
+    w_history_title: 'Recarregamentos recentes',
+    w_no_history: 'Ainda nenhum recarregamento',
+    w_since: 'indisponível há {d}',
+    w_attempts: '{n}/{max} recarregamentos',
+    w_attempt: 'recarregamento {n}/{max}',
+    w_waiting: 'Em espera',
+    w_gave_up: 'Abandonada',
+    w_reloaded: 'Recarregada',
+    w_reload_failed: 'Falhou',
+    w_gave_up_event: 'Abandono',
+    w_gave_up_after: 'após {n} recarregamentos',
+    w_power_cycled: 'Reiniciado pela tomada',
+    w_power_cycle_failed: 'Falha no reinício',
+    w_cycle_attempt: 'reinício {n}/{max}',
+    w_cycle_gave_up_after: 'após {n} reinícios',
+    w_not_loaded: 'Não configurado',
   },
   pl: {
     title: 'Integration Watchdog',
@@ -432,6 +663,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Konfiguracja nie powiodła się',
     st_not_loaded: 'Zatrzymana',
     st_other: 'Niedostępna',
+    w_all_ok: 'Wszystko dostępne',
+    w_unavailable_one: '{n} niedostępna',
+    w_unavailable_many: '{n} niedostępnych',
+    w_gave_up_one: '{n} porzucona',
+    w_gave_up_many: '{n} porzuconych',
+    w_checking: 'Sprawdzanie…',
+    w_never_checked: 'Jeszcze nie sprawdzono',
+    w_checked: 'Sprawdzono {d}',
+    w_check_now: 'Sprawdź teraz',
+    w_check_failed: 'Sprawdzanie nie powiodło się: {error}',
+    w_retry: 'Spróbuj ponownie',
+    w_retry_failed: 'Ponowna próba nie powiodła się: {error}',
+    w_stat_unavailable: 'Niedostępne',
+    w_stat_reloads: 'Ponowne wczytania',
+    w_stat_reloads_hint: 'Od uruchomienia Home Assistant',
+    w_stat_ignored: 'Ignorowane',
+    w_unavailable_title: 'Niedostępne integracje',
+    w_history_title: 'Ostatnie ponowne wczytania',
+    w_no_history: 'Brak ponownych wczytań',
+    w_since: 'niedostępna od {d}',
+    w_attempts: 'Próby: {n}/{max}',
+    w_attempt: 'ponowne wczytanie {n}/{max}',
+    w_waiting: 'Okres karencji',
+    w_gave_up: 'Porzucona',
+    w_reloaded: 'Wczytana ponownie',
+    w_reload_failed: 'Błąd',
+    w_gave_up_event: 'Porzucenie',
+    w_gave_up_after: 'ponowne wczytania: {n}',
+    w_power_cycled: 'Zrestartowane przez gniazdko',
+    w_power_cycle_failed: 'Restart nieudany',
+    w_cycle_attempt: 'restart {n}/{max}',
+    w_cycle_gave_up_after: 'po {n} restartach',
+    w_not_loaded: 'Nie skonfigurowano',
   },
   sr: {
     title: 'Integration Watchdog',
@@ -484,6 +748,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Подешавање није успело',
     st_not_loaded: 'Заустављена',
     st_other: 'Недоступна',
+    w_all_ok: 'Све је доступно',
+    w_unavailable_one: '{n} недоступна',
+    w_unavailable_many: '{n} недоступних',
+    w_gave_up_one: '{n} напуштена',
+    w_gave_up_many: '{n} напуштених',
+    w_checking: 'Проверавање…',
+    w_never_checked: 'Још није проверено',
+    w_checked: 'Проверено {d}',
+    w_check_now: 'Провери сада',
+    w_check_failed: 'Провера није успела: {error}',
+    w_retry: 'Покушај поново',
+    w_retry_failed: 'Поновни покушај није успео: {error}',
+    w_stat_unavailable: 'Недоступне',
+    w_stat_reloads: 'Поновна учитавања',
+    w_stat_reloads_hint: 'Од покретања Home Assistant-а',
+    w_stat_ignored: 'Игнорисане',
+    w_unavailable_title: 'Недоступне интеграције',
+    w_history_title: 'Недавна поновна учитавања',
+    w_no_history: 'Још нема поновних учитавања',
+    w_since: 'недоступна већ {d}',
+    w_attempts: '{n}/{max} поновних учитавања',
+    w_attempt: 'поновно учитавање {n}/{max}',
+    w_waiting: 'Период чекања',
+    w_gave_up: 'Напуштена',
+    w_reloaded: 'Поново учитана',
+    w_reload_failed: 'Неуспело',
+    w_gave_up_event: 'Напуштена',
+    w_gave_up_after: 'после {n} поновних учитавања',
+    w_power_cycled: 'Рестартован преко утичнице',
+    w_power_cycle_failed: 'Рестарт није успео',
+    w_cycle_attempt: 'рестарт {n}/{max}',
+    w_cycle_gave_up_after: 'после {n} рестарта',
+    w_not_loaded: 'Није подешено',
   },
   'sr-Latn': {
     title: 'Integration Watchdog',
@@ -536,6 +833,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Podešavanje nije uspelo',
     st_not_loaded: 'Zaustavljena',
     st_other: 'Nedostupna',
+    w_all_ok: 'Sve je dostupno',
+    w_unavailable_one: '{n} nedostupna',
+    w_unavailable_many: '{n} nedostupnih',
+    w_gave_up_one: '{n} napuštena',
+    w_gave_up_many: '{n} napuštenih',
+    w_checking: 'Proveravanje…',
+    w_never_checked: 'Još nije provereno',
+    w_checked: 'Provereno {d}',
+    w_check_now: 'Proveri sada',
+    w_check_failed: 'Provera nije uspela: {error}',
+    w_retry: 'Pokušaj ponovo',
+    w_retry_failed: 'Ponovni pokušaj nije uspeo: {error}',
+    w_stat_unavailable: 'Nedostupne',
+    w_stat_reloads: 'Ponovna učitavanja',
+    w_stat_reloads_hint: 'Od pokretanja Home Assistant-a',
+    w_stat_ignored: 'Ignorisane',
+    w_unavailable_title: 'Nedostupne integracije',
+    w_history_title: 'Nedavna ponovna učitavanja',
+    w_no_history: 'Još nema ponovnih učitavanja',
+    w_since: 'nedostupna već {d}',
+    w_attempts: '{n}/{max} ponovnih učitavanja',
+    w_attempt: 'ponovno učitavanje {n}/{max}',
+    w_waiting: 'Period čekanja',
+    w_gave_up: 'Napuštena',
+    w_reloaded: 'Ponovo učitana',
+    w_reload_failed: 'Neuspelo',
+    w_gave_up_event: 'Napuštena',
+    w_gave_up_after: 'posle {n} ponovnih učitavanja',
+    w_power_cycled: 'Restartovan preko utičnice',
+    w_power_cycle_failed: 'Restart nije uspeo',
+    w_cycle_attempt: 'restart {n}/{max}',
+    w_cycle_gave_up_after: 'posle {n} restarta',
+    w_not_loaded: 'Nije podešeno',
   },
   ro: {
     title: 'Integration Watchdog',
@@ -588,6 +918,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Configurarea a eșuat',
     st_not_loaded: 'Oprită',
     st_other: 'Indisponibilă',
+    w_all_ok: 'Totul este disponibil',
+    w_unavailable_one: '{n} indisponibilă',
+    w_unavailable_many: 'Indisponibile: {n}',
+    w_gave_up_one: '{n} abandonată',
+    w_gave_up_many: 'Abandonate: {n}',
+    w_checking: 'Se verifică…',
+    w_never_checked: 'Neverificat încă',
+    w_checked: 'Verificat {d}',
+    w_check_now: 'Verifică acum',
+    w_check_failed: 'Verificarea a eșuat: {error}',
+    w_retry: 'Reîncearcă',
+    w_retry_failed: 'Reîncercarea a eșuat: {error}',
+    w_stat_unavailable: 'Indisponibile',
+    w_stat_reloads: 'Reîncărcări',
+    w_stat_reloads_hint: 'De la pornirea Home Assistant',
+    w_stat_ignored: 'Ignorate',
+    w_unavailable_title: 'Integrări indisponibile',
+    w_history_title: 'Reîncărcări recente',
+    w_no_history: 'Nicio reîncărcare încă',
+    w_since: 'indisponibilă de {d}',
+    w_attempts: 'Reîncărcări: {n}/{max}',
+    w_attempt: 'reîncărcare {n}/{max}',
+    w_waiting: 'Perioadă de grație',
+    w_gave_up: 'Abandonată',
+    w_reloaded: 'Reîncărcată',
+    w_reload_failed: 'Eșuată',
+    w_gave_up_event: 'Abandon',
+    w_gave_up_after: 'reîncărcări: {n}',
+    w_power_cycled: 'Repornit prin priză',
+    w_power_cycle_failed: 'Repornire eșuată',
+    w_cycle_attempt: 'repornirea {n}/{max}',
+    w_cycle_gave_up_after: 'după {n} reporniri',
+    w_not_loaded: 'Neconfigurat',
   },
   da: {
     title: 'Integration Watchdog',
@@ -640,6 +1003,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Opsætning mislykkedes',
     st_not_loaded: 'Stoppet',
     st_other: 'Utilgængelig',
+    w_all_ok: 'Alt er tilgængeligt',
+    w_unavailable_one: '{n} utilgængelig',
+    w_unavailable_many: '{n} utilgængelige',
+    w_gave_up_one: '{n} opgivet',
+    w_gave_up_many: '{n} opgivet',
+    w_checking: 'Kontrollerer…',
+    w_never_checked: 'Ikke kontrolleret endnu',
+    w_checked: 'Kontrolleret {d}',
+    w_check_now: 'Kontrollér nu',
+    w_check_failed: 'Kontrollen mislykkedes: {error}',
+    w_retry: 'Prøv igen',
+    w_retry_failed: 'Nyt forsøg mislykkedes: {error}',
+    w_stat_unavailable: 'Utilgængelige',
+    w_stat_reloads: 'Genindlæsninger',
+    w_stat_reloads_hint: 'Siden Home Assistant startede',
+    w_stat_ignored: 'Ignorerede',
+    w_unavailable_title: 'Utilgængelige integrationer',
+    w_history_title: 'Seneste genindlæsninger',
+    w_no_history: 'Ingen genindlæsninger endnu',
+    w_since: 'utilgængelig i {d}',
+    w_attempts: '{n}/{max} genindlæsninger',
+    w_attempt: 'genindlæsning {n}/{max}',
+    w_waiting: 'Respitperiode',
+    w_gave_up: 'Opgivet',
+    w_reloaded: 'Genindlæst',
+    w_reload_failed: 'Mislykkedes',
+    w_gave_up_event: 'Opgivet',
+    w_gave_up_after: 'efter {n} genindlæsninger',
+    w_power_cycled: 'Genstartet via stik',
+    w_power_cycle_failed: 'Genstart mislykkedes',
+    w_cycle_attempt: 'genstart {n}/{max}',
+    w_cycle_gave_up_after: 'efter {n} genstarter',
+    w_not_loaded: 'Ikke konfigureret',
   },
   sv: {
     title: 'Integration Watchdog',
@@ -692,6 +1088,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Konfigurationen misslyckades',
     st_not_loaded: 'Stoppad',
     st_other: 'Otillgänglig',
+    w_all_ok: 'Allt är tillgängligt',
+    w_unavailable_one: '{n} otillgänglig',
+    w_unavailable_many: '{n} otillgängliga',
+    w_gave_up_one: '{n} övergiven',
+    w_gave_up_many: '{n} övergivna',
+    w_checking: 'Kontrollerar…',
+    w_never_checked: 'Inte kontrollerad än',
+    w_checked: 'Kontrollerad {d}',
+    w_check_now: 'Kontrollera nu',
+    w_check_failed: 'Kontrollen misslyckades: {error}',
+    w_retry: 'Försök igen',
+    w_retry_failed: 'Nytt försök misslyckades: {error}',
+    w_stat_unavailable: 'Otillgängliga',
+    w_stat_reloads: 'Omladdningar',
+    w_stat_reloads_hint: 'Sedan Home Assistant startade',
+    w_stat_ignored: 'Ignorerade',
+    w_unavailable_title: 'Otillgängliga integrationer',
+    w_history_title: 'Senaste omladdningar',
+    w_no_history: 'Inga omladdningar än',
+    w_since: 'otillgänglig i {d}',
+    w_attempts: '{n}/{max} omladdningar',
+    w_attempt: 'omladdning {n}/{max}',
+    w_waiting: 'Respittid',
+    w_gave_up: 'Övergiven',
+    w_reloaded: 'Omladdad',
+    w_reload_failed: 'Misslyckades',
+    w_gave_up_event: 'Övergiven',
+    w_gave_up_after: 'efter {n} omladdningar',
+    w_power_cycled: 'Omstartad via uttag',
+    w_power_cycle_failed: 'Omstart misslyckades',
+    w_cycle_attempt: 'omstart {n}/{max}',
+    w_cycle_gave_up_after: 'efter {n} omstarter',
+    w_not_loaded: 'Inte konfigurerad',
   },
   bg: {
     title: 'Integration Watchdog',
@@ -744,6 +1173,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Настройката е неуспешна',
     st_not_loaded: 'Спряна',
     st_other: 'Недостъпна',
+    w_all_ok: 'Всичко е достъпно',
+    w_unavailable_one: '{n} недостъпна',
+    w_unavailable_many: '{n} недостъпни',
+    w_gave_up_one: '{n} изоставена',
+    w_gave_up_many: '{n} изоставени',
+    w_checking: 'Проверка…',
+    w_never_checked: 'Още не е проверено',
+    w_checked: 'Проверено {d}',
+    w_check_now: 'Провери сега',
+    w_check_failed: 'Проверката не бе успешна: {error}',
+    w_retry: 'Опитай отново',
+    w_retry_failed: 'Новият опит не бе успешен: {error}',
+    w_stat_unavailable: 'Недостъпни',
+    w_stat_reloads: 'Презареждания',
+    w_stat_reloads_hint: 'От стартирането на Home Assistant',
+    w_stat_ignored: 'Игнорирани',
+    w_unavailable_title: 'Недостъпни интеграции',
+    w_history_title: 'Последни презареждания',
+    w_no_history: 'Още няма презареждания',
+    w_since: 'недостъпна от {d}',
+    w_attempts: 'Презареждания: {n}/{max}',
+    w_attempt: 'презареждане {n}/{max}',
+    w_waiting: 'Гратисен период',
+    w_gave_up: 'Изоставена',
+    w_reloaded: 'Презаредена',
+    w_reload_failed: 'Неуспешно',
+    w_gave_up_event: 'Изоставена',
+    w_gave_up_after: 'презареждания: {n}',
+    w_power_cycled: 'Рестартирано чрез контакт',
+    w_power_cycle_failed: 'Неуспешен рестарт',
+    w_cycle_attempt: 'рестарт {n}/{max}',
+    w_cycle_gave_up_after: 'след {n} рестарта',
+    w_not_loaded: 'Не е настроено',
   },
   ru: {
     title: 'Integration Watchdog',
@@ -796,6 +1258,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Ошибка настройки',
     st_not_loaded: 'Остановлена',
     st_other: 'Недоступна',
+    w_all_ok: 'Всё доступно',
+    w_unavailable_one: 'Недоступно: {n}',
+    w_unavailable_many: 'Недоступно: {n}',
+    w_gave_up_one: 'Прекращено: {n}',
+    w_gave_up_many: 'Прекращено: {n}',
+    w_checking: 'Проверка…',
+    w_never_checked: 'Ещё не проверялось',
+    w_checked: 'Проверено {d}',
+    w_check_now: 'Проверить сейчас',
+    w_check_failed: 'Ошибка проверки: {error}',
+    w_retry: 'Повторить',
+    w_retry_failed: 'Повторная попытка не удалась: {error}',
+    w_stat_unavailable: 'Недоступно',
+    w_stat_reloads: 'Перезагрузки',
+    w_stat_reloads_hint: 'С момента запуска Home Assistant',
+    w_stat_ignored: 'Исключены',
+    w_unavailable_title: 'Недоступные интеграции',
+    w_history_title: 'Последние перезагрузки',
+    w_no_history: 'Перезагрузок пока не было',
+    w_since: 'недоступна уже {d}',
+    w_attempts: 'Перезагрузки: {n}/{max}',
+    w_attempt: 'перезагрузка {n}/{max}',
+    w_waiting: 'Период ожидания',
+    w_gave_up: 'Прекращено',
+    w_reloaded: 'Перезагружена',
+    w_reload_failed: 'Ошибка',
+    w_gave_up_event: 'Прекращено',
+    w_gave_up_after: 'перезагрузок: {n}',
+    w_power_cycled: 'Перезапущено розеткой',
+    w_power_cycle_failed: 'Перезапуск не удался',
+    w_cycle_attempt: 'перезапуск {n}/{max}',
+    w_cycle_gave_up_after: 'после {n} перезапусков',
+    w_not_loaded: 'Не настроено',
   },
   uk: {
     title: 'Integration Watchdog',
@@ -848,6 +1343,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Помилка налаштування',
     st_not_loaded: 'Зупинена',
     st_other: 'Недоступна',
+    w_all_ok: 'Усе доступне',
+    w_unavailable_one: 'Недоступно: {n}',
+    w_unavailable_many: 'Недоступно: {n}',
+    w_gave_up_one: 'Припинено: {n}',
+    w_gave_up_many: 'Припинено: {n}',
+    w_checking: 'Перевірка…',
+    w_never_checked: 'Ще не перевірялося',
+    w_checked: 'Перевірено {d}',
+    w_check_now: 'Перевірити зараз',
+    w_check_failed: 'Помилка перевірки: {error}',
+    w_retry: 'Повторити',
+    w_retry_failed: 'Повторна спроба не вдалася: {error}',
+    w_stat_unavailable: 'Недоступно',
+    w_stat_reloads: 'Перезавантаження',
+    w_stat_reloads_hint: 'Від запуску Home Assistant',
+    w_stat_ignored: 'Ігнорується',
+    w_unavailable_title: 'Недоступні інтеграції',
+    w_history_title: 'Історія перезавантажень',
+    w_no_history: 'Перезавантажень ще не було',
+    w_since: 'недоступна вже {d}',
+    w_attempts: 'Перезавантаження: {n}/{max}',
+    w_attempt: 'перезавантаження {n}/{max}',
+    w_waiting: 'Очікування',
+    w_gave_up: 'Припинено',
+    w_reloaded: 'Перезавантажено',
+    w_reload_failed: 'Помилка',
+    w_gave_up_event: 'Припинено',
+    w_gave_up_after: 'перезавантажень: {n}',
+    w_power_cycled: 'Перезапущено розеткою',
+    w_power_cycle_failed: 'Перезапуск не вдався',
+    w_cycle_attempt: 'перезапуск {n}/{max}',
+    w_cycle_gave_up_after: 'після {n} перезапусків',
+    w_not_loaded: 'Не налаштовано',
   },
   hu: {
     title: 'Integration Watchdog',
@@ -900,6 +1428,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'A beállítás sikertelen',
     st_not_loaded: 'Leállítva',
     st_other: 'Nem érhető el',
+    w_all_ok: 'Minden elérhető',
+    w_unavailable_one: '{n} nem elérhető',
+    w_unavailable_many: '{n} nem elérhető',
+    w_gave_up_one: '{n} feladva',
+    w_gave_up_many: '{n} feladva',
+    w_checking: 'Ellenőrzés…',
+    w_never_checked: 'Még nincs ellenőrizve',
+    w_checked: 'Ellenőrizve: {d}',
+    w_check_now: 'Ellenőrzés most',
+    w_check_failed: 'Az ellenőrzés sikertelen: {error}',
+    w_retry: 'Újra',
+    w_retry_failed: 'Az újrapróbálás sikertelen: {error}',
+    w_stat_unavailable: 'Nem elérhető',
+    w_stat_reloads: 'Újratöltések',
+    w_stat_reloads_hint: 'A Home Assistant indulása óta',
+    w_stat_ignored: 'Mellőzve',
+    w_unavailable_title: 'Nem elérhető integrációk',
+    w_history_title: 'Legutóbbi újratöltések',
+    w_no_history: 'Még nem volt újratöltés',
+    w_since: '{d} óta nem elérhető',
+    w_attempts: '{n}/{max} újratöltés',
+    w_attempt: '{n}/{max}. újratöltés',
+    w_waiting: 'Türelmi idő',
+    w_gave_up: 'Feladva',
+    w_reloaded: 'Újratöltve',
+    w_reload_failed: 'Sikertelen',
+    w_gave_up_event: 'Feladva',
+    w_gave_up_after: '{n} újratöltés után',
+    w_power_cycled: 'Újraindítva konnektorral',
+    w_power_cycle_failed: 'Sikertelen újraindítás',
+    w_cycle_attempt: 'újraindítás {n}/{max}',
+    w_cycle_gave_up_after: '{n} újraindítás után',
+    w_not_loaded: 'Nincs beállítva',
   },
   sk: {
     title: 'Integration Watchdog',
@@ -952,6 +1513,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Nastavenie zlyhalo',
     st_not_loaded: 'Zastavená',
     st_other: 'Nedostupná',
+    w_all_ok: 'Všetko je dostupné',
+    w_unavailable_one: '{n} nedostupná',
+    w_unavailable_many: 'Nedostupné: {n}',
+    w_gave_up_one: '{n} vzdaná',
+    w_gave_up_many: 'Vzdané: {n}',
+    w_checking: 'Kontroluje sa…',
+    w_never_checked: 'Zatiaľ neskontrolované',
+    w_checked: 'Skontrolované {d}',
+    w_check_now: 'Skontrolovať teraz',
+    w_check_failed: 'Kontrola zlyhala: {error}',
+    w_retry: 'Skúsiť znova',
+    w_retry_failed: 'Nový pokus zlyhal: {error}',
+    w_stat_unavailable: 'Nedostupné',
+    w_stat_reloads: 'Opätovné načítania',
+    w_stat_reloads_hint: 'Od spustenia Home Assistant',
+    w_stat_ignored: 'Ignorované',
+    w_unavailable_title: 'Nedostupné integrácie',
+    w_history_title: 'Posledné opätovné načítania',
+    w_no_history: 'Zatiaľ žiadne opätovné načítanie',
+    w_since: 'nedostupná už {d}',
+    w_attempts: 'Opätovné načítania: {n}/{max}',
+    w_attempt: 'opätovné načítanie {n}/{max}',
+    w_waiting: 'Ochranná lehota',
+    w_gave_up: 'Vzdaná',
+    w_reloaded: 'Znovu načítaná',
+    w_reload_failed: 'Zlyhalo',
+    w_gave_up_event: 'Vzdaná',
+    w_gave_up_after: 'opätovné načítania: {n}',
+    w_power_cycled: 'Reštartované cez zásuvku',
+    w_power_cycle_failed: 'Reštart zlyhal',
+    w_cycle_attempt: 'reštart {n}/{max}',
+    w_cycle_gave_up_after: 'reštarty: {n}',
+    w_not_loaded: 'Nie je nastavené',
   },
   cs: {
     title: 'Integration Watchdog',
@@ -1004,6 +1598,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Nastavení selhalo',
     st_not_loaded: 'Zastavena',
     st_other: 'Nedostupná',
+    w_all_ok: 'Vše je dostupné',
+    w_unavailable_one: '{n} nedostupná',
+    w_unavailable_many: 'Nedostupné: {n}',
+    w_gave_up_one: '{n} vzdaná',
+    w_gave_up_many: 'Vzdané: {n}',
+    w_checking: 'Probíhá kontrola…',
+    w_never_checked: 'Zatím nezkontrolováno',
+    w_checked: 'Zkontrolováno {d}',
+    w_check_now: 'Zkontrolovat nyní',
+    w_check_failed: 'Kontrola selhala: {error}',
+    w_retry: 'Zkusit znovu',
+    w_retry_failed: 'Nový pokus selhal: {error}',
+    w_stat_unavailable: 'Nedostupné',
+    w_stat_reloads: 'Opětovná načtení',
+    w_stat_reloads_hint: 'Od spuštění Home Assistant',
+    w_stat_ignored: 'Ignorované',
+    w_unavailable_title: 'Nedostupné integrace',
+    w_history_title: 'Nedávná opětovná načtení',
+    w_no_history: 'Zatím žádné opětovné načtení',
+    w_since: 'nedostupná už {d}',
+    w_attempts: 'Opětovná načtení: {n}/{max}',
+    w_attempt: 'opětovné načtení {n}/{max}',
+    w_waiting: 'Ochranná lhůta',
+    w_gave_up: 'Vzdaná',
+    w_reloaded: 'Znovu načtena',
+    w_reload_failed: 'Selhalo',
+    w_gave_up_event: 'Vzdaná',
+    w_gave_up_after: 'opětovná načtení: {n}',
+    w_power_cycled: 'Restartováno přes zásuvku',
+    w_power_cycle_failed: 'Restart selhal',
+    w_cycle_attempt: 'restart {n}/{max}',
+    w_cycle_gave_up_after: 'restarty: {n}',
+    w_not_loaded: 'Nenastaveno',
   },
   sl: {
     title: 'Integration Watchdog',
@@ -1056,6 +1683,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Nastavitev ni uspela',
     st_not_loaded: 'Ustavljena',
     st_other: 'Nedosegljiva',
+    w_all_ok: 'Vse je na voljo',
+    w_unavailable_one: 'Ni na voljo: {n}',
+    w_unavailable_many: 'Ni na voljo: {n}',
+    w_gave_up_one: 'Opuščene: {n}',
+    w_gave_up_many: 'Opuščene: {n}',
+    w_checking: 'Preverjanje…',
+    w_never_checked: 'Še ni preverjeno',
+    w_checked: 'Preverjeno {d}',
+    w_check_now: 'Preveri zdaj',
+    w_check_failed: 'Preverjanje ni uspelo: {error}',
+    w_retry: 'Poskusi znova',
+    w_retry_failed: 'Ponoven poskus ni uspel: {error}',
+    w_stat_unavailable: 'Ni na voljo',
+    w_stat_reloads: 'Ponovna nalaganja',
+    w_stat_reloads_hint: 'Od zagona Home Assistanta',
+    w_stat_ignored: 'Prezrte',
+    w_unavailable_title: 'Integracije, ki niso na voljo',
+    w_history_title: 'Nedavna ponovna nalaganja',
+    w_no_history: 'Še ni ponovnih nalaganj',
+    w_since: 'ni na voljo že {d}',
+    w_attempts: 'Ponovna nalaganja: {n}/{max}',
+    w_attempt: 'ponovno nalaganje {n}/{max}',
+    w_waiting: 'Čakalna doba',
+    w_gave_up: 'Opuščena',
+    w_reloaded: 'Ponovno naložena',
+    w_reload_failed: 'Neuspešno',
+    w_gave_up_event: 'Opuščena',
+    w_gave_up_after: 'ponovna nalaganja: {n}',
+    w_power_cycled: 'Ponovno zagnano prek vtičnice',
+    w_power_cycle_failed: 'Ponovni zagon ni uspel',
+    w_cycle_attempt: 'ponovni zagon {n}/{max}',
+    w_cycle_gave_up_after: 'ponovni zagoni: {n}',
+    w_not_loaded: 'Ni nastavljeno',
   },
   lv: {
     title: 'Integration Watchdog',
@@ -1108,6 +1768,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Iestatīšana neizdevās',
     st_not_loaded: 'Apturēta',
     st_other: 'Nav pieejama',
+    w_all_ok: 'Viss ir pieejams',
+    w_unavailable_one: 'Nav pieejamas: {n}',
+    w_unavailable_many: 'Nav pieejamas: {n}',
+    w_gave_up_one: 'Atmestas: {n}',
+    w_gave_up_many: 'Atmestas: {n}',
+    w_checking: 'Notiek pārbaude…',
+    w_never_checked: 'Vēl nav pārbaudīts',
+    w_checked: 'Pārbaudīts {d}',
+    w_check_now: 'Pārbaudīt tagad',
+    w_check_failed: 'Pārbaude neizdevās: {error}',
+    w_retry: 'Mēģināt vēlreiz',
+    w_retry_failed: 'Atkārtotais mēģinājums neizdevās: {error}',
+    w_stat_unavailable: 'Nav pieejamas',
+    w_stat_reloads: 'Pārlādes',
+    w_stat_reloads_hint: 'Kopš Home Assistant palaišanas',
+    w_stat_ignored: 'Ignorētas',
+    w_unavailable_title: 'Nepieejamās integrācijas',
+    w_history_title: 'Nesenās pārlādes',
+    w_no_history: 'Vēl nav pārlāžu',
+    w_since: 'nav pieejama jau {d}',
+    w_attempts: 'Pārlādes: {n}/{max}',
+    w_attempt: 'pārlāde {n}/{max}',
+    w_waiting: 'Nogaidīšanas laiks',
+    w_gave_up: 'Atmesta',
+    w_reloaded: 'Pārlādēta',
+    w_reload_failed: 'Neizdevās',
+    w_gave_up_event: 'Atmesta',
+    w_gave_up_after: 'pārlādes: {n}',
+    w_power_cycled: 'Restartēta ar kontaktligzdu',
+    w_power_cycle_failed: 'Restartēšana neizdevās',
+    w_cycle_attempt: 'restartēšana {n}/{max}',
+    w_cycle_gave_up_after: 'restartēšanas: {n}',
+    w_not_loaded: 'Nav iestatīts',
   },
   el: {
     title: 'Integration Watchdog',
@@ -1160,6 +1853,39 @@ var IntegrationWatchdogPanelI18n = {
     st_setup_error: 'Η ρύθμιση απέτυχε',
     st_not_loaded: 'Σταματημένη',
     st_other: 'Μη διαθέσιμη',
+    w_all_ok: 'Όλα διαθέσιμα',
+    w_unavailable_one: '{n} μη διαθέσιμη',
+    w_unavailable_many: '{n} μη διαθέσιμες',
+    w_gave_up_one: '{n} διακόπηκε',
+    w_gave_up_many: '{n} διακόπηκαν',
+    w_checking: 'Έλεγχος…',
+    w_never_checked: 'Δεν έχει ελεγχθεί ακόμα',
+    w_checked: 'Ελέγχθηκε {d}',
+    w_check_now: 'Έλεγχος τώρα',
+    w_check_failed: 'Ο έλεγχος απέτυχε: {error}',
+    w_retry: 'Δοκιμή ξανά',
+    w_retry_failed: 'Η νέα προσπάθεια απέτυχε: {error}',
+    w_stat_unavailable: 'Μη διαθέσιμες',
+    w_stat_reloads: 'Επαναφορτώσεις',
+    w_stat_reloads_hint: 'Από την εκκίνηση του Home Assistant',
+    w_stat_ignored: 'Αγνοούνται',
+    w_unavailable_title: 'Μη διαθέσιμες ενσωματώσεις',
+    w_history_title: 'Πρόσφατες επαναφορτώσεις',
+    w_no_history: 'Καμία επαναφόρτωση ακόμα',
+    w_since: 'μη διαθέσιμη εδώ και {d}',
+    w_attempts: '{n}/{max} επαναφορτώσεις',
+    w_attempt: 'επαναφόρτωση {n}/{max}',
+    w_waiting: 'Περίοδος χάριτος',
+    w_gave_up: 'Διακόπηκε',
+    w_reloaded: 'Επαναφορτώθηκε',
+    w_reload_failed: 'Απέτυχε',
+    w_gave_up_event: 'Εγκατάλειψη',
+    w_gave_up_after: 'μετά από {n} επαναφορτώσεις',
+    w_power_cycled: 'Επανεκκίνηση μέσω πρίζας',
+    w_power_cycle_failed: 'Η επανεκκίνηση απέτυχε',
+    w_cycle_attempt: 'επανεκκίνηση {n}/{max}',
+    w_cycle_gave_up_after: 'μετά από {n} επανεκκινήσεις',
+    w_not_loaded: 'Δεν έχει ρυθμιστεί',
   },
 };
 
@@ -1168,6 +1894,34 @@ var IW_PANEL_LIMITS = { scan_interval: [1, 1440], grace_period: [1, 1440], max_r
 var IW_PANEL_NUMBERS = ['scan_interval', 'grace_period', 'max_reloads'];
 var IW_PANEL_LISTS = ['ignored_integrations', 'ignored_entries', 'notify_services'];
 var IW_PANEL_TABS = ['status', 'power_cycles', 'settings'];
+// Reloads and power cycles listed at most in the Status tab, the latest first
+var IW_PANEL_HISTORY = 50;
+
+// The watchdog's entities, by what they are: its translation key, else the end of its entity id
+var IW_PANEL_ROLES = {
+  unavailable: '_unavailable_integrations',
+  last_reload: '_last_reload',
+  last_check: '_last_check',
+  check: '_check_now',
+};
+
+// The watchdog's sensors and button: those of the device whose "Unavailable integrations" sensor lists the integrations
+function iwPanelEntities(hass) {
+  var byDevice = {};
+  Object.entries(hass?.entities || {}).forEach(([id, entry]) => {
+    if (entry?.platform !== 'integration_watchdog') return;
+    var role = Object.keys(IW_PANEL_ROLES).find((r) => entry.translation_key === r || id.endsWith(IW_PANEL_ROLES[r]));
+    if (role) (byDevice[entry.device_id || ''] ||= {})[role] = id;
+  });
+  return Object.values(byDevice).find((ids) => Array.isArray(hass?.states?.[ids.unavailable]?.attributes?.integrations)) || null;
+}
+
+// Tone and label key of a history item: a reload or a power cycle, done, failed or given up
+function iwPanelEvent(kind) {
+  var tone = { reloaded: 'good', power_cycled: 'good', reload_failed: 'warn', power_cycle_failed: 'warn' }[kind] || 'bad';
+  var label = String(kind).endsWith('gave_up') ? 'w_gave_up_event' : `w_${kind}`;
+  return { tone, label, cycle: String(kind).startsWith('power_cycle') };
+}
 
 function iwPanelT(lang, key, vars) {
   var table = IntegrationWatchdogPanelI18n[lang] || IntegrationWatchdogPanelI18n.en;
@@ -1237,6 +1991,9 @@ function iwPanelOverrides(text) {
 }
 
 class IntegrationWatchdogPanel extends HTMLElement {
+  // The release checks it matches the other versions; the panel no longer loads the card with it
+  static VERSION = INTEGRATION_WATCHDOG_PANEL_VERSION;
+
   static STYLE = `
     :host { display:block; min-height:100%; background:var(--primary-background-color); color:var(--primary-text-color);
             --tone-good: var(--success-color, #43a047); --tone-warn: var(--warning-color, #ffa600); --tone-bad: var(--error-color, #db4437); }
@@ -1323,6 +2080,42 @@ class IntegrationWatchdogPanel extends HTMLElement {
     .icon-btn:hover:not([disabled]) { background:var(--secondary-background-color); color:var(--error-color, #db4437); }
     .icon-btn[disabled] { opacity:.5; cursor:default; }
     .warn-line { font-size:12px; color:var(--tone-text); --tone:var(--tone-warn); display:flex; align-items:center; gap:6px; --mdc-icon-size:16px; }
+    /* Status tab: summary tiles, the check button, then the unavailable integrations and the history side by side */
+    .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; }
+    .tile { padding:12px 14px; display:flex; align-items:center; gap:12px; min-width:0; }
+    .tile .avatar { --mdc-icon-size:20px; color:var(--tone-text, var(--primary-color)); background:color-mix(in srgb, var(--tone, var(--primary-color)) 15%, transparent); }
+    .tile.lead { grid-column:span 2; }
+    .tile .who .n { font-size:15px; }
+    .tile .who .n b { font-size:20px; font-weight:500; margin-right:4px; font-variant-numeric:tabular-nums; }
+    .tile .act { flex:none; }
+    .lists { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap:12px; align-items:start; }
+    .list { padding:6px 0; overflow:hidden; }
+    .lhead { display:flex; align-items:center; gap:10px; padding:8px 14px 6px; --mdc-icon-size:18px; color:var(--secondary-text-color); }
+    .lhead .lname { flex:1; font-size:14px; font-weight:500; color:var(--primary-text-color); }
+    .lhead .lcount { font-size:12px; }
+    .item { display:flex; align-items:center; gap:12px; padding:8px 14px; min-width:0; }
+    a.item { color:inherit; text-decoration:none; }
+    a.item:hover { background:var(--secondary-background-color, rgba(127,127,127,.08)); }
+    a.item:focus-visible { outline:2px solid var(--primary-color); outline-offset:-2px; }
+    .logo { position:relative; flex:none; width:28px; height:28px; display:grid; place-items:center; --mdc-icon-size:22px; color:var(--tone-text); }
+    .logo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:var(--card-background-color, #fff); border-radius:6px; }
+    .logo.nobrand img { display:none; }
+    .item .who .n, .item .who .s { display:block; }
+    .item .side { flex:none; display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:12px; text-align:right; }
+    .item .side .tag { font-weight:500; color:var(--tone-text); }
+    .item .side .ago { color:var(--secondary-text-color); white-space:nowrap; }
+    .item-line { display:flex; align-items:center; }
+    .item-line > a.item { flex:1; }
+    .item-line .icon-btn { margin-right:8px; }
+    .item-line .icon-btn:hover:not([disabled]) { color:var(--primary-color); }
+    .empty { padding:18px 14px; color:var(--secondary-text-color); display:flex; align-items:center; gap:10px; --mdc-icon-size:20px; }
+    .empty.good ha-icon { color:var(--tone-text); }
+    @media (max-width: 600px) {
+      main { padding:12px 8px; }
+      .tile { padding:10px 12px; gap:10px; }
+      .tile .avatar { width:32px; height:32px; --mdc-icon-size:18px; }
+      .tile .who .n, .tile .who .s { white-space:normal; }
+    }
   `;
 
   constructor() {
@@ -1383,13 +2176,15 @@ class IntegrationWatchdogPanel extends HTMLElement {
     var first = !this._hass;
     var langBefore = this._lang();
     this._hass = hass;
-    if (this._card) this._card.hass = hass;
     if (this._menu) this._menu.hass = hass;
     if (first) this._start();
     else if (this._lang() !== langBefore) {
       this._render();
       this._loadStrings();
     }
+    // Home Assistant makes a new state object only when an entity changes: the status is drawn again only then,
+    // or once a minute for the "3 minutes ago"
+    else if (this._statusSignature() !== this._drawnStatus) this._renderStatus();
   }
 
   set narrow(narrow) {
@@ -1479,32 +2274,13 @@ class IntegrationWatchdogPanel extends HTMLElement {
     return table[`component.integration_watchdog.options.${path}`] || fallback || '';
   }
 
-  // The settings and labels load at once, the card alongside: its bundle and language file take up to a few seconds,
-  // and the other tabs don't need it. The card goes into its slot whenever it's defined.
+  // The status is drawn at once from the watchdog's sensors; the settings and the form labels load alongside.
   _start() {
     this._render();
     this._subscribe();
     this._watchConnection(this.isConnected);
     this._load();
     this._loadStrings();
-    return this._loadCard();
-  }
-
-  async _loadCard() {
-    try {
-      if (!customElements.get('integration-watchdog-card')) await this._importCard();
-      // Defined only once its language file is in, after the import resolved
-      await customElements.whenDefined('integration-watchdog-card');
-    } catch (err) {
-      console.error('Integration Watchdog panel: could not load the card', err);
-      return;
-    }
-    this._mountCard();
-  }
-
-  _importCard() {
-    var version = this._panel?.config?.version || INTEGRATION_WATCHDOG_PANEL_VERSION;
-    return import(`/integration_watchdog/integration-watchdog-card.js?v=${version}`);
   }
 
   async _loadStrings() {
@@ -1559,7 +2335,7 @@ class IntegrationWatchdogPanel extends HTMLElement {
       </div>
       <div class="tabs" role="tablist">${IW_PANEL_TABS.map((tab) => this._tabHtml(tab)).join('')}</div>
       <main>
-        <section class="column" id="tab-status" role="tabpanel" aria-labelledby="tabbtn-status"><div id="card"></div></section>
+        <section class="column" id="tab-status" role="tabpanel" aria-labelledby="tabbtn-status"><div class="column" id="iw-status"></div></section>
         <section class="column" id="tab-power_cycles" role="tabpanel" aria-labelledby="tabbtn-power_cycles"></section>
         <section class="column" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"></section>
       </main>`;
@@ -1578,7 +2354,8 @@ class IntegrationWatchdogPanel extends HTMLElement {
       });
     });
     this._showTab(this._tab);
-    if (this._card) root.getElementById('card').appendChild(this._card);
+    this._bindStatus();
+    this._renderStatus();
     this._renderTabs();
   }
 
@@ -1587,13 +2364,211 @@ class IntegrationWatchdogPanel extends HTMLElement {
     return `<button class="tab${selected ? ' active' : ''}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">${iwPanelEsc(this._t(tab))}</button>`;
   }
 
-  _mountCard() {
-    if (this._card || !customElements.get('integration-watchdog-card')) return;
-    this._card = document.createElement('integration-watchdog-card');
-    // The whole history; no `language`: the card follows hass.language, so it switches language with the panel.
-    this._card.setConfig({ history_count: 20 });
-    this._card.hass = this._hass;
-    this.shadowRoot.getElementById('card')?.appendChild(this._card);
+  // ── Status tab ─────────────────────────────────────────────────────────────
+  // The watchdog's entities are looked up in the entity registry once, not at every state change of Home Assistant
+  _statusIds() {
+    if (!this._ids || this._idsRegistry !== this._hass?.entities || !this._hass?.states?.[this._ids.unavailable]) {
+      this._idsRegistry = this._hass?.entities;
+      this._ids = iwPanelEntities(this._hass);
+    }
+    return this._ids;
+  }
+
+  _statusSignature() {
+    var ids = this._statusIds();
+    var states = this._hass?.states || {};
+    var minute = Math.floor(Date.now() / 60000);
+    return ids ? [minute, ...Object.values(ids).map((id) => states[id]?.last_updated)].join('|') : `${minute}`;
+  }
+
+  _bindStatus() {
+    var root = this.shadowRoot;
+    root.getElementById?.('iw-status')?.addEventListener('click', (ev) => {
+      var link = ev.target.closest?.('a.item');
+      // Inside the app, a link moves to the integration's page without reloading Home Assistant
+      if (link && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey && ev.button === 0) {
+        ev.preventDefault();
+        window.history.pushState(null, '', link.getAttribute('href'));
+        window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
+        return;
+      }
+      var button = ev.target.closest?.('button');
+      if (button?.dataset.check !== undefined) this._checkNow();
+      else if (button?.dataset.reset) this._resetEntry(button.dataset.reset, button);
+    });
+  }
+
+  // "3 minutes ago", in the language of the page
+  _ago(iso) {
+    var minutes = Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000);
+    var [value, unit] =
+      minutes < 1 ? [0, 'minute'] : minutes < 60 ? [minutes, 'minute'] : minutes < 1440 ? [minutes / 60, 'hour'] : [minutes / 1440, 'day'];
+    try {
+      return new Intl.RelativeTimeFormat(this._hass?.language || 'en', { numeric: 'auto' }).format(-Math.floor(value), unit);
+    } catch (_err) {
+      return String(iso).slice(0, 16).replace('T', ' ');
+    }
+  }
+
+  // "3 hours", "2 days": how long an integration has been unavailable
+  _for(iso) {
+    var minutes = Math.max(1, (Date.now() - new Date(iso).getTime()) / 60000);
+    var [value, unit] = minutes < 60 ? [minutes, 'minute'] : minutes < 2880 ? [minutes / 60, 'hour'] : [minutes / 1440, 'day'];
+    try {
+      return new Intl.NumberFormat(this._hass?.language || 'en', { style: 'unit', unit, unitDisplay: 'long' }).format(Math.floor(value));
+    } catch (_err) {
+      return `${Math.floor(value)} ${unit}`;
+    }
+  }
+
+  _when(iso) {
+    try {
+      return new Date(iso).toLocaleString(this._hass?.language || 'en', { dateStyle: 'medium', timeStyle: 'short' });
+    } catch (_err) {
+      return String(iso);
+    }
+  }
+
+  _count(n, one, many) {
+    return this._t(n === 1 ? one : many, { n });
+  }
+
+  // The integration's logo (Home Assistant brands), the icon behind it when there is none
+  _logo(domain, icon) {
+    var esc = iwPanelEsc;
+    var dark = this._hass?.themes?.darkMode ? 'dark_' : '';
+    var src = `https://brands.home-assistant.io/_/${encodeURIComponent(domain || '')}/${dark}icon.png`;
+    return `<span class="logo"><ha-icon icon="${icon}"></ha-icon><img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`;
+  }
+
+  // Settings → the integration's page, on its entry: an ordinary link, the frontend follows it without reloading
+  _href(domain, entry) {
+    if (!domain) return '';
+    return `/config/integrations/integration/${encodeURIComponent(domain)}${entry ? `#config_entry=${encodeURIComponent(entry)}` : ''}`;
+  }
+
+  _unavailableItem(item, max) {
+    var esc = iwPanelEsc;
+    var tone = item.gave_up ? 'bad' : 'warn';
+    var tag = item.gave_up ? this._t('w_gave_up') : item.reloads && max ? this._t('w_attempts', { n: item.reloads, max }) : this._t('w_waiting');
+    var sub = [item.domain, item.since ? this._t('w_since', { d: this._for(item.since) }) : ''].filter(Boolean).join(' · ');
+    var link = `<a class="item ${tone}" href="${esc(this._href(item.domain, item.entry_id))}">
+        ${this._logo(item.domain, 'mdi:puzzle-remove-outline')}
+        <span class="who"><span class="n">${esc(item.title)}</span><span class="s">${esc(sub)}</span></span>
+        <span class="side"><span class="tag">${esc(tag)}</span></span>
+      </a>`;
+    if (!item.gave_up || !item.entry_id) return link;
+    var label = esc(`${this._t('w_retry')} — ${item.title}`);
+    return `<div class="item-line">${link}<button class="icon-btn" data-reset="${esc(item.entry_id)}" title="${label}" aria-label="${label}"><ha-icon icon="mdi:restart"></ha-icon></button></div>`;
+  }
+
+  _historyItem(h) {
+    var esc = iwPanelEsc;
+    var event = iwPanelEvent(h.kind);
+    var icon = { good: 'mdi:check-circle', warn: 'mdi:alert-circle', bad: 'mdi:cancel' }[event.tone];
+    var detail = '';
+    if (String(h.kind).endsWith('gave_up')) detail = this._t(event.cycle ? 'w_cycle_gave_up_after' : 'w_gave_up_after', { n: h.attempt });
+    else if (h.max_reloads) detail = this._t(event.cycle ? 'w_cycle_attempt' : 'w_attempt', { n: h.attempt, max: h.max_reloads });
+    var sub = [event.cycle ? h.switch_name || h.switch : h.domain, detail].filter(Boolean).join(' · ');
+    return `<a class="item ${event.tone}" href="${esc(this._href(h.domain, h.entry_id))}" title="${esc(this._when(h.at))}">
+        <span class="logo"><ha-icon icon="${icon}"></ha-icon></span>
+        <span class="who"><span class="n">${esc(h.title)}</span><span class="s">${esc(sub)}</span></span>
+        <span class="side"><span class="tag">${esc(this._t(event.label))}</span><span class="ago">${esc(this._ago(h.at))}</span></span>
+      </a>`;
+  }
+
+  _tile(icon, tone, title, detail, extra = '', lead = false) {
+    var esc = iwPanelEsc;
+    return `<ha-card class="tile ${tone}${lead ? ' lead' : ''}"><div class="avatar"><ha-icon icon="${icon}"></ha-icon></div>
+      <div class="who"><div class="n">${title}</div>${detail ? `<div class="s">${esc(detail)}</div>` : ''}</div>${extra}</ha-card>`;
+  }
+
+  _renderStatus() {
+    var box = this.shadowRoot?.getElementById?.('iw-status');
+    if (!box) return;
+    this._drawnStatus = this._statusSignature();
+    var esc = iwPanelEsc;
+    var ids = this._statusIds();
+    var states = this._hass?.states || {};
+    var sensor = ids && states[ids.unavailable];
+    if (!sensor) {
+      box.innerHTML = `<ha-card class="note">${esc(this._t('w_not_loaded'))}</ha-card>`;
+      return;
+    }
+    var items = sensor.attributes.integrations;
+    var ignored = sensor.attributes.ignored || [];
+    var max = Number(sensor.attributes.max_reloads) || null;
+    var reloadState = ids.last_reload && states[ids.last_reload];
+    var history = (reloadState?.attributes?.history || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    var checkState = ids.last_check && states[ids.last_check];
+    var checkedAt = checkState && !['unknown', 'unavailable'].includes(checkState.state) ? checkState.state : null;
+    // The button is unavailable while a check runs
+    var checking = ids.check && states[ids.check]?.state === 'unavailable';
+    var givenUp = items.filter((i) => i.gave_up).length;
+    var waiting = items.length - givenUp;
+    var tone = givenUp ? 'bad' : items.length ? 'warn' : 'good';
+    var summary = [waiting && this._count(waiting, 'w_unavailable_one', 'w_unavailable_many'), givenUp && this._count(givenUp, 'w_gave_up_one', 'w_gave_up_many')]
+      .filter(Boolean)
+      .join(' · ');
+    var check = ids.check
+      ? `<button class="act" data-check${checking ? ' disabled' : ''}><ha-icon icon="mdi:refresh"></ha-icon>${esc(this._t(checking ? 'w_checking' : 'w_check_now'))}</button>`
+      : '';
+    var icon = { good: 'mdi:shield-check-outline', warn: 'mdi:shield-alert-outline', bad: 'mdi:shield-off-outline' }[tone];
+    var number = (n, label) => `<b>${esc(n)}</b>${esc(this._t(label))}`;
+    box.innerHTML = `
+      <div class="tiles">
+        ${this._tile(icon, tone, esc(summary || this._t('w_all_ok')), checkedAt ? this._t('w_checked', { d: this._ago(checkedAt) }) : this._t('w_never_checked'), check, true)}
+        ${this._tile('mdi:restart', '', number(Number(reloadState?.attributes?.reloads) || 0, 'w_stat_reloads'), this._t('w_stat_reloads_hint'))}
+        ${this._tile('mdi:eye-off-outline', '', number(ignored.length, 'w_stat_ignored'), ignored.join(', '))}
+      </div>
+      <div class="lists">
+        <ha-card class="list">
+          <div class="lhead"><ha-icon icon="mdi:puzzle-remove-outline"></ha-icon><span class="lname">${esc(this._t('w_unavailable_title'))}</span>
+            <span class="lcount">${items.length}</span></div>
+          ${
+            items.length
+              ? items.map((i) => this._unavailableItem(i, max)).join('')
+              : `<div class="empty good"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${esc(this._t('w_all_ok'))}</div>`
+          }
+        </ha-card>
+        <ha-card class="list">
+          <div class="lhead"><ha-icon icon="mdi:history"></ha-icon><span class="lname">${esc(this._t('w_history_title'))}</span>
+            <span class="lcount">${history.length}</span></div>
+          ${
+            history.length
+              ? history.slice(0, IW_PANEL_HISTORY).map((h) => this._historyItem(h)).join('')
+              : `<div class="empty">${esc(this._t('w_no_history'))}</div>`
+          }
+        </ha-card>
+      </div>`;
+    // A brand without a logo (custom integration): the icon behind it shows
+    box.querySelectorAll('.logo img').forEach((img) => {
+      img.addEventListener('error', () => img.parentElement.classList.add('nobrand'), { once: true });
+    });
+  }
+
+  // "Check now": presses the watchdog's button; a failure is a Home Assistant toast
+  async _checkNow() {
+    try {
+      await this._hass.callService('button', 'press', { entity_id: this._statusIds()?.check });
+    } catch (err) {
+      this._toast(this._t('w_check_failed', { error: err?.message || err?.code || String(err) }));
+    }
+  }
+
+  // "Try again" on an integration given up: forgets its reloads and reloads it (the reset action)
+  async _resetEntry(entryId, button) {
+    button.disabled = true;
+    try {
+      await this._hass.callService('integration_watchdog', 'reset', { entry_id: entryId });
+    } catch (err) {
+      button.disabled = false;
+      this._toast(this._t('w_retry_failed', { error: err?.message || err?.code || String(err) }));
+    }
+  }
+
+  _toast(message) {
+    this.dispatchEvent(new CustomEvent('hass-notification', { detail: { message }, bubbles: true, composed: true }));
   }
 
   // The settings form: the fields the user typed over the stored values (so a change made elsewhere shows up)
