@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.1 - 2026-11-10
+
+### Performance
+- **Panel opens faster**: the settings and the form labels load alongside the card instead of after it (the card's bundle and language file could delay them by a few seconds).
+
 ## 1.8.0 - 2026-11-10
 
 ### Features

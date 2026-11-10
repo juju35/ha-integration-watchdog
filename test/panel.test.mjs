@@ -17,7 +17,14 @@ const context = {
       return shadow;
     }
   },
-  customElements: { get: () => true, define() {} },
+  customElements: {
+    defined: new Set(['integration-watchdog-card']),
+    get(name) {
+      return this.defined.has(name);
+    },
+    define() {},
+    whenDefined: async () => {},
+  },
   CSS: { escape: (s) => String(s) },
   console: { ...console, error() {} },
   setTimeout: () => 0,
@@ -207,4 +214,54 @@ test('labels come from the options flow translations, with the key as fallback',
   assert.equal(panel._s('step.settings.data.scan_interval', 'scan_interval'), 'scan_interval');
   panel._strings.en = { 'component.integration_watchdog.options.step.settings.data.scan_interval': 'Check interval' };
   assert.match(panel._number('scan_interval', 5, 'u_min'), /<span>Check interval<\/span>/);
+});
+
+test('start: the settings and labels are requested before the card has loaded, the card mounted once it is in', async () => {
+  const calls = [];
+  const panel = panelWith(null, calls);
+  panel._settings = null;
+  panel._strings = {};
+  panel._render = () => {}; // the stub shadow root has no elements
+  let release;
+  const imported = new Promise((resolve) => {
+    release = resolve;
+  });
+  const mounted = [];
+  context.customElements.defined.delete('integration-watchdog-card');
+  panel._importCard = () => imported.then(() => context.customElements.defined.add('integration-watchdog-card'));
+  panel._mountCard = () => mounted.push(true);
+  try {
+    const started = panel._start();
+    await Promise.resolve();
+    assert.deepEqual(
+      calls.map((msg) => msg.type),
+      ['integration_watchdog/settings', 'frontend/get_translations'],
+    );
+    assert.equal(mounted.length, 0);
+    release();
+    await started;
+    assert.equal(mounted.length, 1);
+  } finally {
+    context.customElements.defined.add('integration-watchdog-card');
+  }
+});
+
+test('start: a card that fails to load is logged, the settings still load', async () => {
+  const calls = [];
+  const panel = panelWith(null, calls);
+  panel._strings = {};
+  panel._render = () => {}; // the stub shadow root has no elements
+  context.customElements.defined.delete('integration-watchdog-card');
+  panel._importCard = () => Promise.reject(new Error('404'));
+  let mounted = false;
+  panel._mountCard = () => {
+    mounted = true;
+  };
+  try {
+    await panel._start();
+    assert.ok(!mounted);
+    assert.ok(calls.some((msg) => msg.type === 'integration_watchdog/settings'));
+  } finally {
+    context.customElements.defined.add('integration-watchdog-card');
+  }
 });
