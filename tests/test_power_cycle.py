@@ -56,9 +56,8 @@ def _device(hass: HomeAssistant, states: list[str]) -> str:
     return device.id
 
 
-def _set_device(hass: HomeAssistant, value: str) -> None:
-    device = dr.async_get(hass).async_get_device(identifiers={("box", "1")})
-    for entity in er.async_entries_for_device(er.async_get(hass), device.id):
+def _set_device(hass: HomeAssistant, device_id: str, value: str) -> None:
+    for entity in er.async_entries_for_device(er.async_get(hass), device_id):
         hass.states.async_set(entity.entity_id, value)
 
 
@@ -163,7 +162,7 @@ async def test_power_cycle_after_delay_then_backoff_then_give_up(
     await hass.async_block_till_done()
 
     # Back: once available for the current delay, it starts over (notification dismissed).
-    _set_device(hass, "12")
+    _set_device(hass, device_id, "12")
     await _check(hass)
     freezer.tick(timedelta(minutes=20))
     await _check(hass)
@@ -191,7 +190,7 @@ async def test_available_device_and_pause(hass: HomeAssistant, freezer: FrozenDa
     freezer.tick(timedelta(hours=1))
     await _check(hass)
     assert plug == []
-    _set_device(hass, STATE_UNAVAILABLE)
+    _set_device(hass, device_id, STATE_UNAVAILABLE)
     freezer.tick(timedelta(hours=1))
     await _check(hass)
     assert plug == []
