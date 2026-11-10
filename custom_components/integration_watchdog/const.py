@@ -48,6 +48,9 @@ EVENT_POWER_CYCLED: Final = f"{DOMAIN}_power_cycled"
 
 # The card bundled with the integration, served by Home Assistant and added to the dashboard resources.
 CARD_URL: Final = f"/{DOMAIN}/integration-watchdog-card.js"
+# The sidebar panel (administrators), served next to the card.
+PANEL_URL: Final = f"/{DOMAIN}/integration-watchdog-panel.js"
+PANEL_PATH: Final = "integration-watchdog"
 
 # Recent reloads (and give-ups) kept for the card, newest first, saved across restarts with the reload counts.
 HISTORY_SIZE: Final = 20

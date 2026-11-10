@@ -37,6 +37,7 @@ Some integrations lose their connection (cloud API, device reboot, expired sessi
 - **Check now** button and `integration_watchdog.check` action; `integration_watchdog.reset` action to start over on an integration
 - **Unavailable integrations** sensor with the list, **Last reload** sensor, **Last check** sensor
 - `integration_watchdog_reloaded` **event** for each reload, to notify or log
+- **Sidebar panel** (administrators), in three tabs: the status with the whole history, the power cycles (add, remove, see their state) and every setting
 - **Lovelace card** bundled with the integration: overall status, unavailable integrations and the recent reloads (kept across restarts)
 - **Mini card**: the status and the unavailable integrations on two lines, with a detail button showing the full card
 - One failing reload doesn't stop the others; two checks never run at the same time
@@ -85,7 +86,22 @@ Copy `custom_components/integration_watchdog/` to `/config/custom_components/int
 | Pause entity | none | An `input_boolean`, `switch`, `binary_sensor` or `schedule`: while it is on, nothing is reloaded (maintenance of the network, a planned outage, the night). The checks still run and list the unavailable integrations, and the *Unavailable integrations* sensor has `paused: true`; reloads start again at the first check after it turns off, the grace period counted from when each integration became unavailable |
 | Notify actions | none | Also send each notification with these actions (`notify.mobile_app_phone`…). A persistent notification is always created |
 
-**Configure** opens a menu: **Settings** (the options above), **Add a power cycle** and **Remove power cycles**.
+**Configure** opens a menu: **Settings** (the options above), **Add a power cycle** and **Remove power cycles**. Everything can also be changed from the [sidebar panel](#sidebar-panel).
+
+### Sidebar panel
+
+**Integration Watchdog** in the sidebar, for administrators only, has three tabs under its toolbar (the tab is in the address, `/integration-watchdog/settings`):
+
+- **Status**: the bundled card with the last 20 reloads and power cycles, its **Check now** and **Try again** buttons
+- **Power cycles**: each device with its plug and delays, whether it is available, unavailable or given up, a warning when its plug is off or unavailable, a link to the device and **Remove**; below, the form to add one (the devices already cycled and the plugs of the chosen device are not offered)
+- **Settings**: every option of **Configure** → **Settings**, saved at once
+
+The labels are the options flow's own, in the language of Home Assistant. Saving reloads the integration once; a field you have not edited follows a change made elsewhere (Configure, another administrator). Behind the panel are four admin-only WebSocket commands: `integration_watchdog/settings`, `integration_watchdog/update_settings`, `integration_watchdog/add_power_cycle` and `integration_watchdog/remove_power_cycle`. To hide the entry, long-press the sidebar title and hide **Integration Watchdog**, like any other panel.
+
+| Status | Power cycles | Settings |
+|---|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/panel.png" alt="sidebar panel, Status tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/panel-power-cycles.png" alt="sidebar panel, Power cycles tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/panel-settings.png" alt="sidebar panel, Settings tab" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/panel-dark.png" alt="sidebar panel, Status tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/panel-power-cycles-dark.png" alt="sidebar panel, Power cycles tab, dark theme" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-integration-watchdog/main/screenshots/panel-settings-dark.png" alt="sidebar panel, Settings tab, dark theme" width="400"> |
 
 ### Power cycles
 

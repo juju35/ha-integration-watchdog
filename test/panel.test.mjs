@@ -1,0 +1,210 @@
+// Unit tests for the sidebar panel: the panel file is evaluated with stubs, no browser needed.
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { test } from 'node:test';
+import vm from 'node:vm';
+
+const source = readFileSync(
+  new URL('../custom_components/integration_watchdog/frontend/integration-watchdog-panel.js', import.meta.url),
+  'utf8',
+);
+// attachShadow returns a root without elements: rendering is skipped (see _renderTabs)
+const shadow = { getElementById: () => null, querySelector: () => null };
+const context = {
+  HTMLElement: class {
+    attachShadow() {
+      this.shadowRoot = shadow;
+      return shadow;
+    }
+  },
+  customElements: { get: () => true, define() {} },
+  CSS: { escape: (s) => String(s) },
+  console: { ...console, error() {} },
+  setTimeout: () => 0,
+  clearTimeout() {},
+};
+vm.createContext(context);
+vm.runInContext(
+  `${source}\nthis.panel = { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides };`,
+  context,
+);
+const { IntegrationWatchdogPanel, IntegrationWatchdogPanelI18n, IW_PANEL_TABS, iwPanelT, iwPanelEsc, iwPanelTone, iwPanelOverrides } = context.panel;
+
+const LANGUAGES = [
+  'bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'fr', 'hu', 'it', 'lv', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sr', 'sr-Latn', 'sv', 'uk',
+];
+const plain = (x) => JSON.parse(JSON.stringify(x));
+const placeholders = (s) => [...String(s).matchAll(/\{\w+\}/g)].map((m) => m[0]).sort();
+
+test('panel i18n parity: every language has exactly the English keys and placeholders, and no empty text', () => {
+  const en = IntegrationWatchdogPanelI18n.en;
+  assert.deepEqual(Object.keys(IntegrationWatchdogPanelI18n).sort(), LANGUAGES);
+  for (const lang of LANGUAGES) {
+    const strings = IntegrationWatchdogPanelI18n[lang];
+    assert.deepEqual(Object.keys(strings).sort(), Object.keys(en).sort(), `keys of ${lang}`);
+    for (const key of Object.keys(en)) {
+      assert.ok(strings[key], `${lang}.${key} is empty`);
+      assert.deepEqual(placeholders(strings[key]), placeholders(en[key]), `placeholders of ${lang}.${key}`);
+    }
+  }
+});
+
+test('panel i18n Serbian: the Latin table is the Cyrillic one letter for letter, each in its own script', () => {
+  const cyr = 'абвгдђежзијклљмнњопрстћуфхцчџш';
+  const lat = ['a', 'b', 'v', 'g', 'd', 'đ', 'e', 'ž', 'z', 'i', 'j', 'k', 'l', 'lj', 'm', 'n', 'nj', 'o', 'p', 'r', 's', 't', 'ć', 'u', 'f', 'h', 'c', 'č', 'dž', 'š'];
+  const map = new Map();
+  [...cyr].forEach((c, i) => {
+    map.set(c, lat[i]);
+    map.set(c.toUpperCase(), lat[i][0].toUpperCase() + lat[i].slice(1));
+  });
+  for (const [key, text] of Object.entries(IntegrationWatchdogPanelI18n.sr)) {
+    assert.equal([...text].map((c) => map.get(c) ?? c).join(''), IntegrationWatchdogPanelI18n['sr-Latn'][key], key);
+    const latin = text.replace(/Integration Watchdog|Home Assistant|input_boolean|binary_sensor|switch|schedule|\{\w+\}/g, '');
+    assert.ok(!/[a-zA-Z]/.test(latin), `${key} in Cyrillic`);
+  }
+});
+
+test('helpers: text with placeholders and English fallback, escaping, entry tone, overrides compared as sets', () => {
+  assert.equal(iwPanelT('fr', 'pc_count', { n: 1, max: 3 }), 'redémarrages : 1/3');
+  assert.equal(iwPanelT('ja', 'save'), 'Save');
+  assert.equal(iwPanelEsc('<b a="x">'), '&#60;b a=&#34;x&#34;&#62;');
+  assert.equal(iwPanelTone('loaded'), 'good');
+  assert.equal(iwPanelTone('setup_error'), 'bad');
+  assert.equal(iwPanelOverrides('zha: 30\n\ntuya:90'), iwPanelOverrides('Tuya: 90, zha:30'));
+  assert.deepEqual(plain(IW_PANEL_TABS), ['status', 'power_cycles', 'settings']);
+});
+
+const options = {
+  scan_interval: 5,
+  grace_period: 15,
+  grace_overrides: 'zha: 30',
+  max_reloads: 3,
+  ignored_integrations: [],
+  ignored_entries: [],
+  pause_entity: null,
+  notify_services: ['notify.phone'],
+};
+
+function panelWith(settings, calls = []) {
+  const panel = new IntegrationWatchdogPanel();
+  panel._hass = {
+    language: 'en',
+    callWS: async (msg) => {
+      calls.push(msg);
+      if (msg.type === 'integration_watchdog/settings') return settings;
+      return { ok: true, options };
+    },
+  };
+  panel._settings = settings;
+  return panel;
+}
+
+const settings = () => ({
+  entry: { state: 'loaded' },
+  options: { ...options },
+  limits: { scan_interval: [1, 1440], grace_period: [1, 1440], max_reloads: [1, 10], delay: [1, 1440], off_time: [1, 300] },
+  defaults: { delay: 10, off_time: 10 },
+  power_cycles: [
+    { device_id: 'box', device_name: 'Internet box', switch: 'switch.box', switch_name: 'Box plug', switch_state: 'off', delay: 10, off_time: 10, unavailable: true, count: 1, gave_up: false },
+  ],
+  device_options: [
+    { value: 'box', label: 'Internet box', detail: '' },
+    { value: 'hub', label: 'Zigbee hub', detail: 'Hall' },
+  ],
+  switch_options: [
+    { value: 'switch.box', label: 'Box plug', detail: '', device_id: 'plug1' },
+    { value: 'switch.hub_led', label: 'Hub LED', detail: '', device_id: 'hub' },
+  ],
+  pause_options: [{ value: 'input_boolean.maintenance', label: 'Maintenance' }],
+  integration_options: [],
+  entry_options: [],
+  notify_options: ['notify.phone'],
+});
+
+test('settings: typed values over the stored ones; Save only once something valid changed', () => {
+  const panel = panelWith(settings());
+  assert.ok(!panel._changed());
+  panel._edit('grace_overrides', 'zha:30\n');
+  assert.ok(!panel._changed());
+  panel._edit('pause_entity', 'input_boolean.maintenance');
+  assert.ok(panel._changed());
+  panel._edit('scan_interval', '0');
+  assert.ok(!panel._valid());
+  panel._edit('scan_interval', '10');
+  assert.ok(panel._valid());
+});
+
+test('Save sends every setting with numbers, and the pause entity as null when none', async () => {
+  const calls = [];
+  const panel = panelWith(settings(), calls);
+  panel._edit('max_reloads', '4');
+  await panel._save();
+  assert.deepEqual(plain(calls[0]), {
+    type: 'integration_watchdog/update_settings',
+    scan_interval: 5,
+    grace_period: 15,
+    max_reloads: 4,
+    grace_overrides: 'zha: 30',
+    ignored_integrations: [],
+    ignored_entries: [],
+    pause_entity: null,
+    notify_services: ['notify.phone'],
+  });
+  assert.equal(panel._status.save.text, 'Saved');
+  assert.deepEqual(plain(panel._drafts), {});
+});
+
+test('power cycles: the list shows the plug, the delays, the state and a warning for a plug off', () => {
+  const panel = panelWith(settings());
+  const html = panel._cycleHtml(panel._settings.power_cycles[0]);
+  assert.match(html, /Internet box/);
+  assert.match(html, /Box plug · unavailable for 10 min · off for 10 s · power cycles: 1\/3/);
+  assert.match(html, /pill warn">Unavailable/);
+  assert.match(html, /Plug off: left alone/);
+  assert.match(html, /data-do="remove" data-device="box"/);
+  const gaveUp = panel._cycleHtml({ ...panel._settings.power_cycles[0], gave_up: true, switch_state: 'on' });
+  assert.match(gaveUp, /pill bad">Given up/);
+  assert.doesNotMatch(gaveUp, /Plug off/);
+});
+
+test('add form: devices already cycled and the plugs of the chosen device are not offered; Add sends the form', async () => {
+  const calls = [];
+  const panel = panelWith(settings(), calls);
+  let html = panel._addHtml();
+  assert.doesNotMatch(html, /value="box"/);
+  assert.match(html, /value="hub"/);
+  assert.match(html, /value="switch.hub_led"/);
+  panel._cycle.device_id = 'hub';
+  html = panel._addHtml();
+  assert.doesNotMatch(html, /value="switch.hub_led"/);
+  assert.ok(!panel._cycleValid());
+  panel._cycle.switch = 'switch.box';
+  panel._cycle.off_time = '20';
+  assert.ok(panel._cycleValid());
+  await panel._add();
+  assert.deepEqual(plain(calls[0]), {
+    type: 'integration_watchdog/add_power_cycle',
+    device_id: 'hub',
+    switch: 'switch.box',
+    delay: 10,
+    off_time: 20,
+  });
+  assert.equal(panel._status.cycle.text, 'Power cycle added');
+  assert.deepEqual(plain(panel._cycle), {});
+});
+
+test('errors: the panel text, else the options flow error of the same key, else the message', () => {
+  const panel = panelWith(settings());
+  panel._strings.en = { 'component.integration_watchdog.options.error.switch_on_device': 'The plug is on the device' };
+  assert.equal(panel._error({ error: 'unknown_device' }).text, 'Unknown device');
+  assert.equal(panel._error({ error: 'switch_on_device' }).text, 'The plug is on the device');
+  assert.equal(panel._error({ error: 'other', message: 'boom' }).text, 'boom');
+  assert.equal(panel._error(null).text, 'Something went wrong');
+});
+
+test('labels come from the options flow translations, with the key as fallback', () => {
+  const panel = panelWith(settings());
+  assert.equal(panel._s('step.settings.data.scan_interval', 'scan_interval'), 'scan_interval');
+  panel._strings.en = { 'component.integration_watchdog.options.step.settings.data.scan_interval': 'Check interval' };
+  assert.match(panel._number('scan_interval', 5, 'u_min'), /<span>Check interval<\/span>/);
+});

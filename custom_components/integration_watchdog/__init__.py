@@ -47,12 +47,14 @@ from .const import (
     DEFAULT_OFF_TIME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    PANEL_URL,
     SERVICE_CHECK,
     SERVICE_RESET,
     STORAGE_KEY,
     STORAGE_VERSION,
     VERSION,
 )
+from .panel import async_register_panel
 from .watchdog import IntegrationWatchdog, PowerCycle, device_notification_id, notification_id
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,21 +66,19 @@ type IntegrationWatchdogConfigEntry = ConfigEntry[IntegrationWatchdog]
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Serve the card, load it on every dashboard and register the check action (admin: it reloads integrations)."""
+    """Serve the card and the sidebar panel, load the card on every dashboard and register the actions (admin)."""
     # The release splits the card translations into <file>.i18n.<lang>.js files (scripts/split-frontend.mjs):
     # served next to the card, which fetches the one it needs. A git checkout has none.
-    languages = await hass.async_add_executor_job(_language_files, Path(__file__).parent / "frontend")
+    frontend = Path(__file__).parent / "frontend"
+    languages = await hass.async_add_executor_job(_language_files, frontend)
     await hass.http.async_register_static_paths(
         [
-            StaticPathConfig(CARD_URL, str(Path(__file__).parent / "frontend" / "integration-watchdog-card.js"), True),
-            *(
-                StaticPathConfig(
-                    f"{CARD_URL.rsplit('/', 1)[0]}/{name}", str(Path(__file__).parent / "frontend" / name), True
-                )
-                for name in languages
-            ),
+            StaticPathConfig(CARD_URL, str(frontend / "integration-watchdog-card.js"), True),
+            StaticPathConfig(PANEL_URL, str(frontend / "integration-watchdog-panel.js"), True),
+            *(StaticPathConfig(f"/{DOMAIN}/{name}", str(frontend / name), True) for name in languages),
         ]
     )
+    await async_register_panel(hass)
 
     async def _register(_: Event | None = None) -> None:
         if not await _async_register_resource(hass):
