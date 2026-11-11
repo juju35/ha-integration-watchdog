@@ -218,6 +218,10 @@
           "reload_started": "**{title}** pārlāde ir sākta: tās pārlādes ir atiestatītas, un Integration Watchdog sāk no jauna. Šī problēma pazūd, tiklīdz sākas pārlāde; kļūda ir redzama žurnālos."
         }
       }
+    },
+    "system_hub_installed": {
+      "title": "{name} tagad ir daļa no System Hub",
+      "description": "System Hub ir iestatīts šajā Home Assistant un darbina {name} kā vienu no saviem moduļiem. Šī repozitorija vairs netiek uzturēta.\n\nJa ir iestatīti abi, {name} darbojas divreiz un tā kartītes tiek reģistrētas divreiz. Ieslēdziet moduli System Hub (tas pārņem {name} iestatījumus), pēc tam noņemiet {name} un tā kartītes resursu. Skatiet [Migrating]({url})."
     }
   }
 }

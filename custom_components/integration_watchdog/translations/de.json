@@ -218,6 +218,10 @@
           "reload_started": "**{title}** wird neu geladen: Die Neuladevorgänge wurden zurückgesetzt und Integration Watchdog beginnt von vorn. Dieses Problem verschwindet, sobald das Neuladen beginnt; ein Fehler steht in den Protokollen."
         }
       }
+    },
+    "system_hub_installed": {
+      "title": "{name} ist jetzt Teil von System Hub",
+      "description": "System Hub ist in diesem Home Assistant eingerichtet und führt {name} als eines seiner Module aus. Dieses Repository wird nicht mehr gepflegt.\n\nSind beide eingerichtet, läuft {name} doppelt und seine Karten werden doppelt registriert. Aktiviere das Modul in System Hub (es übernimmt die Einstellungen von {name}) und entferne dann {name} und die Ressource seiner Karte. Siehe [Migrating]({url})."
     }
   }
 }

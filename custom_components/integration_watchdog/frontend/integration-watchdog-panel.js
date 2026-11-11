@@ -11,7 +11,7 @@
  *
  * https://github.com/juju35/ha-integration-watchdog
  */
-var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.10.0';
+var INTEGRATION_WATCHDOG_PANEL_VERSION = '1.11.0';
 
 // Rows shown at most by a device or plug picker: the search narrows the rest down
 var IW_PANEL_PICK_MAX = 50;
