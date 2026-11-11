@@ -218,6 +218,10 @@
           "reload_started": "Rechargement de **{title}** lancé : ses rechargements ont été réinitialisés et Integration Watchdog recommence. Ce problème disparaît dès le début du rechargement ; un échec figure dans les journaux."
         }
       }
+    },
+    "system_hub_installed": {
+      "title": "{name} fait désormais partie de System Hub",
+      "description": "System Hub est configuré sur ce Home Assistant et fait tourner {name} comme l'un de ses modules. Ce dépôt n'est plus maintenu.\n\nAvec les deux configurés, {name} tourne deux fois et ses cartes sont enregistrées deux fois. Activez le module dans System Hub (il reprend les réglages de {name}), puis supprimez {name} et la ressource de sa carte. Voir [Migrating]({url})."
     }
   }
 }

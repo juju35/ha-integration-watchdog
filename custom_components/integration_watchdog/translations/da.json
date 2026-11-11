@@ -218,6 +218,10 @@
           "reload_started": "Genindlæser **{title}**: dens genindlæsninger blev nulstillet, og Integration Watchdog starter forfra. Dette problem forsvinder, så snart genindlæsningen starter; en fejl står i logfilerne."
         }
       }
+    },
+    "system_hub_installed": {
+      "title": "{name} er nu en del af System Hub",
+      "description": "System Hub er sat op i denne Home Assistant og kører {name} som et af sine moduler. Dette repository vedligeholdes ikke længere.\n\nNår begge er sat op, kører {name} to gange, og dets kort registreres to gange. Slå modulet til i System Hub (det overtager indstillingerne fra {name}), og fjern derefter {name} og ressourcen til dets kort. Se [Migrating]({url})."
     }
   }
 }
